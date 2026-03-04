@@ -56,12 +56,27 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data: all } = await supabase.from('courts').select('*')
+      // 1. ดึงข้อมูลสนามทั้งหมด (เอาเฉพาะที่อนุมัติแล้ว และเรียงจากใหม่สุดไปเก่าสุด)
+      const { data: all } = await supabase
+        .from('courts')
+        .select('*')
+        .eq('status', 'approved') // ✅ ซ่อนสนามที่กำลัง pending
+        .order('created_at', { ascending: false }) // ✅ เรียงเอาสนามใหม่ขึ้นก่อน
+        
       if (all) setAllCourts(all)
 
-      const { data: featured } = await supabase.from('courts').select('*').order('is_featured', { ascending: false }).limit(6)
+      // 2. ดึงข้อมูลสนามแนะนำ (เอาเฉพาะที่อนุมัติแล้วเช่นกัน)
+      const { data: featured } = await supabase
+        .from('courts')
+        .select('*')
+        .eq('status', 'approved') // ✅ ป้องกันสนาม pending หลุดมาโชว์ในช่องแนะนำ
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false }) // ✅ ถ้าไม่ใช่สนามแนะนำ ให้เรียงตามความใหม่
+        .limit(6)
+        
       if (featured) setFeaturedCourts(featured)
 
+      // 3. ดึงข้อมูลบทความและกระทู้ (อันนี้คุณทำไว้เรียงตามใหม่ล่าสุดอยู่แล้ว เยี่ยมเลยครับ)
       const { data: a } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(3)
       const { data: f } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false }).limit(4)
       

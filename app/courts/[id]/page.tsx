@@ -4,37 +4,90 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-// ✅ เพิ่ม Shield (ความปลอดภัย/ประเภท) และ User (คนเพิ่มข้อมูล)
-import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, User } from 'lucide-react'
+// ✅ เพิ่ม MessageSquare, Send, UserCircle สำหรับระบบคอมเมนต์
+import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, User, MessageSquare, Send, UserCircle } from 'lucide-react'
 
 export default function CourtDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
+  // ✅ 1. เพิ่ม State สำหรับเก็บข้อมูลคอมเมนต์
+  const [comments, setComments] = useState<any[]>([])
+  const [newComment, setNewComment] = useState('')
+  const [username, setUsername] = useState('')
+  const [submittingComment, setSubmittingComment] = useState(false)
+
   useEffect(() => {
-    async function fetchCourt() {
+    async function fetchData() {
       if (!params?.id) return
       try {
-        const { data, error } = await supabase
+        // ดึงข้อมูลสนาม
+        const { data: courtData, error: courtError } = await supabase
           .from('courts')
           .select('*')
           .eq('id', params.id)
           .single()
 
-        if (error) throw error
-        if (data) setCourt(data)
+        if (courtError) throw courtError
+        if (courtData) setCourt(courtData)
+
+        // ✅ 2. ดึงข้อมูลคอมเมนต์ของสนามนี้ เรียงจากใหม่ไปเก่า
+        const { data: commentsData, error: commentsError } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('court_id', params.id)
+          .order('created_at', { ascending: false })
+
+        if (!commentsError && commentsData) {
+          setComments(commentsData)
+        }
       } catch (error) {
-        console.error('Error fetching court:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchCourt()
+    fetchData()
   }, [params])
+
+  // ✅ 3. ฟังก์ชันสำหรับกดส่งคอมเมนต์เข้าฐานข้อมูล
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newComment.trim()) return
+    
+    setSubmittingComment(true)
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .insert([{
+          court_id: params?.id,
+          user_name: username.trim() || 'Anonymous',
+          content: newComment.trim()
+        }])
+
+      if (error) throw error
+      
+      // ดึงคอมเมนต์มาอัปเดตหน้าจอใหม่หลังจากกดส่ง
+      const { data } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('court_id', params?.id)
+        .order('created_at', { ascending: false })
+      
+      if (data) setComments(data)
+      
+      // ล้างช่องกรอกข้อความ
+      setNewComment('')
+      setUsername('')
+    } catch (error: any) {
+      alert('Error posting review: ' + error.message)
+    } finally {
+      setSubmittingComment(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -106,7 +159,6 @@ export default function CourtDetailPage() {
               <ArrowLeft size={14} strokeWidth={3} /> Back to All Courts
             </Link>
             
-            {/* ✅ เพิ่ม Tag แสดง Public/Private Court แบบโปร่งแสง */}
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="bg-[#CCFF00] text-slate-900 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
                 {court.surface || 'Tennis Court'}
@@ -130,7 +182,7 @@ export default function CourtDetailPage() {
       <section className="container mx-auto px-4 max-w-5xl -mt-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* ซ้าย: รายละเอียดสนามและแกลลอรี่ */}
+          {/* ซ้าย: รายละเอียดสนาม แกลลอรี่ และคอมเมนต์ */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
               <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
@@ -161,6 +213,68 @@ export default function CourtDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* ✅ 4. กล่องรีวิว คอมเมนต์ */}
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+                <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
+              </h2>
+
+              {/* ฟอร์มกรอกคอมเมนต์ */}
+              <form onSubmit={handleCommentSubmit} className="mb-8 space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                <div className="flex items-center gap-3 mb-2">
+                   <UserCircle className="text-slate-400" size={20} />
+                   <input 
+                     type="text" 
+                     placeholder="Your Name (Optional)" 
+                     value={username}
+                     onChange={(e) => setUsername(e.target.value)}
+                     className="bg-transparent border-b-2 border-slate-200 focus:border-[#CCFF00] outline-none text-sm font-bold pb-1 w-full md:w-64 transition-colors"
+                   />
+                </div>
+                <textarea 
+                  placeholder="Share your experience or ask a question..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  required
+                  rows={3}
+                  className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 text-sm font-medium text-slate-700 focus:border-[#CCFF00] outline-none resize-none transition-colors shadow-inner"
+                ></textarea>
+                <div className="flex justify-end">
+                  <button 
+                    type="submit"
+                    disabled={submittingComment}
+                    className="bg-slate-900 text-[#CCFF00] px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors disabled:opacity-50"
+                  >
+                    <Send size={14} /> {submittingComment ? 'Posting...' : 'Post Review'}
+                  </button>
+                </div>
+              </form>
+
+              {/* รายการคอมเมนต์ */}
+              <div className="space-y-4">
+                {comments.length === 0 ? (
+                  <p className="text-center text-slate-400 font-medium text-sm py-8 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    No reviews yet. Be the first to share your experience!
+                  </p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="p-6 rounded-3xl bg-slate-50 border border-slate-100">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="font-bold text-slate-900 flex items-center gap-2">
+                          <UserCircle size={18} className="text-[#CCFF00]" /> {comment.user_name || 'Anonymous'}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full shadow-sm">
+                          {new Date(comment.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 text-sm leading-relaxed">{comment.content}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
           </div>
 
           {/* ขวา: แผงข้อมูลการติดต่อ */}
@@ -169,8 +283,6 @@ export default function CourtDetailPage() {
               <h3 className="text-xl font-black uppercase italic tracking-widest text-[#CCFF00] mb-8">Court Info</h3>
               
               <div className="space-y-6">
-                
-                {/* 1. Rate */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <DollarSign size={20} className="text-[#CCFF00]" />
@@ -181,7 +293,6 @@ export default function CourtDetailPage() {
                   </div>
                 </div>
 
-                {/* 2. Contact */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <Phone size={20} className="text-[#CCFF00]" />
@@ -192,7 +303,6 @@ export default function CourtDetailPage() {
                   </div>
                 </div>
 
-                {/* ✅ 3. Court Access (Public / Private) */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <Shield size={20} className="text-[#CCFF00]" />
@@ -203,7 +313,6 @@ export default function CourtDetailPage() {
                   </div>
                 </div>
 
-                {/* 4. Surface */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <Navigation size={20} className="text-[#CCFF00]" />
@@ -214,7 +323,6 @@ export default function CourtDetailPage() {
                   </div>
                 </div>
 
-                {/* ✅ 5. Added By */}
                 <div className="flex items-start gap-4 pt-4 border-t border-white/10 mt-2">
                   <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
                     <User size={18} className="text-slate-400" />

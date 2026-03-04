@@ -107,7 +107,9 @@ export default function AddCourtPage() {
           longitude: lng,
           // ✅ ดึงข้อมูล Court Type และ Submitted By
           court_type: formData.get('court_type') || 'Public',
-          submitted_by: formData.get('submitted_by') || 'Anonymous'
+          submitted_by: formData.get('submitted_by') || 'Anonymous',
+          // ✅ เพิ่มบรรทัดนี้ลงไป เพื่อบอกว่าสนามนี้เพิ่งเพิ่ม ต้องรอแอดมินตรวจก่อน!
+          status: 'pending' 
         }])
 
       if (insertError) throw insertError

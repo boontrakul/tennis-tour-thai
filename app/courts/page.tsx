@@ -49,8 +49,9 @@ function CourtsContent() {
     async function fetchCourts() {
       setLoading(true)
       const { data, error } = await supabase
-        .from('courts')
-        .select('*')
+  .from('courts')
+  .select('*')
+  .eq('status', 'approved') // ✅ เติมบรรทัดนี้เข้าไปครับ!
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
 

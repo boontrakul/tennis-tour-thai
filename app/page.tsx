@@ -109,6 +109,23 @@ export default function HomePage() {
     return matchAccess && matchSurface
   })
 
+  const getTagColor = (tag) => {
+    switch (tag) {
+      case 'หาเพื่อนตีเทนนิส':
+        return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'รีวิวอุปกรณ์เทนนิส':
+        return 'bg-purple-50 text-purple-600 border-purple-100';
+      case 'รีวิวสนามเทนนิส':
+        return 'bg-green-50 text-green-600 border-green-100';
+      case 'เทคนิคและการฝึกซ้อม':
+        return 'bg-orange-50 text-orange-600 border-orange-100';
+      default:
+        return 'bg-slate-50 text-slate-600 border-slate-100';
+    }
+  };
+    }
+  };
+  
   return (
     <main className="min-h-screen bg-white pb-10">
       

@@ -102,24 +102,21 @@ export default function HomePage() {
     return matchAccess && matchSurface
   })
 
-  // ฟังก์ชันเลือกสี Tag สำหรับ Forum
   const getTagColor = (tag: string) => {
-    switch (tag) {
-      case 'หาเพื่อนตีเทนนิส':
-        return 'bg-blue-50 text-blue-600 border-blue-100';
-      case 'รีวิวอุปกรณ์เทนนิส':
-        return 'bg-purple-50 text-purple-600 border-purple-100';
-      case 'รีวิวสนามเทนนิส':
-        return 'bg-green-50 text-green-600 border-green-100';
-      case 'เทคนิคและการฝึกซ้อม':
-        return 'bg-orange-50 text-orange-600 border-orange-100';
-      default:
-        return 'bg-slate-50 text-slate-600 border-slate-100';
-    }
+    if (!tag) return 'bg-slate-50 text-slate-600 border-slate-100';
+    
+    // ลบช่องว่างออกเพื่อให้เทียบคำง่ายขึ้น
+    const cleanTag = tag.trim();
+
+    if (cleanTag.includes('หาเพื่อน')) return 'bg-blue-50 text-blue-600 border-blue-100';
+    if (cleanTag.includes('อุปกรณ์')) return 'bg-purple-50 text-purple-600 border-purple-100';
+    if (cleanTag.includes('สนาม')) return 'bg-green-50 text-green-600 border-green-100';
+    if (cleanTag.includes('เทคนิค') || cleanTag.includes('Training')) return 'bg-orange-50 text-orange-600 border-orange-100';
+    if (cleanTag.includes('Nutrition')) return 'bg-lime-50 text-lime-600 border-lime-100';
+    if (cleanTag.includes('Pro Tour')) return 'bg-rose-50 text-rose-600 border-rose-100';
+    
+    return 'bg-slate-50 text-slate-600 border-slate-100';
   };
-  
-  return (
-    <main className="min-h-screen bg-white pb-10">
       
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
@@ -304,7 +301,9 @@ export default function HomePage() {
                            </div>
                            <div className="flex flex-col justify-center">
                               <div className="flex items-center gap-2 mb-1.5 text-[10px] font-black uppercase text-slate-400">
-                                <span className="text-[#84cc16]">{article.category}</span>
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${getTagColor(article.category)}`}>
+  {article.category}
+</span>
                                 <span>{timeAgo(article.created_at)}</span>
                               </div>
                               <h3 className="text-[18px] font-black text-slate-900 group-hover:text-[#CCFF00] line-clamp-2 leading-tight">{article.title}</h3>
@@ -324,8 +323,8 @@ export default function HomePage() {
                            <div className="flex items-center gap-3 mb-2">
                               {/* ส่วนที่แก้ใหม่: เพิ่มสีสันให้ Tag */}
                               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded shadow-sm border ${getTagColor(post.category)}`}>
-                                {post.category}
-                              </span>
+  {post.category}
+</span>
                               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 <span>by {post.author_name}</span>
                                 <span className="ml-2">{timeAgo(post.created_at)}</span>

@@ -181,11 +181,11 @@ export default function CourtDetailPage() {
       {/* --- MAIN CONTENT --- */}
       <section className="container mx-auto px-4 max-w-5xl -mt-8 relative z-10">
         
-        {/* ✅ ปรับ Container เป็น Flex บนมือถือ (เพื่อใช้ order) และเป็น Grid บนคอม */}
-        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
+        {/* ✅ ใช้ Grid พื้นฐาน และเรียงโค้ดใหม่เลย (แก้ปัญหาเรียงผิด 100%) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* 1. About Facility (ลำดับ 1 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
-          <div className="order-1 lg:order-1 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+          <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
             <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
             </h2>
@@ -194,8 +194,8 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {/* 2. Court Info & Map (ลำดับ 2 บนมือถือ / อยู่ฝั่งขวาและกินพื้นที่ยาว 3 แถวบนคอม) */}
-          <div className="order-2 lg:order-2 lg:col-span-1 lg:row-span-3 space-y-6">
+          {/* 2. Court Info & Map (ลำดับ 2 ดันขึ้นมาตรงนี้เลย! / อยู่ฝั่งขวาและกินพื้นที่ยาว 3 แถวบนคอม) */}
+          <div className="lg:col-span-1 lg:row-span-3 space-y-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-900/20 text-white">
               <h3 className="text-xl font-black uppercase italic tracking-widest text-[#CCFF00] mb-8">Court Info</h3>
               
@@ -267,7 +267,7 @@ export default function CourtDetailPage() {
 
           {/* 3. Court Gallery (ลำดับ 3 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
           {galleryImages.length > 0 && (
-            <div className="order-3 lg:order-3 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+            <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
               <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
                 <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
               </h2>
@@ -287,7 +287,7 @@ export default function CourtDetailPage() {
           )}
 
           {/* 4. Community Reviews (ลำดับ 4 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
-          <div className="order-4 lg:order-4 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+          <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
             <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
               <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
             </h2>

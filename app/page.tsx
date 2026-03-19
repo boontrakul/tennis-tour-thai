@@ -145,7 +145,7 @@ export default function HomePage() {
                  <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
                  <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Interactive Discovery</span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
                 Explore <span className="text-[#84cc16]">Tennis Map</span>
               </h2>
             </div>

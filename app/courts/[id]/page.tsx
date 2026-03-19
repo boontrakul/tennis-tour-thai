@@ -168,7 +168,7 @@ export default function CourtDetailPage() {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-tight drop-shadow-lg">
+            <h1 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-tight drop-shadow-lg">
               {court.name}
             </h1>
             <p className="text-slate-300 mt-4 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
@@ -186,7 +186,7 @@ export default function CourtDetailPage() {
           
           {/* 1. About Facility (ลำดับ 1 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
           <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-            <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+            <h2 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
             </h2>
             <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
@@ -268,7 +268,7 @@ export default function CourtDetailPage() {
           {/* 3. Court Gallery (ลำดับ 3 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
           {galleryImages.length > 0 && (
             <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+              <h2 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
                 <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -288,7 +288,7 @@ export default function CourtDetailPage() {
 
           {/* 4. Community Reviews (ลำดับ 4 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
           <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-            <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+            <h2 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
               <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
             </h2>
 

@@ -84,7 +84,7 @@ export default function ArticlesPage() {
           <span className="bg-[#CCFF00] text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg mb-6 inline-block">
             The Blog
           </span>
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none mb-4">
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic leading-none mb-4">
             Tennis <span className="text-[#CCFF00]">Tour Thai</span>
           </h1>
           <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] max-w-xl mx-auto">

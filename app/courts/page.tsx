@@ -92,7 +92,7 @@ function CourtsContent() {
       <section className="bg-slate-900 pt-32 pb-16 text-center text-white relative overflow-hidden shadow-xl">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#CCFF00]/10 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none mb-4">
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic leading-none mb-4">
             Tennis <span className="text-[#CCFF00]">Courts</span>
           </h1>
           <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
@@ -200,7 +200,7 @@ function CourtsContent() {
         ) : filteredCourts.length === 0 ? (
           <div className="text-center py-32 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
              <span className="text-6xl mb-4 block">🎾</span>
-             <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-2">No Courts Found</h3>
+             <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic mb-2">No Courts Found</h3>
              <p className="text-slate-500 font-bold text-sm">Try adjusting your filters or search query.</p>
           </div>
         ) : viewMode === 'map' ? (

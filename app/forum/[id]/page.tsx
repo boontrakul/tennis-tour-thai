@@ -161,7 +161,7 @@ export default function ForumDetailPage() {
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-8 ml-4">
             <div className="w-2 h-6 bg-[#CCFF00] rounded-full shadow-[0_0_15px_rgba(204,255,0,0.5)]"></div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Replies</h2>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">Replies</h2>
           </div>
           
           <div className="space-y-6">

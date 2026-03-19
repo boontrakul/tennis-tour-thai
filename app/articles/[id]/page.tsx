@@ -38,7 +38,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-[1.1] mb-8 drop-shadow-2xl">
+          <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter leading-[1.1] mb-8 drop-shadow-2xl">
             {article.title}
           </h1>
 

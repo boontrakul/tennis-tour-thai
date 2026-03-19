@@ -28,7 +28,7 @@ export default function UpdatePassword() {
   return (
     <main className="min-h-screen pt-32 flex items-center justify-center bg-slate-50 px-4">
       <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-slate-100 w-full max-w-md text-center">
-        <h1 className="text-2xl font-black uppercase italic mb-8">Set New <span className="text-[#CCFF00]">Password</span></h1>
+        <h1 className="text-xl md:text-2xl font-black uppercase italic mb-8">Set New <span className="text-[#CCFF00]">Password</span></h1>
         <form onSubmit={handleUpdate} className="space-y-4">
           <div className="relative group text-left">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-[#84cc16]">

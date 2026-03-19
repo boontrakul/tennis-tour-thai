@@ -263,7 +263,7 @@ export default function HomePage() {
         <div className="flex justify-between items-end mb-10">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
-            <h2 className="text-2xl font-black text-slate-900 uppercase italic">Recommended Courts</h2>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic">Recommended Courts</h2>
           </div>
           <Link href="/courts" className="group flex items-center gap-1.5 text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">
             View All Courts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

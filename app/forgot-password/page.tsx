@@ -35,7 +35,7 @@ export default function ForgotPassword() {
           <Lock size={28} />
         </div>
         
-        <h1 className="text-2xl font-black uppercase italic tracking-tighter mb-2">
+        <h1 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter mb-2">
           Forgot <span className="text-[#84cc16]">Password?</span>
         </h1>
         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-8">

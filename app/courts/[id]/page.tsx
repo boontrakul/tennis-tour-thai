@@ -180,105 +180,22 @@ export default function CourtDetailPage() {
 
       {/* --- MAIN CONTENT --- */}
       <section className="container mx-auto px-4 max-w-5xl -mt-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* ✅ ปรับ Container เป็น Flex บนมือถือ (เพื่อใช้ order) และเป็น Grid บนคอม */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
           
-          {/* ซ้าย: รายละเอียดสนาม แกลลอรี่ และคอมเมนต์ */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
-                <Tag className="text-[#CCFF00]" size={24} /> About Facility
-              </h2>
-              <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
-                {court.description || "No description provided for this court."}
-              </div>
+          {/* 1. About Facility (ลำดับ 1 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
+          <div className="order-1 lg:order-1 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+            <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+              <Tag className="text-[#CCFF00]" size={24} /> About Facility
+            </h2>
+            <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
+              {court.description || "No description provided for this court."}
             </div>
-
-            {/* Gallery */}
-            {galleryImages.length > 0 && (
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-                <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
-                  <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {galleryImages.map((img: string, index: number) => (
-                    <div 
-                      key={index} 
-                      onClick={() => setSelectedIndex(index)} 
-                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-slate-100 border border-slate-100"
-                    >
-                      <img src={img} alt={`${court.name} - Photo ${index + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ✅ 4. กล่องรีวิว คอมเมนต์ */}
-            <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
-                <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
-              </h2>
-
-              {/* ฟอร์มกรอกคอมเมนต์ */}
-              <form onSubmit={handleCommentSubmit} className="mb-8 space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                <div className="flex items-center gap-3 mb-2">
-                   <UserCircle className="text-slate-400" size={20} />
-                   <input 
-                     type="text" 
-                     placeholder="Your Name (Optional)" 
-                     value={username}
-                     onChange={(e) => setUsername(e.target.value)}
-                     className="bg-transparent border-b-2 border-slate-200 focus:border-[#CCFF00] outline-none text-sm font-bold pb-1 w-full md:w-64 transition-colors"
-                   />
-                </div>
-                <textarea 
-                  placeholder="Share your experience or ask a question..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  required
-                  rows={3}
-                  className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 text-sm font-medium text-slate-700 focus:border-[#CCFF00] outline-none resize-none transition-colors shadow-inner"
-                ></textarea>
-                <div className="flex justify-end">
-                  <button 
-                    type="submit"
-                    disabled={submittingComment}
-                    className="bg-slate-900 text-[#CCFF00] px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors disabled:opacity-50"
-                  >
-                    <Send size={14} /> {submittingComment ? 'Posting...' : 'Post Review'}
-                  </button>
-                </div>
-              </form>
-
-              {/* รายการคอมเมนต์ */}
-              <div className="space-y-4">
-                {comments.length === 0 ? (
-                  <p className="text-center text-slate-400 font-medium text-sm py-8 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                    No reviews yet. Be the first to share your experience!
-                  </p>
-                ) : (
-                  comments.map((comment) => (
-                    <div key={comment.id} className="p-6 rounded-3xl bg-slate-50 border border-slate-100">
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="font-bold text-slate-900 flex items-center gap-2">
-                          <UserCircle size={18} className="text-[#CCFF00]" /> {comment.user_name || 'Anonymous'}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full shadow-sm">
-                          {new Date(comment.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-slate-600 text-sm leading-relaxed">{comment.content}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
           </div>
 
-          {/* ขวา: แผงข้อมูลการติดต่อ */}
-          <div className="space-y-6">
+          {/* 2. Court Info & Map (ลำดับ 2 บนมือถือ / อยู่ฝั่งขวาและกินพื้นที่ยาว 3 แถวบนคอม) */}
+          <div className="order-2 lg:order-2 lg:col-span-1 lg:row-span-3 space-y-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-900/20 text-white">
               <h3 className="text-xl font-black uppercase italic tracking-widest text-[#CCFF00] mb-8">Court Info</h3>
               
@@ -344,6 +261,88 @@ export default function CourtDetailPage() {
                 >
                   <MapPin size={16} /> Open in Maps <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                 </a>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Court Gallery (ลำดับ 3 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
+          {galleryImages.length > 0 && (
+            <div className="order-3 lg:order-3 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+              <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+                <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {galleryImages.map((img: string, index: number) => (
+                  <div 
+                    key={index} 
+                    onClick={() => setSelectedIndex(index)} 
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer bg-slate-100 border border-slate-100"
+                  >
+                    <img src={img} alt={`${court.name} - Photo ${index + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 4. Community Reviews (ลำดับ 4 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
+          <div className="order-4 lg:order-4 lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
+            <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+              <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
+            </h2>
+
+            {/* ฟอร์มกรอกคอมเมนต์ */}
+            <form onSubmit={handleCommentSubmit} className="mb-8 space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+              <div className="flex items-center gap-3 mb-2">
+                 <UserCircle className="text-slate-400" size={20} />
+                 <input 
+                   type="text" 
+                   placeholder="Your Name (Optional)" 
+                   value={username}
+                   onChange={(e) => setUsername(e.target.value)}
+                   className="bg-transparent border-b-2 border-slate-200 focus:border-[#CCFF00] outline-none text-sm font-bold pb-1 w-full md:w-64 transition-colors"
+                 />
+              </div>
+              <textarea 
+                placeholder="Share your experience or ask a question..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                required
+                rows={3}
+                className="w-full bg-white border-2 border-slate-100 rounded-2xl p-4 text-sm font-medium text-slate-700 focus:border-[#CCFF00] outline-none resize-none transition-colors shadow-inner"
+              ></textarea>
+              <div className="flex justify-end">
+                <button 
+                  type="submit"
+                  disabled={submittingComment}
+                  className="bg-slate-900 text-[#CCFF00] px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors disabled:opacity-50"
+                >
+                  <Send size={14} /> {submittingComment ? 'Posting...' : 'Post Review'}
+                </button>
+              </div>
+            </form>
+
+            {/* รายการคอมเมนต์ */}
+            <div className="space-y-4">
+              {comments.length === 0 ? (
+                <p className="text-center text-slate-400 font-medium text-sm py-8 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                  No reviews yet. Be the first to share your experience!
+                </p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="p-6 rounded-3xl bg-slate-50 border border-slate-100">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="font-bold text-slate-900 flex items-center gap-2">
+                        <UserCircle size={18} className="text-[#CCFF00]" /> {comment.user_name || 'Anonymous'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-white px-3 py-1 rounded-full shadow-sm">
+                        {new Date(comment.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed">{comment.content}</p>
+                  </div>
+                ))
               )}
             </div>
           </div>

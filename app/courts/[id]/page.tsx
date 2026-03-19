@@ -186,7 +186,7 @@ export default function CourtDetailPage() {
           
           {/* 1. About Facility (ลำดับ 1 บนมือถือ / กินพื้นที่ 2 คอลัมน์ซ้ายบนคอม) */}
           <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100">
-            <h2 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+            <h2 className="!text-xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 flex items-center gap-3">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
             </h2>
             <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
@@ -197,7 +197,7 @@ export default function CourtDetailPage() {
           {/* 2. Court Info & Map (ลำดับ 2 ดันขึ้นมาตรงนี้เลย! / อยู่ฝั่งขวาและกินพื้นที่ยาว 3 แถวบนคอม) */}
           <div className="lg:col-span-1 lg:row-span-3 space-y-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-900/20 text-white">
-              <h3 className="text-xl font-black uppercase italic tracking-widest text-[#CCFF00] mb-8">Court Info</h3>
+              <h3 className="!text-xl font-black uppercase italic tracking-widest text-[#CCFF00] mb-8">Court Info</h3>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

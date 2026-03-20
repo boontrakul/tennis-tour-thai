@@ -117,29 +117,39 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white pb-10">
       
-      {/* HERO SECTION */}
-      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-8">
-            <span className="text-sm">🎾</span>
-            <span className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest">Thailand's #1 Tennis Community</span>
-          </div>
-          <h1 className="text-3xl md:text-6xl font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
-            Find the Perfect <br />
-            <span className="text-[#CCFF00] drop-shadow-[0_0_30px_rgba(204,255,0,0.3)]">Tennis Court for You</span>
-          </h1>
-          <form onSubmit={handleSearch} className="max-w-xl mx-auto">
-            <div className="bg-white p-2 rounded-2xl flex items-center shadow-2xl border-2 border-white/5 focus-within:border-[#CCFF00] transition-all">
-              <div className="flex items-center gap-3 px-3 flex-grow text-slate-900">
-                <Search className="text-slate-400" size={20} />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search courts by name or location..." className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-base outline-none" />
-              </div>
-              <button type="submit" className="bg-[#CCFF00] text-slate-900 px-8 py-3 rounded-xl font-black text-xs uppercase shadow-md hover:scale-105 transition-all">Search</button>
-            </div>
-          </form>
+      {/* --- HERO SECTION --- */}
+<section className="relative pt-32 pb-16 md:pt-36 md:pb-24 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
+  <div className="container mx-auto px-4 max-w-7xl relative z-10">
+    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-6">
+      <span className="text-sm">🎾</span>
+      <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's #1 Tennis Community</span>
+    </div>
+    
+    {/* หัวข้อที่เล็กลงและตั้งตรง */}
+    <h1 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase leading-[1.2] tracking-tighter">
+      Find the Perfect <br />
+      <span className="text-[#CCFF00] drop-shadow-[0_0_20px_rgba(204,255,0,0.2)]">Tennis Court for You</span>
+    </h1>
+
+    <form onSubmit={handleSearch} className="max-w-lg mx-auto">
+      <div className="bg-white p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10 focus-within:border-[#CCFF00] transition-all">
+        <div className="flex items-center gap-2 px-3 flex-grow text-slate-900">
+          <Search className="text-slate-400" size={18} />
+          <input 
+            type="text" 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            placeholder="Search courts..." 
+            className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-sm outline-none placeholder:text-slate-400" 
+          />
         </div>
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#CCFF00]/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
-      </section>
+        <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white transition-all border border-transparent hover:border-slate-200">
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
 
       {/* MAP DISCOVERY SECTION */}
       <section className="py-20 bg-slate-50 relative">

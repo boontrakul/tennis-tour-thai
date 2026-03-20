@@ -1,19 +1,78 @@
-/* --- ท่าไม้ตายล้างตัวเอียงทั้งเว็บไซต์ --- */
-@layer base {
-  *, *::before, *::after {
-    font-style: normal !important; /* บังคับให้ตรงทุกจุด ไม่สนว่าใครจะสั่งเอียง */
-    font-family: var(--font-inter), 'Inter', sans-serif !important;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* บังคับใช้ฟอนต์ Inter (ที่ตั้งค่าไว้ใน layout.tsx) */
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ---------------------------------------------------------
+   ✅ ULTIMATE FIX: บังคับตัวหนังสือ "ไม่เอียง" ทั้งเว็บไซต์
+   --------------------------------------------------------- */
+* {
+  font-family: var(--font-sans) !important;
+  font-style: normal !important; /* บังคับตัวตรงทุกจุด */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ล้างค่าคลาส .italic ของ Tailwind ให้กลายเป็นตัวตรง */
+.italic, i, em {
+  font-style: normal !important;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #ffffff;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------
+   🎨 ปรับแต่งหัวข้อให้ดู Professional (แบบรูปตัวอย่าง)
+   --------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700 !important; /* หนาพอดีๆ ไม่หนาเตอะ (900) จนเกินไป */
+  letter-spacing: -0.02em !important; /* ลดระยะห่างให้อ่านง่ายและดูแพง */
+  color: #0f172a; /* Slate 900 */
+  font-style: normal !important;
+}
+
+/* ปรับแต่งปุ่มและฟิลด์กรอกข้อมูล */
+button, input, select, textarea {
+  font-style: normal !important;
+}
+
+/* ---------------------------------------------------------
+   ✨ ตกแต่งส่วนเสริม (Utility Classes)
+   --------------------------------------------------------- */
+@layer components {
+  .btn-primary {
+    @apply bg-[#CCFF00] text-slate-900 font-bold px-6 py-3 rounded-xl 
+           hover:scale-105 transition-all shadow-lg shadow-[#CCFF00]/20;
   }
 }
 
-/* ปรับหัวข้อให้ดู Modern แบบรูปตัวอย่าง */
-h1, h2, h3, h4, h5, h6, .font-black, .font-bold {
-  font-style: normal !important;
-  letter-spacing: -0.02em; /* ลดระยะห่างตัวอักษรให้ดูแพงขึ้น */
-  text-transform: none; /* ถ้าไม่อยากให้เป็นตัวพิมพ์ใหญ่หมด ให้แก้จุดนี้ได้ครับ */
+/* ลบเงาที่อาจจะทำให้ตัวหนังสือดูเบลอหรือหนาผิดปกติ */
+.drop-shadow-lg, .drop-shadow-2xl {
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) !important;
 }
 
-/* ลบเงาที่อาจจะทำให้ตัวหนังสือดูหนาเกินไป */
-.drop-shadow-lg, .drop-shadow-2xl {
-  drop-shadow: none !important;
+/* ปรับแต่ง Scrollbar ให้ดู Minimal */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

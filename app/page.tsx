@@ -104,19 +104,18 @@ export default function HomePage() {
 
   const getTagColor = (tag: string) => {
     if (!tag) return 'bg-slate-50 text-slate-600 border-slate-100';
-    
-    // ลบช่องว่างออกเพื่อให้เทียบคำง่ายขึ้น
     const cleanTag = tag.trim();
-
     if (cleanTag.includes('หาเพื่อน')) return 'bg-blue-50 text-blue-600 border-blue-100';
     if (cleanTag.includes('อุปกรณ์')) return 'bg-purple-50 text-purple-600 border-purple-100';
     if (cleanTag.includes('สนาม')) return 'bg-green-50 text-green-600 border-green-100';
     if (cleanTag.includes('เทคนิค') || cleanTag.includes('Training')) return 'bg-orange-50 text-orange-600 border-orange-100';
     if (cleanTag.includes('Nutrition')) return 'bg-lime-50 text-lime-600 border-lime-100';
     if (cleanTag.includes('Pro Tour')) return 'bg-rose-50 text-rose-600 border-rose-100';
-    
     return 'bg-slate-50 text-slate-600 border-slate-100';
   };
+  
+  return (
+    <main className="min-h-screen bg-white pb-10">
       
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
@@ -125,7 +124,7 @@ export default function HomePage() {
             <span className="text-sm">🎾</span>
             <span className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest">Thailand's #1 Tennis Community</span>
           </div>
-          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase  leading-[1.1] tracking-tighter">
+          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
             Find the Perfect <br />
             <span className="text-[#CCFF00] drop-shadow-[0_0_30px_rgba(204,255,0,0.3)]">Tennis Court for You</span>
           </h1>
@@ -142,7 +141,7 @@ export default function HomePage() {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#CCFF00]/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
       </section>
 
-      {/* MAP DISCOVERY SECTION - แก้ขนาดฟอนต์แล้ว */}
+      {/* MAP DISCOVERY SECTION */}
       <section className="py-20 bg-slate-50 relative">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
@@ -151,7 +150,7 @@ export default function HomePage() {
                  <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
                  <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Interactive Discovery</span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase  tracking-tighter leading-none">
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">
                 Explore <span className="text-[#84cc16]">Tennis Map</span>
               </h2>
             </div>
@@ -161,13 +160,10 @@ export default function HomePage() {
           </div>
 
           <div className="bg-white p-4 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-white relative overflow-hidden">
-            
-            {/* Filter Bar */}
             <div className="flex flex-col md:flex-row gap-4 mb-4 p-4 bg-slate-50 rounded-3xl border border-slate-100 items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-900 font-black uppercase  tracking-wider text-sm">
+              <div className="flex items-center gap-2 text-slate-900 font-black uppercase tracking-wider text-sm">
                 <Filter size={18} className="text-[#84cc16]" /> Map Filters
               </div>
-              
               <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-[#CCFF00] transition-colors">
                   <Shield size={14} className="text-slate-400 mr-2" />
@@ -181,7 +177,6 @@ export default function HomePage() {
                     <option value="Private">Private Courts</option>
                   </select>
                 </div>
-
                 <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-[#CCFF00] transition-colors">
                   <Navigation size={14} className="text-slate-400 mr-2" />
                   <select 
@@ -199,7 +194,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Google Maps */}
             {loadError ? (
               <div className="h-[500px] flex items-center justify-center text-red-500 font-bold bg-red-50 rounded-[2.5rem]">Map loading failed.</div>
             ) : !isLoaded ? (
@@ -215,7 +209,6 @@ export default function HomePage() {
                     />
                   )
                 ))}
-
                 {selectedCourt && (
                   <InfoWindowF position={{ lat: Number(selectedCourt.latitude), lng: Number(selectedCourt.longitude) }} onCloseClick={() => setSelectedCourt(null)}>
                     <div className="p-2 max-w-[200px] font-sans">
@@ -229,10 +222,8 @@ export default function HomePage() {
                            <span className="text-2xl">🎾</span>
                          )}
                       </div>
-                      <h4 className="font-black text-slate-900 uppercase  text-sm leading-tight mb-1">{selectedCourt.name}</h4>
-                      <div className="flex flex-col gap-1 mb-3">
-                        <p className="text-[10px] text-slate-500 font-bold flex items-center gap-1"><MapPin size={10} /> {selectedCourt.location}</p>
-                      </div>
+                      <h4 className="font-bold text-slate-900 uppercase text-sm leading-tight mb-1">{selectedCourt.name}</h4>
+                      <p className="text-[10px] text-slate-500 font-bold mb-3"><MapPin size={10} className="inline mr-1" /> {selectedCourt.location}</p>
                       <Link href={`/courts/${selectedCourt.id}`} className="block w-full bg-[#CCFF00] text-slate-900 text-center py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all">
                         View Details
                       </Link>
@@ -241,11 +232,6 @@ export default function HomePage() {
                 )}
               </GoogleMap>
             )}
-            
-            <div className="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-slate-100 z-10">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Showing</span>
-              <span className="ml-2 text-sm font-black text-slate-900">{filteredCourts.length} Courts</span>
-            </div>
           </div>
         </div>
       </section>
@@ -255,13 +241,12 @@ export default function HomePage() {
         <div className="flex justify-between items-end mb-10">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase ">Recommended Courts</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-900 uppercase">Recommended Courts</h2>
           </div>
           <Link href="/courts" className="group flex items-center gap-1.5 text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">
             View All Courts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {featuredCourts.map((court) => (
             <Link href={`/courts/${court.id}`} key={court.id} className={`group rounded-[2rem] overflow-hidden transition-all duration-300 bg-white flex flex-col shadow-sm relative ${court.is_featured ? 'border-2 border-[#CCFF00] shadow-xl shadow-[#CCFF00]/15' : 'border border-slate-100 hover:border-[#CCFF00] hover:shadow-xl'}`}>
@@ -275,68 +260,67 @@ export default function HomePage() {
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImgError} />}
               </div>
               <div className="p-6 flex flex-grow flex-col">
-                <h3 className="text-[20px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-tight mb-2 uppercase ">{court.name}</h3>
+                <h3 className="text-[20px] font-bold text-slate-900 group-hover:text-[#CCFF00] leading-tight mb-2 uppercase">{court.name}</h3>
                 <p className="text-slate-500 text-xs mb-6 line-clamp-1">{court.location}</p>
-                <div className="mt-auto text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase">View Details</div>
+                <div className="mt-auto text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase tracking-widest">View Details</div>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ARTICLES & FORUM - แก้สี Tag แล้ว */}
+      {/* ARTICLES & FORUM */}
       <section className="py-16 bg-slate-50 border-t border-slate-100">
-          <div className="container mx-auto px-4 max-w-7xl">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div>
-                   <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl font-black text-slate-900  uppercase">Latest Articles</h2>
-                      <Link href="/articles" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All Articles <BookOpen size={12} /></Link>
-                   </div>
-                   <div className="space-y-4">
-                      {articles.map((article) => (
-                        <Link href={`/articles/${article.id}`} key={article.id} className="group flex gap-4 p-4 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm">
-                           <div className="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center">
-                              {article.image_url ? <img src={article.image_url} className="w-full h-full object-cover" /> : <span className="text-2xl">🎾</span>}
-                           </div>
-                           <div className="flex flex-col justify-center">
-                              <div className="flex items-center gap-2 mb-1.5 text-[10px] font-black uppercase text-slate-400">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${getTagColor(article.category)}`}>
-  {article.category}
-</span>
-                                <span>{timeAgo(article.created_at)}</span>
-                              </div>
-                              <h3 className="text-[18px] font-black text-slate-900 group-hover:text-[#CCFF00] line-clamp-2 leading-tight">{article.title}</h3>
-                           </div>
-                        </Link>
-                      ))}
-                   </div>
-                </div>
-                <div>
-                   <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl font-black text-slate-900  uppercase">Popular Topics</h2>
-                      <Link href="/forum" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">View All Topics <MessageSquare size={12} /></Link>
-                   </div>
-                   <div className="space-y-4">
-                      {forumPosts.map((post) => (
-                        <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm">
-                           <div className="flex items-center gap-3 mb-2">
-                              {/* ส่วนที่แก้ใหม่: เพิ่มสีสันให้ Tag */}
-                              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded shadow-sm border ${getTagColor(post.category)}`}>
-  {post.category}
-</span>
-                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                <span>by {post.author_name}</span>
-                                <span className="ml-2">{timeAgo(post.created_at)}</span>
-                              </div>
-                           </div>
-                           <h4 className="text-[18px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-snug">{post.title}</h4>
-                        </Link>
-                      ))}
-                   </div>
-                </div>
-             </div>
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <div className="flex justify-between items-end mb-8">
+                <h2 className="text-xl font-bold text-slate-900 uppercase">Latest Articles</h2>
+                <Link href="/articles" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All Articles <BookOpen size={12} /></Link>
+              </div>
+              <div className="space-y-4">
+                {articles.map((article) => (
+                  <Link href={`/articles/${article.id}`} key={article.id} className="group flex gap-4 p-4 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm transition-all">
+                    <div className="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center">
+                      {article.image_url ? <img src={article.image_url} className="w-full h-full object-cover" /> : <span className="text-2xl">🎾</span>}
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <div className="flex items-center gap-2 mb-1.5 text-[10px] font-bold uppercase text-slate-400">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase border ${getTagColor(article.category)}`}>
+                          {article.category}
+                        </span>
+                        <span>{timeAgo(article.created_at)}</span>
+                      </div>
+                      <h3 className="text-[18px] font-bold text-slate-900 group-hover:text-[#CCFF00] line-clamp-2 leading-tight">{article.title}</h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between items-end mb-8">
+                <h2 className="text-xl font-bold text-slate-900 uppercase">Popular Topics</h2>
+                <Link href="/forum" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">View All Topics <MessageSquare size={12} /></Link>
+              </div>
+              <div className="space-y-4">
+                {forumPosts.map((post) => (
+                  <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm transition-all">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded shadow-sm border ${getTagColor(post.category)}`}>
+                        {post.category}
+                      </span>
+                      <div className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+                        <span>by {post.author_name}</span>
+                        <span className="ml-2">{timeAgo(post.created_at)}</span>
+                      </div>
+                    </div>
+                    <h4 className="text-[18px] font-bold text-slate-900 group-hover:text-[#CCFF00] leading-snug">{post.title}</h4>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
       </section>
     </main>
   )

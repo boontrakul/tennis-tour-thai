@@ -102,7 +102,7 @@ export default function HomePage() {
             <span className="text-sm">🎾</span>
             <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-widest not-italic">Thailand's #1 Tennis Community</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-6 uppercase leading-[1.2] tracking-tighter not-italic">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 uppercase leading-[1.2] tracking-tighter not-italic">
             Find the Perfect <br />
             <span className="text-[#CCFF00] drop-shadow-[0_0_20px_rgba(204,255,0,0.2)]">Tennis Court for You</span>
           </h1>

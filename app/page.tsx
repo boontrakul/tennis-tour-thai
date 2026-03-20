@@ -118,38 +118,37 @@ export default function HomePage() {
     <main className="min-h-screen bg-white pb-10">
       
       {/* --- HERO SECTION --- */}
-<section className="relative pt-32 pb-16 md:pt-36 md:pb-24 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
-  <div className="container mx-auto px-4 max-w-7xl relative z-10">
-    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-6">
-      <span className="text-sm">🎾</span>
-      <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's #1 Tennis Community</span>
-    </div>
-    
-    {/* หัวข้อที่เล็กลงและตั้งตรง */}
-    <h1 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase leading-[1.2] tracking-tighter">
-      Find the Perfect <br />
-      <span className="text-[#CCFF00] drop-shadow-[0_0_20px_rgba(204,255,0,0.2)]">Tennis Court for You</span>
-    </h1>
+      <section className="relative pt-32 pb-16 md:pt-36 md:pb-24 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-6">
+            <span className="text-sm">🎾</span>
+            <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's #1 Tennis Community</span>
+          </div>
+          
+          <h1 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase leading-[1.2] tracking-tighter">
+            Find the Perfect <br />
+            <span className="text-[#CCFF00] drop-shadow-[0_0_20px_rgba(204,255,0,0.2)]">Tennis Court for You</span>
+          </h1>
 
-    <form onSubmit={handleSearch} className="max-w-lg mx-auto">
-      <div className="bg-white p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10 focus-within:border-[#CCFF00] transition-all">
-        <div className="flex items-center gap-2 px-3 flex-grow text-slate-900">
-          <Search className="text-slate-400" size={18} />
-          <input 
-            type="text" 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
-            placeholder="Search courts..." 
-            className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-sm outline-none placeholder:text-slate-400" 
-          />
+          <form onSubmit={handleSearch} className="max-w-lg mx-auto">
+            <div className="bg-white p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10 focus-within:border-[#CCFF00] transition-all">
+              <div className="flex items-center gap-2 px-3 flex-grow text-slate-900">
+                <Search className="text-slate-400" size={18} />
+                <input 
+                  type="text" 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  placeholder="Search courts..." 
+                  className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-sm outline-none placeholder:text-slate-400" 
+                />
+              </div>
+              <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-slate-800 hover:text-[#CCFF00] transition-all">
+                Search
+              </button>
+            </div>
+          </form>
         </div>
-        <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white transition-all border border-transparent hover:border-slate-200">
-          Search
-        </button>
-      </div>
-    </form>
-  </div>
-</section>
+      </section>
 
       {/* MAP DISCOVERY SECTION */}
       <section className="py-20 bg-slate-50 relative">

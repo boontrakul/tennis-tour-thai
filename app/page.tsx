@@ -125,7 +125,7 @@ export default function HomePage() {
             <span className="text-sm">🎾</span>
             <span className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest">Thailand's #1 Tennis Community</span>
           </div>
-          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase italic leading-[1.1] tracking-tighter">
+          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase  leading-[1.1] tracking-tighter">
             Find the Perfect <br />
             <span className="text-[#CCFF00] drop-shadow-[0_0_30px_rgba(204,255,0,0.3)]">Tennis Court for You</span>
           </h1>
@@ -151,7 +151,7 @@ export default function HomePage() {
                  <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
                  <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Interactive Discovery</span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase  tracking-tighter leading-none">
                 Explore <span className="text-[#84cc16]">Tennis Map</span>
               </h2>
             </div>
@@ -164,7 +164,7 @@ export default function HomePage() {
             
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row gap-4 mb-4 p-4 bg-slate-50 rounded-3xl border border-slate-100 items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-900 font-black uppercase italic tracking-wider text-sm">
+              <div className="flex items-center gap-2 text-slate-900 font-black uppercase  tracking-wider text-sm">
                 <Filter size={18} className="text-[#84cc16]" /> Map Filters
               </div>
               
@@ -229,7 +229,7 @@ export default function HomePage() {
                            <span className="text-2xl">🎾</span>
                          )}
                       </div>
-                      <h4 className="font-black text-slate-900 uppercase italic text-sm leading-tight mb-1">{selectedCourt.name}</h4>
+                      <h4 className="font-black text-slate-900 uppercase  text-sm leading-tight mb-1">{selectedCourt.name}</h4>
                       <div className="flex flex-col gap-1 mb-3">
                         <p className="text-[10px] text-slate-500 font-bold flex items-center gap-1"><MapPin size={10} /> {selectedCourt.location}</p>
                       </div>
@@ -255,7 +255,7 @@ export default function HomePage() {
         <div className="flex justify-between items-end mb-10">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic">Recommended Courts</h2>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase ">Recommended Courts</h2>
           </div>
           <Link href="/courts" className="group flex items-center gap-1.5 text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">
             View All Courts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -275,7 +275,7 @@ export default function HomePage() {
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImgError} />}
               </div>
               <div className="p-6 flex flex-grow flex-col">
-                <h3 className="text-[20px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-tight mb-2 uppercase italic">{court.name}</h3>
+                <h3 className="text-[20px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-tight mb-2 uppercase ">{court.name}</h3>
                 <p className="text-slate-500 text-xs mb-6 line-clamp-1">{court.location}</p>
                 <div className="mt-auto text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase">View Details</div>
               </div>
@@ -290,7 +290,7 @@ export default function HomePage() {
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div>
                    <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl font-black text-slate-900 italic uppercase">Latest Articles</h2>
+                      <h2 className="text-xl font-black text-slate-900  uppercase">Latest Articles</h2>
                       <Link href="/articles" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All Articles <BookOpen size={12} /></Link>
                    </div>
                    <div className="space-y-4">
@@ -314,7 +314,7 @@ export default function HomePage() {
                 </div>
                 <div>
                    <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl font-black text-slate-900 italic uppercase">Popular Topics</h2>
+                      <h2 className="text-xl font-black text-slate-900  uppercase">Popular Topics</h2>
                       <Link href="/forum" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">View All Topics <MessageSquare size={12} /></Link>
                    </div>
                    <div className="space-y-4">

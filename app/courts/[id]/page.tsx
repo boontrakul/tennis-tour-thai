@@ -12,9 +12,8 @@ export default function CourtDetailPage() {
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
-  // State สำหรับรูปภาพ
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const [heroIdx, setHeroIdx] = useState(0) // สำหรับ Slider รูปปก
+  const [heroIdx, setHeroIdx] = useState(0) 
 
   const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState('')
@@ -87,7 +86,7 @@ export default function CourtDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center font-bold text-[#CCFF00] uppercase tracking-widest animate-pulse">
+      <div className="min-h-screen bg-white flex items-center justify-center font-bold text-slate-900 uppercase tracking-widest animate-pulse">
         Loading Court Details...
       </div>
     )
@@ -95,7 +94,7 @@ export default function CourtDetailPage() {
 
   if (!court) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center font-bold text-white uppercase tracking-widest">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-bold text-slate-900 uppercase tracking-widest">
         <p className="mb-6 text-2xl">Court Not Found</p>
         <Link href="/courts" className="bg-[#CCFF00] text-slate-900 px-8 py-3 rounded-full text-sm hover:scale-105 transition-transform font-bold">
           Back to Courts
@@ -104,7 +103,6 @@ export default function CourtDetailPage() {
     )
   }
 
-  // ✅ รวมรูปหน้าปก (image_url) และรูปแกลเลอรี่ (images) ให้อยู่ใน Array เดียวกัน
   let galleryImages: string[] = []
   if (Array.isArray(court.images)) {
     galleryImages = [...court.images]
@@ -119,12 +117,10 @@ export default function CourtDetailPage() {
   
   galleryImages = galleryImages.filter(img => typeof img === 'string' && img.trim() !== '')
   
-  // นำรูปปกมาไว้เป็นรูปแรกสุดเสมอ
   if (court.image_url && !galleryImages.includes(court.image_url)) {
     galleryImages.unshift(court.image_url)
   }
 
-  // ฟังก์ชันเลื่อนรูป Modal
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation() 
     if (selectedIndex === null) return
@@ -136,7 +132,6 @@ export default function CourtDetailPage() {
     setSelectedIndex(selectedIndex === galleryImages.length - 1 ? 0 : selectedIndex + 1)
   }
 
-  // ฟังก์ชันเลื่อนรูปปก (Hero)
   const prevHeroImg = (e: React.MouseEvent) => {
     e.stopPropagation()
     setHeroIdx(prev => prev === 0 ? galleryImages.length - 1 : prev - 1)
@@ -149,65 +144,69 @@ export default function CourtDetailPage() {
   return (
     <main className="min-h-screen bg-slate-50 pb-20 font-sans">
       
-      {/* --- ✅ ✅ ✅ SECTION 1: CLEAR HERO IMAGE (สว่างชัดเจน ไม่มีอะไรบัง) ✅ ✅ ✅ --- */}
-      <section className="relative w-full bg-slate-900 group">
-        <div className="relative h-[60vh] min-h-[450px] w-full overflow-hidden">
+      {/* 🟢 คอนเทนเนอร์หลัก ครอบทั้ง Header และ เนื้อหา */}
+      <div className="container mx-auto px-4 max-w-5xl pt-24 md:pt-32">
+        
+        {/* --- ✅ 1. HEADER SECTION (ข้อมูลอยู่ด้านบนสุด ไม่มีทับรูป) --- */}
+        <div className="mb-8">
+          <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-xs tracking-widest mb-6 hover:text-[#84cc16] transition-colors">
+            <ArrowLeft size={16} /> Back to Courts
+          </Link>
+          
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className="bg-[#CCFF00] text-slate-900 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+              {court.surface || 'Tennis Court'}
+            </span>
+            <span className="bg-slate-900 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5">
+              <Shield size={12} /> {court.court_type || 'Public'}
+            </span>
+          </div>
+
+          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-3xl md:text-5xl mb-4">
+            {court.name}
+          </h1>
+          <p className="text-slate-500 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+            <MapPin size={16} className="text-[#84cc16]" /> {court.location}
+          </p>
+        </div>
+
+        {/* --- ✅ 2. HERO IMAGE (อยู่ในกรอบโค้งมน สะอาดตา) --- */}
+        <div className="relative w-full aspect-[16/9] md:h-[500px] bg-slate-200 rounded-[2rem] overflow-hidden group shadow-lg mb-10 border-4 border-white">
           {galleryImages.length > 0 ? (
             <img 
               src={galleryImages[heroIdx]} 
               alt={court.name} 
-              // รูปสว่างชัดเจน 100% ไม่มี Opacity ไม่มี Gradient ทับรูปอีกแล้ว
-              className="w-full h-full object-cover cursor-pointer transition-all duration-500" 
+              // ใส่ object-contain ถ้าไม่อยากให้รูปโดนตัดขอบเลย หรือ object-cover เพื่อให้เต็มกรอบสวยงาม
+              className="w-full h-full object-cover cursor-pointer transition-transform duration-700 group-hover:scale-[1.02]" 
               onClick={() => setSelectedIndex(heroIdx)} 
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-6xl">🎾</div>
           )}
+
+          {/* ปุ่มเลื่อนรูปในกรอบ */}
+          {galleryImages.length > 1 && (
+            <>
+              <button onClick={prevHeroImg} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
+                <ChevronLeft size={24} />
+              </button>
+              <button onClick={nextHeroImg} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
+                <ChevronRight size={24} />
+              </button>
+              
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
+                {galleryImages.map((_, i) => (
+                  <div key={i} className={`h-1.5 rounded-full transition-all ${i === heroIdx ? 'bg-[#CCFF00] w-6' : 'bg-white/60 w-2'}`}></div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
-        {/* ปุ่มเลื่อนซ้ายขวาบนรูปปก (จะโชว์เมื่อเอาเมาส์ชี้) */}
-        {galleryImages.length > 1 && (
-          <>
-            <button onClick={prevHeroImg} className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
-              <ChevronLeft size={24} />
-            </button>
-            <button onClick={nextHeroImg} className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-20">
-              <ChevronRight size={24} />
-            </button>
-          </>
-        )}
-      </section>
-
-      {/* --- ✅ ✅ ✅ SECTION 2: COURT HEADER (แยกออกมาอยู่ด้านล่างรูป) ✅ ✅ ✅ --- */}
-      <section className="bg-slate-900 pt-8 pb-12">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <Link href="/courts" className="inline-flex items-center gap-2 text-white/80 font-bold uppercase text-xs tracking-widest mb-8 hover:text-[#CCFF00] transition-colors pointer-events-auto">
-            <ArrowLeft size={16} /> Back to All Courts
-          </Link>
-          
-          <div className="flex flex-wrap items-center gap-3 mb-5">
-            <span className="bg-[#CCFF00] text-slate-900 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-              {court.surface || 'Tennis Court'}
-            </span>
-            <span className="bg-white/20 backdrop-blur-md text-white border border-white/20 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1.5">
-              <Shield size={12} /> {court.court_type || 'Public'}
-            </span>
-          </div>
-
-          <h1 className="font-bold text-white uppercase tracking-tight leading-tight drop-shadow-lg text-3xl md:text-5xl">
-            {court.name}
-          </h1>
-          <p className="text-slate-200 mt-4 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-            <MapPin size={16} className="text-[#CCFF00]" /> {court.location}
-          </p>
-        </div>
-      </section>
-
-      {/* --- MAIN CONTENT (เนื้อหาส่วนล่างไหลต่อเนื่องมาเลย) --- */}
-      <section className="container mx-auto px-4 max-w-5xl pt-10 relative z-30">
+        {/* --- ✅ 3. MAIN CONTENT (ข้อมูลรายละเอียด) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* 1. About Facility */}
+          {/* About Facility */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
             <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
@@ -217,7 +216,7 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {/* 2. Court Info & Map */}
+          {/* Court Info & Map */}
           <div className="lg:col-span-1 lg:row-span-3 space-y-6">
             <div className="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white">
               <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-xl">
@@ -266,13 +265,12 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {/* 3. Court Gallery (แนวนอน Minimal) */}
+          {/* Court Gallery */}
           {galleryImages.length > 0 && (
             <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
               <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
                 <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
               </h2>
-              {/* ซ่อน Scrollbar และทำเป็นแนวนอน */}
               <div className="flex overflow-x-auto gap-4 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {galleryImages.map((img: string, index: number) => (
                   <div 
@@ -288,7 +286,7 @@ export default function CourtDetailPage() {
             </div>
           )}
 
-          {/* 4. Community Reviews */}
+          {/* Community Reviews */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
             <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
               <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
@@ -325,11 +323,11 @@ export default function CourtDetailPage() {
           </div>
 
         </div>
-      </section>
+      </div>
 
       {/* IMAGE MODAL */}
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedIndex(null)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedIndex(null)}>
           <button onClick={() => setSelectedIndex(null)} className="absolute top-6 right-6 text-white/70 hover:text-[#CCFF00] transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-full z-50">
             <X size={32} strokeWidth={2} />
           </button>

@@ -12,10 +12,8 @@ import {
 
 export default function CourtDetailPage() {
   const params = useParams() as { id: string }; 
-  
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [heroIdx, setHeroIdx] = useState(0) 
 
@@ -123,20 +121,9 @@ export default function CourtDetailPage() {
     galleryImages.unshift(court.image_url)
   }
 
-  const defaultFacilities = [
-    'Parking', 'Restaurant', 'Pro Shop', 'Coaching', 
-    'Changing Rooms', 'Lockers', 'Swimming Pool', 
-    'Lighting (ไฟส่องสว่าง)', 'Showers', 'Wi-Fi'
-  ];
-
-  let facilitiesList = [];
-  if (court.facilities && typeof court.facilities === 'string') {
-    facilitiesList = court.facilities.split(',').map((f: string) => f.trim());
-  } else if (Array.isArray(court.facilities)) {
-    facilitiesList = court.facilities;
-  } else {
-    facilitiesList = defaultFacilities; 
-  }
+  const facilitiesList = court.facilities && typeof court.facilities === 'string' 
+    ? court.facilities.split(',').map((f: string) => f.trim()) 
+    : (Array.isArray(court.facilities) ? court.facilities : []);
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation() 
@@ -175,7 +162,7 @@ export default function CourtDetailPage() {
             </span>
           </div>
 
-          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-3xl md:text-5xl mb-4">
+          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-3xl md:text-5xl mb-4 italic">
             {court.name}
           </h1>
           <p className="text-slate-500 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
@@ -197,18 +184,8 @@ export default function CourtDetailPage() {
 
           {galleryImages.length > 1 && (
             <>
-              <button 
-                onClick={prevHeroImg} 
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button 
-                onClick={nextHeroImg} 
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"
-              >
-                <ChevronRight size={24} />
-              </button>
+              <button onClick={prevHeroImg} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronLeft size={24} /></button>
+              <button onClick={nextHeroImg} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronRight size={24} /></button>
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 {galleryImages.map((_, i) => (
                   <div key={i} className={`h-1.5 rounded-full transition-all ${i === heroIdx ? 'bg-[#CCFF00] w-6' : 'bg-white/60 w-2'}`}></div>
@@ -219,38 +196,31 @@ export default function CourtDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
-            <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
+            <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl italic">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
             </h2>
             <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
               {court.description || "No description provided for this court."}
             </div>
 
-            <div className="mt-10 pt-8 border-t border-slate-100">
-              <h3 className="font-bold text-slate-900 uppercase tracking-tight mb-5 text-lg">
-                Facilities
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                {facilitiesList.map((facility: string, idx: number) => (
-                  <span 
-                    key={idx} 
-                    className="bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-2 border border-slate-200 shadow-sm"
-                  >
-                    <CheckCircle2 size={14} className="text-[#84cc16]" strokeWidth={3} /> {facility}
-                  </span>
-                ))}
+            {facilitiesList.length > 0 && (
+              <div className="mt-10 pt-8 border-t border-slate-100">
+                <h3 className="font-bold text-slate-900 uppercase tracking-tight mb-5 text-lg">Facilities</h3>
+                <div className="flex flex-wrap gap-2.5">
+                  {facilitiesList.map((facility: string, idx: number) => (
+                    <span key={idx} className="bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-2 border border-slate-200 shadow-sm">
+                      <CheckCircle2 size={14} className="text-[#84cc16]" strokeWidth={3} /> {facility}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="lg:col-span-1 lg:row-span-3 space-y-6">
+          <div className="lg:col-span-1 space-y-6">
             <div className="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white">
-              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-xl">
-                Court Info
-              </h3>
-              
+              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-xl italic">Court Info</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><Clock size={20} className="text-[#CCFF00]" /></div>
@@ -259,7 +229,6 @@ export default function CourtDetailPage() {
                     <p className="text-lg font-bold">{court.opening_hours || '06:00 - 22:00'}</p>
                   </div>
                 </div>
-
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><DollarSign size={20} className="text-[#CCFF00]" /></div>
                   <div>
@@ -267,28 +236,11 @@ export default function CourtDetailPage() {
                     <p className="text-lg font-bold">฿ {court.price_per_hour || 'N/A'}</p>
                   </div>
                 </div>
-
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><Phone size={20} className="text-[#CCFF00]" /></div>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Contact</p>
                     <p className="text-lg font-bold">{court.phone || 'N/A'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><Shield size={20} className="text-[#CCFF00]" /></div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Access</p>
-                    <p className="text-lg font-bold">{court.court_type || 'Public'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><Navigation size={20} className="text-[#CCFF00]" /></div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Surface Type</p>
-                    <p className="text-lg font-bold">{court.surface || 'Hard Court'}</p>
                   </div>
                 </div>
               </div>
@@ -301,31 +253,10 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {galleryImages.length > 0 && (
-            <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
-              <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
-                <ImageIcon className="text-[#CCFF00]" size={24} /> Court Gallery
-              </h2>
-              <div className="flex overflow-x-auto gap-4 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {galleryImages.map((img: string, index: number) => (
-                  <div 
-                    key={index} 
-                    onClick={() => setSelectedIndex(index)} 
-                    className="min-w-[240px] md:min-w-[280px] aspect-[4/3] flex-shrink-0 snap-start rounded-2xl overflow-hidden cursor-pointer group border border-slate-100 relative"
-                  >
-                    <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
-            <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
+            <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl italic">
               <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
             </h2>
-
             <form onSubmit={handleCommentSubmit} className="mb-8 space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
               <div className="flex items-center gap-3 mb-2">
                  <UserCircle className="text-slate-400" size={20} />
@@ -333,15 +264,14 @@ export default function CourtDetailPage() {
               </div>
               <textarea placeholder="Share your experience or ask a question..." value={newComment} onChange={(e) => setNewComment(e.target.value)} required rows={3} className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-medium text-slate-700 focus:border-[#CCFF00] outline-none resize-none transition-colors shadow-sm"></textarea>
               <div className="flex justify-end">
-                <button type="submit" disabled={submittingComment} className="bg-slate-900 text-[#CCFF00] px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors disabled:opacity-50">
+                <button type="submit" disabled={submittingComment} className="bg-slate-900 text-[#CCFF00] px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors">
                   <Send size={14} /> {submittingComment ? 'Posting...' : 'Post Review'}
                 </button>
               </div>
             </form>
-
             <div className="space-y-4">
               {comments.length === 0 ? (
-                <p className="text-center text-slate-400 font-medium text-sm py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No reviews yet. Be the first to share your experience!</p>
+                <p className="text-center text-slate-400 font-medium text-sm py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No reviews yet.</p>
               ) : (
                 comments.map((comment) => (
                   <div key={comment.id} className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
@@ -355,40 +285,25 @@ export default function CourtDetailPage() {
               )}
             </div>
           </div>
-
         </div>
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedIndex(null)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
           <button onClick={() => setSelectedIndex(null)} className="absolute top-6 right-6 text-white/70 hover:text-[#CCFF00] transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-full z-50">
-            <X size={32} strokeWidth={2} />
+            <X size={32} />
           </button>
-          <div className="absolute top-8 left-8 text-white/50 font-bold tracking-widest text-sm z-50">{selectedIndex + 1} / {galleryImages.length}</div>
-          
           {galleryImages.length > 1 && (
             <>
-              <button 
-                onClick={handlePrevImage} 
-                className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"
-              >
-                <ChevronLeft size={40} />
-              </button>
-              <button 
-                onClick={handleNextImage} 
-                className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"
-              >
-                <ChevronRight size={40} />
-              </button>
+              <button onClick={handlePrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] p-4 rounded-full z-50"><ChevronLeft size={40} /></button>
+              <button onClick={handleNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] p-4 rounded-full z-50"><ChevronRight size={40} /></button>
             </>
           )}
-
-          <div className="relative max-w-6xl w-full h-full flex items-center justify-center pointer-events-none" onClick={(e) => e.stopPropagation()}>
-            <img src={galleryImages[selectedIndex as number]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl pointer-events-auto" />
+          <div className="relative max-w-6xl w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <img src={galleryImages[selectedIndex]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl" />
           </div>
         </div>
       )}
-
     </main>
   )
 }

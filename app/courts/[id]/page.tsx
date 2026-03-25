@@ -11,19 +11,19 @@ import {
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead
 } from 'lucide-react'
 
-// ฟังก์ชันช่วยเลือกไอคอนให้ตรงกับคำศัพท์ (Icon Mapping)
+// ฟังก์ชันช่วยเลือกไอคอนให้ตรงกับคำศัพท์ (Icon Mapping) - ปรับขนาดไอคอนเป็น 20
 const getFacilityIcon = (name: string) => {
   const n = name.toLowerCase();
-  if (n.includes('parking')) return <Car size={24} />;
-  if (n.includes('restaurant') || n.includes('food')) return <Utensils size={24} />;
-  if (n.includes('shop') || n.includes('store')) return <Store size={24} />;
-  if (n.includes('coach') || n.includes('train')) return <GraduationCap size={24} />;
-  if (n.includes('changing')) return <PersonStanding size={24} />;
-  if (n.includes('locker')) return <Lock size={24} />;
-  if (n.includes('pool') || n.includes('swim')) return <Waves size={24} />;
-  if (n.includes('wifi') || n.includes('internet')) return <Wifi size={24} />;
-  if (n.includes('shower')) return <ShowerHead size={24} />;
-  return <CheckCircle2 size={24} />;
+  if (n.includes('parking')) return <Car size={20} />;
+  if (n.includes('restaurant') || n.includes('food')) return <Utensils size={20} />;
+  if (n.includes('shop') || n.includes('store')) return <Store size={20} />;
+  if (n.includes('coach') || n.includes('train')) return <GraduationCap size={20} />;
+  if (n.includes('changing')) return <PersonStanding size={20} />;
+  if (n.includes('locker')) return <Lock size={20} />;
+  if (n.includes('pool') || n.includes('swim')) return <Waves size={20} />;
+  if (n.includes('wifi') || n.includes('internet')) return <Wifi size={20} />;
+  if (n.includes('shower')) return <ShowerHead size={20} />;
+  return <CheckCircle2 size={20} />;
 };
 
 export default function CourtDetailPage() {
@@ -31,8 +31,6 @@ export default function CourtDetailPage() {
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  
-  // ✅ State สำหรับรูปที่แสดงอยู่ในปัจจุบัน (Thumbnails System)
   const [activeImgIdx, setActiveImgIdx] = useState(0) 
 
   const [comments, setComments] = useState<any[]>([])
@@ -91,13 +89,12 @@ export default function CourtDetailPage() {
 
   if (loading || !court) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center font-black text-[#CCFF00] uppercase animate-pulse">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400 uppercase animate-pulse">
         Loading...
       </div>
     )
   }
 
-  // จัดการรูปภาพ Gallery
   let galleryImages: string[] = []
   if (Array.isArray(court.images)) {
     galleryImages = [...court.images]
@@ -112,39 +109,39 @@ export default function CourtDetailPage() {
     galleryImages.unshift(court.image_url)
   }
 
-  // แยกรายชื่อ Facilities จาก Database (คั่นด้วยจุลภาค)
   const facilitiesList = court.facilities && typeof court.facilities === 'string' 
     ? court.facilities.split(',').map((f: string) => f.trim()) 
     : [];
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20 font-sans pt-24 md:pt-32">
+    <main className="min-h-screen bg-slate-50 pb-20 font-sans pt-24 md:pt-32 text-slate-900">
       <div className="container mx-auto px-4 max-w-5xl">
         
-        {/* Header & Breadcrumb */}
+        {/* --- Header Section (ชื่อสนาม ปรับให้เล็กลง) --- */}
         <div className="mb-8">
-          <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-xs mb-6 hover:text-[#84cc16] transition-colors">
-            <ArrowLeft size={16} /> Back to Courts
+          <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-[10px] mb-6 hover:text-[#84cc16] transition-colors">
+            <ArrowLeft size={14} /> Back to Courts
           </Link>
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="bg-[#CCFF00] text-slate-900 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-              {court.surface || 'Tennis Court'}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+              {court.surface || 'Hard Court'}
             </span>
-            <span className="bg-slate-900 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-              <Shield size={12} /> {court.court_type || 'Public'}
+            <span className="bg-slate-900 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+              <Shield size={10} /> {court.court_type || 'Public'}
             </span>
           </div>
-          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-3xl md:text-5xl mb-4 italic">
+          {/* ✅ ชื่อสนาม: ปรับลดขนาดเหลือ text-2xl md:text-3xl */}
+          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-2xl md:text-3xl mb-3 italic">
             {court.name}
           </h1>
-          <p className="text-slate-500 text-sm font-bold uppercase flex items-center gap-2">
-            <MapPin size={16} className="text-[#84cc16]" /> {court.location}
+          <p className="text-slate-500 text-[11px] font-bold uppercase flex items-center gap-2">
+            <MapPin size={14} className="text-[#84cc16]" /> {court.location}
           </p>
         </div>
 
-        {/* --- 📸 PHOTO SYSTEM WITH THUMBNAILS --- */}
+        {/* --- 📸 Photo Slider --- */}
         <div className="mb-12">
-          <div className="relative w-full aspect-[16/9] md:h-[500px] bg-slate-200 rounded-[2.5rem] overflow-hidden group shadow-lg border-4 border-white mb-4">
+          <div className="relative w-full aspect-[16/9] md:h-[500px] bg-slate-200 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white mb-4">
             <img 
               src={galleryImages[activeImgIdx]} 
               className="w-full h-full object-cover cursor-pointer transition-all duration-500 animate-in fade-in" 
@@ -152,8 +149,6 @@ export default function CourtDetailPage() {
               onClick={() => setSelectedIndex(activeImgIdx)}
             />
           </div>
-          
-          {/* Thumbnails List */}
           {galleryImages.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {galleryImages.map((img, idx) => (
@@ -169,24 +164,24 @@ export default function CourtDetailPage() {
           )}
         </div>
 
-        {/* --- MAIN CONTENT GRID --- */}
+        {/* --- Main Content Grid --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <div className="lg:col-span-2 space-y-8">
-            {/* Description Card */}
+            {/* About Facility - ปรับหัวข้อเหลือ text-lg md:text-xl */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-xl font-bold text-slate-900 uppercase mb-6 flex items-center gap-3 italic">
-                <Tag className="text-[#CCFF00]" size={24} /> About Facility
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-6 flex items-center gap-3 italic">
+                <Tag className="text-[#CCFF00]" size={20} /> About Facility
               </h2>
-              <div className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-base">
+              <div className="text-slate-600 font-medium leading-relaxed text-sm md:text-base whitespace-pre-line">
                 {court.description || "No description provided."}
               </div>
             </div>
 
-            {/* ✅ FACILITIES SECTION (ICON GRID) */}
+            {/* Facilities - ปรับหัวข้อเหลือ text-lg md:text-xl */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3 italic">
-                <CheckCircle2 className="text-[#CCFF00]" size={24} /> Facilities
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3 italic">
+                <CheckCircle2 className="text-[#CCFF00]" size={20} /> Facilities
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {facilitiesList.length > 0 ? facilitiesList.map((f: string, i: number) => (
@@ -202,10 +197,10 @@ export default function CourtDetailPage() {
               </div>
             </div>
 
-            {/* REVIEWS SECTION */}
+            {/* Community Reviews - ปรับหัวข้อเหลือ text-lg md:text-xl */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-xl font-bold text-slate-900 uppercase mb-6 flex items-center gap-3 italic">
-                <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3 italic">
+                <MessageSquare className="text-[#CCFF00]" size={20} /> Community Reviews
               </h2>
               
               <form onSubmit={handleCommentSubmit} className="mb-8 space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100">
@@ -214,7 +209,7 @@ export default function CourtDetailPage() {
                    <input 
                      type="text" placeholder="Your Name (Optional)" 
                      value={username} onChange={(e) => setUsername(e.target.value)}
-                     className="bg-transparent border-b-2 border-slate-200 focus:border-[#CCFF00] outline-none text-sm font-bold pb-1 w-full md:w-64 transition-colors"
+                     className="bg-transparent border-b-2 border-slate-200 focus:border-[#CCFF00] outline-none text-sm font-bold pb-1 w-full md:w-64 transition-colors shadow-none"
                    />
                 </div>
                 <textarea 
@@ -250,12 +245,11 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {/* --- SIDEBAR INFO --- */}
+          {/* --- Sidebar (Court Info - ขนาดอ้างอิง) --- */}
           <div className="space-y-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-xl text-white">
-              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-xl italic">Court Info</h3>
+              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-lg italic">Court Info</h3>
               <div className="space-y-6">
-                {/* ✅ OPENING HOURS SECTION */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <Clock size={20} className="text-[#CCFF00]" />
@@ -301,7 +295,7 @@ export default function CourtDetailPage() {
         </div>
       </div>
 
-      {/* ✅ FULLSCREEN MODAL WITH NAVIGATION */}
+      {/* --- Fullscreen Modal Image --- */}
       {selectedIndex !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
           <button className="absolute top-6 right-6 text-white/70 hover:text-[#CCFF00] bg-white/10 p-2 rounded-full z-50 transition-colors">
@@ -325,8 +319,8 @@ export default function CourtDetailPage() {
             </>
           )}
 
-          <div className="relative max-w-6xl w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-            <img src={galleryImages[selectedIndex]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300" />
+          <div className="relative max-w-6xl w-full h-full flex items-center justify-center pointer-events-none">
+            <img src={galleryImages[selectedIndex]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-300" />
           </div>
         </div>
       )}

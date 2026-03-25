@@ -1,18 +1,14 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-// ✅ เพิ่ม Shield, Navigation เข้ามาสำหรับฟิลเตอร์
-import { Search, MapPin, Map as MapIcon, List, Plus, Star, Loader2, ChevronDown, Shield, Navigation, ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
+import { Search, ArrowRight, Clock, Star, ChevronRight, MessageSquare, BookOpen, MapPin, Navigation, Filter, Shield } from 'lucide-react'
 
-// --- การตั้งค่าแผนที่ ---
-const mapContainerStyle = { width: '100%', height: '600px', borderRadius: '2.5rem' }
-const defaultCenter = { lat: 13.7563, lng: 100.5018 } 
 const libraries: any = ['places']
-// ✅ เพิ่มสไตล์แผนที่แบบ Silver ให้ดูพรีเมียมเข้ากับธีม
+
 const mapOptions = {
   styles: [
     { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
@@ -24,21 +20,32 @@ const mapOptions = {
   zoomControl: true,
 }
 
-function CourtsContent() {
-  const searchParams = useSearchParams()
-  const initialSearch = searchParams.get('search') || ''
+const mapContainerStyle = {
+  width: '100%',
+  height: '500px',
+  borderRadius: '2rem'
+}
 
-  const [courts, setCourts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [visibleCount, setVisibleCount] = useState(9)
-  
-  // ✅ States สำหรับ Filters ทั้ง 3 ตัว
-  const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [selectedSurface, setSelectedSurface] = useState('All') 
-  const [filterAccess, setFilterAccess] = useState('All') // เพิ่ม State สำหรับ Public/Private
-  
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
-  const [selectedMarker, setSelectedMarker] = useState<any>(null)
+const center = { lat: 13.7563, lng: 100.5018 }
+
+const timeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 3600 * 24));
+  return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
+}
+
+export default function HomePage() {
+  const [allCourts, setAllCourts] = useState<any[]>([]) 
+  const [featuredCourts, setFeaturedCourts] = useState<any[]>([])
+  const [articles, setArticles] = useState<any[]>([])
+  const [forumPosts, setForumPosts] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCourt, setSelectedCourt] = useState<any>(null)
+  const router = useRouter()
+
+  const [filterAccess, setFilterAccess] = useState('All')
+  const [filterSurface, setFilterSurface] = useState('All')
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string || '',
@@ -46,35 +53,40 @@ function CourtsContent() {
   })
 
   useEffect(() => {
-    async function fetchCourts() {
-      setLoading(true)
-      const { data, error } = await supabase
-  .from('courts')
-  .select('*')
-  .eq('status', 'approved') // ✅ เติมบรรทัดนี้เข้าไปครับ!
+    async function fetchData() {
+      const { data: all } = await supabase
+        .from('courts')
+        .select('*')
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+      
+      if (all) setAllCourts(all)
+
+      const { data: featured } = await supabase
+        .from('courts')
+        .select('*')
+        .eq('status', 'approved')
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
+        .limit(6)
+        
+      if (featured) setFeaturedCourts(featured)
 
-      if (data) setCourts(data)
-      setLoading(false)
+      const { data: a } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(3)
+      const { data: f } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false }).limit(4)
+      
+      if (a) setArticles(a)
+      if (f) setForumPosts(f)
     }
-    fetchCourts()
+    fetchData()
   }, [])
 
-  // ✅ Logic กรองข้อมูล 3 ชั้น (คำค้นหา + พื้นผิว + การเข้าถึง)
-  const filteredCourts = courts.filter(court => {
-    const matchesSearch = court.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          court.location.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    const matchesSurface = selectedSurface === 'All' || court.surface === selectedSurface
-    
-    const accessType = court.court_type || 'Public'
-    const matchesAccess = filterAccess === 'All' || accessType === filterAccess
-    
-    return matchesSearch && matchesSurface && matchesAccess
-  })
-
-  const displayedCourts = filteredCourts.slice(0, visibleCount)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/courts?search=${encodeURIComponent(searchQuery)}`)
+    }
+  }
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.currentTarget;
@@ -83,168 +95,148 @@ function CourtsContent() {
     if (fallback) fallback.classList.remove('hidden');
   };
 
-  if (loadError) return <div className="p-10 text-center font-bold text-red-500 uppercase tracking-widest">Error loading Google Maps</div>
+  const filteredCourts = allCourts.filter(court => {
+    const accessType = court.court_type || 'Public'
+    const matchAccess = filterAccess === 'All' || accessType === filterAccess
+    const matchSurface = filterSurface === 'All' || court.surface === filterSurface
+    return matchAccess && matchSurface
+  })
 
+  // ฟังก์ชันเลือกสี Tag สำหรับ Forum
+  const getTagColor = (tag: string) => {
+    switch (tag) {
+      case 'หาเพื่อนตีเทนนิส':
+        return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'รีวิวอุปกรณ์เทนนิส':
+        return 'bg-purple-50 text-purple-600 border-purple-100';
+      case 'รีวิวสนามเทนนิส':
+        return 'bg-green-50 text-green-600 border-green-100';
+      case 'เทคนิคและการฝึกซ้อม':
+        return 'bg-orange-50 text-orange-600 border-orange-100';
+      default:
+        return 'bg-slate-50 text-slate-600 border-slate-100';
+    }
+  };
+  
   return (
-    <main className="min-h-screen bg-slate-50 pb-20 font-sans">
+    <main className="min-h-screen bg-white pb-10">
       
-      {/* --- HERO SECTION --- */}
-      <section className="bg-slate-900 pt-32 pb-16 text-center text-white relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#CCFF00]/10 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none mb-4">
-            Tennis <span className="text-[#CCFF00]">Courts</span>
+      {/* HERO SECTION */}
+      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-8">
+            <span className="text-sm">🎾</span>
+            <span className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest">Thailand's #1 Tennis Community</span>
+          </div>
+          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase italic leading-[1.1] tracking-tighter">
+            Find the Perfect <br />
+            <span className="text-[#CCFF00] drop-shadow-[0_0_30px_rgba(204,255,0,0.3)]">Tennis Court for You</span>
           </h1>
-          <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
-            Discover the best places to play in Thailand
-          </p>
+          <form onSubmit={handleSearch} className="max-w-xl mx-auto">
+            <div className="bg-white p-2 rounded-2xl flex items-center shadow-2xl border-2 border-white/5 focus-within:border-[#CCFF00] transition-all">
+              <div className="flex items-center gap-3 px-3 flex-grow text-slate-900">
+                <Search className="text-slate-400" size={20} />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search courts by name or location..." className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-base outline-none" />
+              </div>
+              <button type="submit" className="bg-[#CCFF00] text-slate-900 px-8 py-3 rounded-xl font-black text-xs uppercase shadow-md hover:scale-105 transition-all">Search</button>
+            </div>
+          </form>
         </div>
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#CCFF00]/10 blur-[150px] rounded-full z-0 pointer-events-none"></div>
       </section>
 
-      <section className="container mx-auto px-4 max-w-7xl -mt-10 relative z-20">
-        
-        {/* --- CONTROLS BAR (Search & Filters) --- */}
-        <div className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 mb-12 flex flex-col xl:flex-row gap-6 justify-between items-center">
-          
-          <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
-            {/* 1. Search Bar */}
-            <div className="relative flex-grow md:w-80 group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#CCFF00] transition-colors" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search by name or location..." 
-                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-full text-sm font-bold outline-none focus:border-[#CCFF00] focus:ring-4 focus:ring-[#CCFF00]/10 transition-all text-slate-900"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {/* ✅ 2. Filter: Public / Private */}
-            <div className="relative group">
-               <Shield size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-[#CCFF00] transition-colors pointer-events-none" />
-               <select 
-                 value={filterAccess} 
-                 onChange={(e) => setFilterAccess(e.target.value)}
-                 className="w-full md:w-auto pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 rounded-full outline-none cursor-pointer focus:border-[#CCFF00] hover:border-[#CCFF00] transition-all appearance-none"
-               >
-                 <option value="All">All Access</option>
-                 <option value="Public">Public Courts</option>
-                 <option value="Private">Private Courts</option>
-               </select>
-               <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* ✅ 3. Filter: Surface */}
-            <div className="relative group">
-               <Navigation size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-[#CCFF00] transition-colors pointer-events-none" />
-               <select 
-                 value={selectedSurface} 
-                 onChange={(e) => setSelectedSurface(e.target.value)}
-                 className="w-full md:w-auto pl-12 pr-10 py-4 bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 rounded-full outline-none cursor-pointer focus:border-[#CCFF00] hover:border-[#CCFF00] transition-all appearance-none"
-               >
-                 <option value="All">All Surfaces</option>
-                 <option value="Hard Court">Hard Court</option>
-                 <option value="Clay Court">Clay Court</option>
-                 <option value="Grass Court">Grass Court</option>
-                 <option value="Indoor">Indoor</option>
-               </select>
-               <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 w-full xl:w-auto justify-between xl:justify-end">
-            {/* View Toggle (อัปเกรดความโดดเด่น) */}
-            <div className="bg-slate-100 p-2 rounded-full flex border-2 border-slate-200/50 shadow-inner w-full sm:w-auto relative">
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 z-10 ${
-                  viewMode === 'list' 
-                  ? 'bg-slate-900 text-[#CCFF00] shadow-xl scale-105 ring-4 ring-slate-900/10' 
-                  : 'text-slate-400 hover:text-slate-900 hover:bg-white/60'
-                }`}
-              >
-                <List size={16} strokeWidth={3} /> List
-              </button>
-              <button 
-                onClick={() => setViewMode('map')}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 z-10 ${
-                  viewMode === 'map' 
-                  ? 'bg-[#CCFF00] text-slate-900 shadow-[0_8px_30px_rgba(204,255,0,0.4)] scale-105 ring-4 ring-[#CCFF00]/20' 
-                  : 'text-slate-400 hover:text-slate-900 hover:bg-white/60'
-                }`}
-              >
-                <MapIcon size={16} strokeWidth={3} /> Map
-              </button>
-            </div>
-            
-            {/* Add Court Button (สไตล์ใหม่: เนียนตา แต่โดดเด่นเมื่อเอาเมาส์ชี้) */}
-            {/* Add Court Button (สไตล์ Clay Court สีส้มอิฐ) */}
-            <Link 
-              href="/courts/add" 
-              className="group bg-[#E35205] text-white px-6 py-3.5 rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-[#C84402] hover:shadow-[0_8px_20px_rgba(227,82,5,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-md"
-            >
-              <div className="bg-white/20 rounded-full p-1 group-hover:scale-110 transition-transform">
-                <Plus size={14} strokeWidth={4} className="text-white" />
+      {/* MAP DISCOVERY SECTION - แก้ขนาดฟอนต์แล้ว */}
+      <section className="py-20 bg-slate-50 relative">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                 <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
+                 <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Interactive Discovery</span>
               </div>
-              <span className="hidden sm:inline">Add Court</span>
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
+                Explore <span className="text-[#84cc16]">Tennis Map</span>
+              </h2>
+            </div>
+            <Link href="/courts" className="bg-white border-2 border-slate-100 hover:border-[#CCFF00] px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all shadow-sm flex items-center gap-2">
+              Open Full Map Mode <Navigation size={14} />
             </Link>
           </div>
-        </div>
 
-        {/* --- DYNAMIC RENDER (MAP OR LIST) --- */}
-        {loading ? (
-          <div className="py-40 flex flex-col items-center gap-4">
-             <Loader2 className="animate-spin text-[#CCFF00]" size={40} />
-             <p className="font-black text-slate-400 uppercase text-xs tracking-widest">Finding Courts...</p>
-          </div>
-        ) : filteredCourts.length === 0 ? (
-          <div className="text-center py-32 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-             <span className="text-6xl mb-4 block">🎾</span>
-             <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-2">No Courts Found</h3>
-             <p className="text-slate-500 font-bold text-sm">Try adjusting your filters or search query.</p>
-          </div>
-        ) : viewMode === 'map' ? (
-          /* 🗺️ MAP VIEW */
-          <div className="w-full bg-white border border-slate-100 p-4 rounded-[3rem] shadow-2xl relative z-0 animate-in fade-in zoom-in-95 duration-300">
-            {!isLoaded ? (
-              <div className="h-[600px] flex items-center justify-center font-black text-slate-300 uppercase tracking-widest bg-slate-50 rounded-[2.5rem] animate-pulse">Loading Google Maps...</div>
+          <div className="bg-white p-4 rounded-[3rem] shadow-2xl shadow-slate-200/60 border border-white relative overflow-hidden">
+            
+            {/* Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-4 mb-4 p-4 bg-slate-50 rounded-3xl border border-slate-100 items-center justify-between">
+              <div className="flex items-center gap-2 text-slate-900 font-black uppercase italic tracking-wider text-sm">
+                <Filter size={18} className="text-[#84cc16]" /> Map Filters
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-[#CCFF00] transition-colors">
+                  <Shield size={14} className="text-slate-400 mr-2" />
+                  <select 
+                    value={filterAccess} 
+                    onChange={(e) => { setFilterAccess(e.target.value); setSelectedCourt(null); }}
+                    className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer appearance-none min-w-[120px]"
+                  >
+                    <option value="All">All Access</option>
+                    <option value="Public">Public Courts</option>
+                    <option value="Private">Private Courts</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-[#CCFF00] transition-colors">
+                  <Navigation size={14} className="text-slate-400 mr-2" />
+                  <select 
+                    value={filterSurface} 
+                    onChange={(e) => { setFilterSurface(e.target.value); setSelectedCourt(null); }}
+                    className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer appearance-none min-w-[120px]"
+                  >
+                    <option value="All">All Surfaces</option>
+                    <option value="Hard Court">Hard Court</option>
+                    <option value="Clay Court">Clay Court</option>
+                    <option value="Grass Court">Grass Court</option>
+                    <option value="Indoor">Indoor</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Maps */}
+            {loadError ? (
+              <div className="h-[500px] flex items-center justify-center text-red-500 font-bold bg-red-50 rounded-[2.5rem]">Map loading failed.</div>
+            ) : !isLoaded ? (
+              <div className="h-[500px] flex items-center justify-center text-slate-300 animate-pulse bg-slate-50 rounded-[2.5rem]">Tennis Courts Loading...</div>
             ) : (
-              <GoogleMap 
-                mapContainerStyle={mapContainerStyle} 
-                zoom={11} 
-                center={defaultCenter} 
-                options={mapOptions}
-              >
-                {filteredCourts.map(court => {
-                  if (!court.latitude || !court.longitude) return null;
-                  return (
-                    <MarkerF 
-                      key={court.id} 
-                      position={{ lat: Number(court.latitude), lng: Number(court.longitude) }} 
-                      onClick={() => setSelectedMarker(court)}
-                      // ✅ เปลี่ยนกลับมาใช้หมุดสีแดงมาตรฐานเพื่อป้องกันบั๊กรูปไม่ขึ้น
+              <GoogleMap mapContainerStyle={mapContainerStyle} zoom={11} center={center} options={mapOptions}>
+                {filteredCourts.map((court) => (
+                  court.latitude && court.longitude && (
+                    <MarkerF
+                      key={`map-${court.id}`}
+                      position={{ lat: Number(court.latitude), lng: Number(court.longitude) }}
+                      onClick={() => setSelectedCourt(court)}
                     />
                   )
-                })}
-                {selectedMarker && (
-                  <InfoWindowF 
-                    position={{ lat: Number(selectedMarker.latitude), lng: Number(selectedMarker.longitude) }} 
-                    onCloseClick={() => setSelectedMarker(null)}
-                  >
-                    <div className="p-2 max-w-[200px]">
-                      <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2 bg-slate-100">
-                        {selectedMarker.image_url ? (
-                          <img src={selectedMarker.image_url} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-2xl">🎾</div>
-                        )}
-                        <div className="absolute top-1 right-1 bg-white/90 text-slate-900 text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">
-                          {selectedMarker.court_type || 'Public'}
-                        </div>
+                ))}
+
+                {selectedCourt && (
+                  <InfoWindowF position={{ lat: Number(selectedCourt.latitude), lng: Number(selectedCourt.longitude) }} onCloseClick={() => setSelectedCourt(null)}>
+                    <div className="p-2 max-w-[200px] font-sans">
+                      <div className="rounded-lg overflow-hidden h-24 mb-3 border border-slate-100 bg-slate-50 flex items-center justify-center relative">
+                         <div className="absolute top-1 right-1 bg-white/90 text-slate-900 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+                           {selectedCourt.court_type || 'Public'}
+                         </div>
+                         {selectedCourt.image_url ? (
+                           <img src={selectedCourt.image_url} className="w-full h-full object-cover" />
+                         ) : (
+                           <span className="text-2xl">🎾</span>
+                         )}
                       </div>
-                      <h4 className="font-black text-slate-900 uppercase italic text-sm leading-tight mb-1">{selectedMarker.name}</h4>
-                      <p className="text-[10px] text-slate-500 font-bold mb-3 flex items-center gap-1"><MapPin size={10} /> {selectedMarker.location}</p>
-                      <Link href={`/courts/${selectedMarker.id}`} className="block text-center bg-[#CCFF00] hover:bg-slate-900 hover:text-[#CCFF00] transition-colors text-slate-900 text-[10px] font-black py-2 rounded-lg uppercase tracking-widest">
+                      <h4 className="font-black text-slate-900 uppercase italic text-sm leading-tight mb-1">{selectedCourt.name}</h4>
+                      <div className="flex flex-col gap-1 mb-3">
+                        <p className="text-[10px] text-slate-500 font-bold flex items-center gap-1"><MapPin size={10} /> {selectedCourt.location}</p>
+                      </div>
+                      <Link href={`/courts/${selectedCourt.id}`} className="block w-full bg-[#CCFF00] text-slate-900 text-center py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all">
                         View Details
                       </Link>
                     </div>
@@ -252,100 +244,101 @@ function CourtsContent() {
                 )}
               </GoogleMap>
             )}
-            {/* ป้ายแสดงจำนวนบนแผนที่ */}
-            <div className="absolute bottom-8 right-8 bg-slate-900 text-white px-4 py-2 rounded-2xl shadow-lg z-10 pointer-events-none flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse"></span>
-              <span className="text-[11px] font-black tracking-widest uppercase">{filteredCourts.length} Courts Found</span>
+            
+            <div className="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-slate-100 z-10">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Showing</span>
+              <span className="ml-2 text-sm font-black text-slate-900">{filteredCourts.length} Courts</span>
             </div>
           </div>
-        ) : (
-          /* 📋 LIST VIEW (GRID) */
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-500">
-              {displayedCourts.map((court) => (
-                <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full relative">
-                  <div className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#CCFF00]/10 hover:border-[#CCFF00]/50 transition-all duration-500 flex flex-col h-full">
-                    
-                    {/* Image / Thumbnail */}
-                    <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-                      
-                      {/* ✅ ป้าย Public/Private */}
-                      <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                        <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
-                      </div>
+        </div>
+      </section>
 
-                      <div className={`emoji-fallback ${court.image_url ? 'hidden' : ''} absolute inset-0 flex items-center justify-center`}>
-                        <span className="text-4xl">🎾</span>
-                      </div>
-                      {court.image_url && (
-                        <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={handleImgError} />
-                      )}
-                      
-                      {/* Badge: Featured/Recommended */}
-                      {court.is_featured && (
-                        <div className="absolute top-4 right-4 z-20">
-                          <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1.5">
-                            <Star size={10} fill="currentColor" /> Recommended
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 md:p-8 flex flex-col flex-grow">
-                      <div className="mb-3">
-                        <span className="text-[10px] font-black text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-lg uppercase tracking-widest flex inline-flex items-center gap-1.5">
-                          <Navigation size={10} className="text-[#84cc16]" /> {court.surface || 'Hard Court'}
-                        </span>
-                      </div>
-                      <h3 className="text-[20px] font-black text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight mb-3 uppercase italic line-clamp-2">
-                        {court.name}
-                      </h3>
-                      <p className="text-slate-500 text-[11px] font-bold uppercase flex items-center gap-1.5 mb-6 line-clamp-1">
-                        <MapPin size={14} className="text-slate-400" /> {court.location}
-                      </p>
-                      
-                      <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Rate / Hour</span>
-                          <span className="text-lg font-black text-slate-900 tracking-tight">฿{court.price_per_hour || 'N/A'}</span>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] transition-colors">
-                           <ArrowRight size={16} className="text-slate-400 group-hover:text-slate-900 group-hover:-rotate-45 transition-all" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Load More Button */}
-            {filteredCourts.length > visibleCount && (
-              <div className="mt-16 flex justify-center">
-                <button 
-                  onClick={() => setVisibleCount(prev => prev + 6)}
-                  className="flex flex-col items-center gap-3 group"
-                >
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-hover:text-slate-900 transition-colors">Load More</span>
-                  <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:border-[#CCFF00] transition-all shadow-sm">
-                    <ChevronDown size={20} className="text-slate-400 group-hover:text-slate-900 group-hover:translate-y-0.5 transition-all" />
-                  </div>
-                </button>
+      {/* RECOMMENDED COURTS */}
+      <section className="py-16 container mx-auto px-4 max-w-7xl">
+        <div className="flex justify-between items-end mb-10">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-[#CCFF00] rounded-full"></span>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic">Recommended Courts</h2>
+          </div>
+          <Link href="/courts" className="group flex items-center gap-1.5 text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">
+            View All Courts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {featuredCourts.map((court) => (
+            <Link href={`/courts/${court.id}`} key={court.id} className={`group rounded-[2rem] overflow-hidden transition-all duration-300 bg-white flex flex-col shadow-sm relative ${court.is_featured ? 'border-2 border-[#CCFF00] shadow-xl shadow-[#CCFF00]/15' : 'border border-slate-100 hover:border-[#CCFF00] hover:shadow-xl'}`}>
+              {court.is_featured && (
+                <div className="absolute top-0 right-0 z-20">
+                  <div className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-4 py-2 rounded-bl-2xl uppercase flex items-center gap-1"><Star size={10} fill="currentColor" /> Recommended</div>
+                </div>
+              )}
+              <div className="relative h-52 overflow-hidden bg-slate-50 flex items-center justify-center">
+                <div className={`emoji-fallback ${court.image_url ? 'hidden' : ''} flex flex-col items-center gap-2`}><span className="text-4xl">🎾</span></div>
+                {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImgError} />}
               </div>
-            )}
-          </>
-        )}
+              <div className="p-6 flex flex-grow flex-col">
+                <h3 className="text-[20px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-tight mb-2 uppercase italic">{court.name}</h3>
+                <p className="text-slate-500 text-xs mb-6 line-clamp-1">{court.location}</p>
+                <div className="mt-auto text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase">View Details</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
+      {/* ARTICLES & FORUM - แก้สี Tag แล้ว */}
+      <section className="py-16 bg-slate-50 border-t border-slate-100">
+          <div className="container mx-auto px-4 max-w-7xl">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                   <div className="flex justify-between items-end mb-8">
+                      <h2 className="text-xl font-black text-slate-900 italic uppercase">Latest Articles</h2>
+                      <Link href="/articles" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All Articles <BookOpen size={12} /></Link>
+                   </div>
+                   <div className="space-y-4">
+                      {articles.map((article) => (
+                        <Link href={`/articles/${article.id}`} key={article.id} className="group flex gap-4 p-4 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm">
+                           <div className="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center">
+                              {article.image_url ? <img src={article.image_url} className="w-full h-full object-cover" /> : <span className="text-2xl">🎾</span>}
+                           </div>
+                           <div className="flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-1.5 text-[10px] font-black uppercase text-slate-400">
+                                <span className="text-[#84cc16]">{article.category}</span>
+                                <span>{timeAgo(article.created_at)}</span>
+                              </div>
+                              <h3 className="text-[18px] font-black text-slate-900 group-hover:text-[#CCFF00] line-clamp-2 leading-tight">{article.title}</h3>
+                           </div>
+                        </Link>
+                      ))}
+                   </div>
+                </div>
+                <div>
+                   <div className="flex justify-between items-end mb-8">
+                      <h2 className="text-xl font-black text-slate-900 italic uppercase">Popular Topics</h2>
+                      <Link href="/forum" className="group flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">View All Topics <MessageSquare size={12} /></Link>
+                   </div>
+                   <div className="space-y-4">
+                      {forumPosts.map((post) => (
+                        <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-3xl hover:border-[#CCFF00] shadow-sm">
+                           <div className="flex items-center gap-3 mb-2">
+                              {/* ส่วนที่แก้ใหม่: เพิ่มสีสันให้ Tag */}
+                              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded shadow-sm border ${getTagColor(post.category)}`}>
+                                {post.category}
+                              </span>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <span>by {post.author_name}</span>
+                                <span className="ml-2">{timeAgo(post.created_at)}</span>
+                              </div>
+                           </div>
+                           <h4 className="text-[18px] font-black text-slate-900 group-hover:text-[#CCFF00] leading-snug">{post.title}</h4>
+                        </Link>
+                      ))}
+                   </div>
+                </div>
+             </div>
+          </div>
       </section>
     </main>
-  )
-}
-
-export default function CourtsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="animate-spin text-[#CCFF00]" size={40} /></div>}>
-      <CourtsContent />
-    </Suspense>
   )
 }

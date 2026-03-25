@@ -47,19 +47,9 @@ button, input, select, textarea {
   font-style: normal !important;
 }
 
-/* ---------------------------------------------------------
-   ✨ ตกแต่งส่วนเสริม (Utility Classes)
-   --------------------------------------------------------- */
-@layer components {
-  .btn-primary {
-    @apply bg-[#CCFF00] text-slate-900 font-bold px-6 py-3 rounded-xl 
-           hover:scale-105 transition-all shadow-lg shadow-[#CCFF00]/20;
-  }
-}
-
 /* ลบเงาที่อาจจะทำให้ตัวหนังสือดูเบลอหรือหนาผิดปกติ */
 .drop-shadow-lg, .drop-shadow-2xl {
-  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) !important;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.07)) !important;
 }
 
 /* ปรับแต่ง Scrollbar ให้ดู Minimal */

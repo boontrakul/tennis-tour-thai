@@ -1,246 +1,119 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
-  Search, MapPin, Map as MapIcon, List, Plus, Loader2, 
-  ChevronDown, Shield, Navigation, ArrowRight, Clock,
-  Car, PersonStanding, ShowerHead, Lock, Utensils, Store, Waves, Wifi, CheckCircle2 
+  ArrowLeft, MapPin, DollarSign, Phone, Tag, Clock, 
+  Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead,
+  CheckCircle2, Shield, ExternalLink, MessageSquare, Send, UserCircle, X
 } from 'lucide-react'
-import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
 
-// --- การตั้งค่าแผนที่ ---
-const mapContainerStyle = { width: '100%', height: '600px', borderRadius: '2.5rem' }
-const defaultCenter = { lat: 13.7563, lng: 100.5018 } 
-const libraries: any = ['places']
-const mapOptions = {
-  styles: [
-    { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-    { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] }
-  ],
-  disableDefaultUI: false,
-  zoomControl: true,
-}
-
-// ฟังก์ชันช่วยดึงไอคอนขนาดเล็กสำหรับแสดงในการ์ด
-const getFacilityIconSmall = (name: string) => {
+const getFacilityIcon = (name: string) => {
   const n = name.toLowerCase();
-  if (n.includes('parking')) return <Car size={14} />;
-  if (n.includes('shower')) return <ShowerHead size={14} />;
-  if (n.includes('wifi')) return <Wifi size={14} />;
-  if (n.includes('locker')) return <Lock size={14} />;
-  if (n.includes('changing')) return <PersonStanding size={14} />;
-  if (n.includes('food') || n.includes('restaurant')) return <Utensils size={14} />;
-  if (n.includes('shop')) return <Store size={14} />;
-  if (n.includes('pool') || n.includes('swim')) return <Waves size={14} />;
-  return <CheckCircle2 size={14} />;
+  if (n.includes('parking')) return <Car size={24} />;
+  if (n.includes('restaurant')) return <Utensils size={24} />;
+  if (n.includes('shop')) return <Store size={24} />;
+  if (n.includes('coach')) return <GraduationCap size={24} />;
+  if (n.includes('changing')) return <PersonStanding size={24} />;
+  if (n.includes('locker')) return <Lock size={24} />;
+  if (n.includes('pool')) return <Waves size={24} />;
+  if (n.includes('wifi')) return <Wifi size={24} />;
+  if (n.includes('shower')) return <ShowerHead size={24} />;
+  return <CheckCircle2 size={24} />;
 };
 
-function CourtsContent() {
-  const searchParams = useSearchParams()
-  const initialSearch = searchParams.get('search') || ''
-
-  const [courts, setCourts] = useState<any[]>([])
+export default function CourtDetailPage() {
+  const params = useParams() as { id: string }; 
+  const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [visibleCount, setVisibleCount] = useState(9)
-  const [searchQuery, setSearchQuery] = useState(initialSearch)
-  const [selectedSurface, setSelectedSurface] = useState('All') 
-  const [filterAccess, setFilterAccess] = useState('All')
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
-  const [selectedMarker, setSelectedMarker] = useState<any>(null)
-
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string || '',
-    libraries: libraries
-  })
+  const [activeImgIdx, setActiveImgIdx] = useState(0)
 
   useEffect(() => {
-    async function fetchCourts() {
-      setLoading(true)
-      const { data } = await supabase
-        .from('courts')
-        .select('*')
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false })
-      if (data) setCourts(data)
+    async function fetchData() {
+      const { data } = await supabase.from('courts').select('*').eq('id', params.id).single()
+      if (data) setCourt(data)
       setLoading(false)
     }
-    fetchCourts()
-  }, [])
+    fetchData()
+  }, [params])
 
-  const filteredCourts = courts.filter(court => {
-    const matchesSearch = court.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          court.location.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesSurface = selectedSurface === 'All' || court.surface === selectedSurface
-    const matchesAccess = filterAccess === 'All' || (court.court_type || 'Public') === filterAccess
-    return matchesSearch && matchesSurface && matchesAccess
-  })
+  if (loading || !court) return <div className="min-h-screen flex items-center justify-center font-black animate-pulse">LOADING...</div>
 
-  const displayedCourts = filteredCourts.slice(0, visibleCount)
-
-  if (loadError) return <div className="p-10 text-center font-bold text-red-500">Error loading Google Maps</div>
+  let gallery = Array.isArray(court.images) ? [...court.images] : [];
+  if (court.image_url && !gallery.includes(court.image_url)) gallery.unshift(court.image_url);
+  const facilities = court.facilities ? court.facilities.split(',').map((f: string) => f.trim()) : [];
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20 font-sans">
-      
-      {/* HERO SECTION */}
-      <section className="bg-slate-900 pt-32 pb-16 text-center text-white relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#CCFF00]/10 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="relative z-10">
-          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic leading-none mb-4">
-            Tennis <span className="text-[#CCFF00]">Courts</span>
-          </h1>
-          <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">Discover the best places to play in Thailand</p>
-        </div>
-      </section>
+    <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-xs mb-8 hover:text-[#84cc16] transition-colors"><ArrowLeft size={16} /> Back to Courts</Link>
 
-      <section className="container mx-auto px-4 max-w-7xl -mt-10 relative z-20">
-        
-        {/* CONTROLS BAR */}
-        <div className="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 mb-12 flex flex-col xl:flex-row gap-6 justify-between items-center">
-          <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto">
-            <div className="relative flex-grow md:w-80 group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#CCFF00]" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search by name or location..." 
-                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-full text-sm font-bold outline-none focus:border-[#CCFF00] transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="relative">
-              <select value={filterAccess} onChange={(e) => setFilterAccess(e.target.value)} className="pl-6 pr-10 py-4 bg-slate-50 border border-slate-200 text-sm font-bold rounded-full outline-none appearance-none cursor-pointer hover:border-[#CCFF00] transition-colors">
-                <option value="All">All Access</option>
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-
-            <div className="relative">
-              <select value={selectedSurface} onChange={(e) => setSelectedSurface(e.target.value)} className="pl-6 pr-10 py-4 bg-slate-50 border border-slate-200 text-sm font-bold rounded-full outline-none appearance-none cursor-pointer hover:border-[#CCFF00] transition-colors">
-                <option value="All">All Surfaces</option>
-                <option value="Hard Court">Hard Court</option>
-                <option value="Clay Court">Clay Court</option>
-                <option value="Grass Court">Grass Court</option>
-                <option value="Indoor">Indoor</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
+        {/* --- Photo Slider --- */}
+        <div className="mb-12">
+          <div className="relative w-full aspect-[16/9] md:h-[500px] bg-slate-200 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white mb-4">
+            <img src={gallery[activeImgIdx]} className="w-full h-full object-cover animate-in fade-in duration-500" alt={court.name} />
           </div>
-
-          <div className="flex items-center gap-4 w-full xl:w-auto justify-between">
-            <div className="bg-slate-100 p-2 rounded-full flex border-2 border-slate-200/50">
-              <button onClick={() => setViewMode('list')} className={`px-8 py-3 rounded-full text-xs font-black uppercase transition-all ${viewMode === 'list' ? 'bg-slate-900 text-[#CCFF00] shadow-lg' : 'text-slate-400'}`}>List</button>
-              <button onClick={() => setViewMode('map')} className={`px-8 py-3 rounded-full text-xs font-black uppercase transition-all ${viewMode === 'map' ? 'bg-[#CCFF00] text-slate-900 shadow-lg' : 'text-slate-400'}`}>Map</button>
+          {gallery.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {gallery.map((img: string, i: number) => (
+                <button key={i} onClick={() => setActiveImgIdx(i)} className={`relative flex-shrink-0 w-24 h-16 md:w-32 md:h-20 rounded-2xl overflow-hidden border-4 transition-all ${activeImgIdx === i ? 'border-[#CCFF00] scale-105' : 'border-transparent opacity-60'}`}>
+                  <img src={img} className="w-full h-full object-cover" alt="thumb" />
+                </button>
+              ))}
             </div>
-            <Link href="/courts/add" className="bg-[#E35205] text-white px-6 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-md">
-              <Plus size={14} strokeWidth={4} /> Add Court
-            </Link>
-          </div>
+          )}
         </div>
 
-        {loading ? (
-          <div className="py-40 flex flex-col items-center gap-4"><Loader2 className="animate-spin text-[#CCFF00]" size={40} /><p className="font-black text-slate-400 uppercase text-xs">Finding Courts...</p></div>
-        ) : viewMode === 'map' ? (
-          /* MAP VIEW */
-          <div className="w-full bg-white p-4 rounded-[3rem] shadow-2xl h-[600px] border border-slate-100">
-            <GoogleMap mapContainerStyle={mapContainerStyle} zoom={11} center={defaultCenter} options={mapOptions}>
-              {filteredCourts.map(court => (court.latitude && court.longitude) && <MarkerF key={court.id} position={{ lat: Number(court.latitude), lng: Number(court.longitude) }} onClick={() => setSelectedMarker(court)} />)}
-              {selectedMarker && (
-                <InfoWindowF position={{ lat: Number(selectedMarker.latitude), lng: Number(selectedMarker.longitude) }} onCloseClick={() => setSelectedMarker(null)}>
-                  <div className="p-2 max-w-[200px]">
-                    <h4 className="font-black text-slate-900 uppercase text-sm mb-1">{selectedMarker.name}</h4>
-                    <Link href={`/courts/${selectedMarker.id}`} className="block text-center bg-[#CCFF00] text-slate-900 text-[10px] font-black py-2 rounded-lg uppercase mt-2">View Details</Link>
+        {/* --- Content --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white rounded-[2.5rem] p-10 shadow-lg border border-slate-100">
+              <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase italic mb-4">{court.name}</h1>
+              <p className="flex items-center gap-2 text-slate-500 font-bold mb-6 uppercase tracking-widest text-xs"><MapPin size={16} className="text-[#84cc16]" /> {court.location}</p>
+              <div className="text-slate-600 leading-relaxed font-medium">{court.description || "No description provided."}</div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] p-10 shadow-lg border border-slate-100">
+              <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-8 flex items-center gap-3"><Tag className="text-[#CCFF00]" /> Facilities</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {facilities.map((f: string, i: number) => (
+                  <div key={i} className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-[#CCFF00] transition-all group">
+                    <div className="text-[#84cc16] mb-3 group-hover:scale-110 transition-transform">{getFacilityIcon(f)}</div>
+                    <span className="text-[10px] font-black text-slate-800 uppercase text-center tracking-widest leading-tight">{f}</span>
                   </div>
-                </InfoWindowF>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-slate-900 rounded-[2.5rem] p-10 shadow-xl text-white">
+              <h3 className="text-[#CCFF00] font-black uppercase italic tracking-widest mb-8 text-xl">Court Info</h3>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <Clock className="text-[#CCFF00]" />
+                  <div><p className="text-[10px] text-slate-400 uppercase font-black">Opening Hours</p><p className="font-bold">{court.opening_hours || '06:00 - 22:00'}</p></div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <DollarSign className="text-[#CCFF00]" />
+                  <div><p className="text-[10px] text-slate-400 uppercase font-black">Rate / Hour</p><p className="font-bold">฿ {court.price_per_hour || 'N/A'}</p></div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Phone className="text-[#CCFF00]" />
+                  <div><p className="text-[10px] text-slate-400 uppercase font-black">Contact</p><p className="font-bold">{court.phone || 'N/A'}</p></div>
+                </div>
+              </div>
+              {court.map_url && (
+                <a href={court.map_url} target="_blank" className="mt-10 w-full bg-[#CCFF00] text-slate-900 py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 hover:bg-white transition-all shadow-lg">
+                  <MapPin size={16} /> Open in Maps <ExternalLink size={14} />
+                </a>
               )}
-            </GoogleMap>
+            </div>
           </div>
-        ) : (
-          /* LIST VIEW */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedCourts.map((court) => {
-              const facilitiesArray = court.facilities ? court.facilities.split(',').map((f: string) => f.trim()) : [];
-              
-              return (
-                <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:border-[#CCFF00]/50 transition-all duration-500">
-                  {/* Image */}
-                  <div className="relative h-56 w-full bg-slate-100 overflow-hidden">
-                    <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                      <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
-                    </div>
-                    {court.image_url ? (
-                      <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🎾</div>
-                    )}
-                  </div>
-
-                  {/* Info Content */}
-                  <div className="p-6 md:p-8 flex flex-col flex-grow">
-                    <div className="mb-3">
-                      <span className="text-[10px] font-black text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg uppercase tracking-widest flex items-center gap-1.5 inline-flex border border-slate-200">
-                        <Navigation size={10} className="text-[#84cc16]" /> {court.surface || 'Hard Court'}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-xl font-black text-slate-900 group-hover:text-[#84cc16] transition-colors uppercase italic mb-2 line-clamp-1">{court.name}</h3>
-                    <p className="text-slate-500 text-[11px] font-bold uppercase flex items-center gap-1.5 mb-4"><MapPin size={14} className="text-slate-400" /> {court.location}</p>
-
-                    {/* ✅ SHOW ALL FACILITIES (COMPACT ICONS) */}
-                    {facilitiesArray.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-6 border-t border-slate-50 pt-4">
-                        {facilitiesArray.map((f: string, idx: number) => (
-                          <div key={idx} className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100" title={f}>
-                            <div className="text-[#84cc16]">{getFacilityIconSmall(f)}</div>
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{f}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Footer Info */}
-                    <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <Clock size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">{court.opening_hours || '06:00 - 22:00'}</span>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] transition-colors">
-                        <ArrowRight size={14} className="text-slate-400 group-hover:text-slate-900 group-hover:-rotate-45 transition-all" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Load More */}
-        {!loading && filteredCourts.length > visibleCount && (
-          <div className="mt-16 flex justify-center">
-            <button onClick={() => setVisibleCount(prev => prev + 6)} className="flex flex-col items-center gap-2 group">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Load More</span>
-              <div className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-[#CCFF00] transition-all"><ChevronDown size={18} /></div>
-            </button>
-          </div>
-        )}
-      </section>
+        </div>
+      </div>
     </main>
-  )
-}
-
-export default function CourtsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="animate-spin text-[#CCFF00]" size={40} /></div>}>
-      <CourtsContent />
-    </Suspense>
   )
 }

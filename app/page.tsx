@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
-import { Search, ArrowRight, Clock, Star, ChevronRight, MessageSquare, BookOpen, MapPin, Navigation, Filter, Shield } from 'lucide-react'
+import { Search, ArrowRight, Star, ChevronRight, MessageSquare, BookOpen, MapPin, Navigation, Filter, Shield } from 'lucide-react'
 
 const libraries: any = ['places']
 
@@ -67,7 +67,6 @@ export default function HomePage() {
         .select('*')
         .eq('status', 'approved')
         .order('is_featured', { ascending: false })
-        .order('created_at', { ascending: false })
         .limit(6)
         
       if (featured) setFeaturedCourts(featured)
@@ -88,20 +87,6 @@ export default function HomePage() {
     }
   }
 
-  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.currentTarget;
-    target.style.display = 'none';
-    const fallback = target.parentElement?.querySelector('.emoji-fallback');
-    if (fallback) fallback.classList.remove('hidden');
-  };
-
-  const filteredCourts = allCourts.filter(court => {
-    const accessType = court.court_type || 'Public'
-    const matchAccess = filterAccess === 'All' || accessType === filterAccess
-    const matchSurface = filterSurface === 'All' || court.surface === filterSurface
-    return matchAccess && matchSurface
-  })
-
   const getTagColor = (tag: string) => {
     switch (tag) {
       case 'หาเพื่อนตีเทนนิส': return 'bg-blue-50 text-blue-600 border-blue-100';
@@ -111,23 +96,29 @@ export default function HomePage() {
       default: return 'bg-slate-50 text-slate-600 border-slate-100';
     }
   };
-  
+
+  const filteredCourts = allCourts.filter(court => {
+    const accessType = court.court_type || 'Public'
+    const matchAccess = filterAccess === 'All' || accessType === filterAccess
+    const matchSurface = filterSurface === 'All' || court.surface === filterSurface
+    return matchAccess && matchSurface
+  })
+
   return (
     <main className="min-h-screen bg-white pb-10">
       
-      {/* HERO SECTION */}
-      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-gradient-to-b from-[#243c5a] via-[#1a2b41] to-white text-center">
+      {/* 1. HERO SECTION - ปรับฟอนต์เล็กลงและไม่เอียง */}
+      <section className="relative pt-40 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-[#1a2b41] text-center">
         <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#243c5a]/60 border border-[#CCFF00]/40 backdrop-blur-md mb-8">
-            <span className="text-sm">🎾</span>
-            <span className="text-[10px] font-black text-[#CCFF00] uppercase tracking-widest">Thailand's #1 Tennis Community</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
+            <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
           </div>
-          <h1 className="text-3xl md:text-6xl font-black text-white mb-8 uppercase italic leading-tight tracking-tighter">
+          <h1 className="text-3xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter leading-tight">
             Find the Perfect <br />
-            <span className="text-[#CCFF00] drop-shadow-[0_0_30px_rgba(204,255,0,0.3)]">Tennis Court for You</span>
+            <span className="text-[#CCFF00]">Tennis Court for You</span>
           </h1>
           <form onSubmit={handleSearch} className="max-w-xl mx-auto">
-            <div className="bg-white p-2 rounded-2xl flex items-center shadow-2xl border-2 border-white/5 focus-within:border-[#CCFF00] transition-all">
+            <div className="bg-white p-2 rounded-2xl flex items-center shadow-2xl transition-all">
               <div className="flex items-center gap-3 px-3 flex-grow text-slate-900">
                 <Search className="text-slate-400" size={18} />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search courts..." className="w-full py-2 bg-transparent border-none focus:ring-0 font-bold text-sm md:text-base outline-none" />
@@ -138,123 +129,103 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* MAP DISCOVERY SECTION */}
+      {/* 2. MAP DISCOVERY - หัวข้อเล็กลง สบายตา */}
       <section className="py-16 bg-slate-50 relative">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                  <span className="w-1 h-4 bg-[#CCFF00] rounded-full"></span>
-                 <span className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">Interactive Discovery</span>
+                 <span className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Discovery</span>
               </div>
-              <h2 className="text-xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">
                 Explore <span className="text-[#84cc16]">Tennis Map</span>
               </h2>
             </div>
-            <Link href="/courts" className="bg-white border border-slate-200 hover:border-[#CCFF00] px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all shadow-sm flex items-center gap-2 w-fit">
+            <Link href="/courts" className="bg-white border border-slate-200 px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
               Full Map Mode <Navigation size={12} />
             </Link>
           </div>
 
-          <div className="bg-white p-3 md:p-4 rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-white relative overflow-hidden">
-            <div className="flex flex-col md:flex-row gap-3 mb-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-900 font-black uppercase italic tracking-wider text-xs">
-                <Filter size={14} className="text-[#84cc16]" /> Map Filters
-              </div>
-              <div className="flex gap-2 w-full md:w-auto">
-                <select value={filterAccess} onChange={(e) => setFilterAccess(e.target.value)} className="bg-white border border-slate-200 text-[11px] font-bold text-slate-700 px-3 py-2 rounded-lg outline-none cursor-pointer flex-1 md:min-w-[120px]">
-                  <option value="All">All Access</option>
-                  <option value="Public">Public</option>
-                  <option value="Private">Private</option>
-                </select>
-                <select value={filterSurface} onChange={(e) => setFilterSurface(e.target.value)} className="bg-white border border-slate-200 text-[11px] font-bold text-slate-700 px-3 py-2 rounded-lg outline-none cursor-pointer flex-1 md:min-w-[120px]">
-                  <option value="All">All Surfaces</option>
-                  <option value="Hard Court">Hard Court</option>
-                  <option value="Clay Court">Clay Court</option>
-                  <option value="Grass Court">Grass Court</option>
-                  <option value="Indoor">Indoor</option>
-                </select>
-              </div>
-            </div>
+          <div className="bg-white p-2 md:p-3 rounded-[2.5rem] shadow-xl border border-white">
             {isLoaded ? (
               <GoogleMap mapContainerStyle={mapContainerStyle} zoom={11} center={center} options={mapOptions}>
-                {filteredCourts.map((court) => court.latitude && <MarkerF key={`map-${court.id}`} position={{ lat: Number(court.latitude), lng: Number(court.longitude) }} onClick={() => setSelectedCourt(court)} />)}
+                {filteredCourts.map((court) => court.latitude && (
+                  <MarkerF key={court.id} position={{ lat: Number(court.latitude), lng: Number(court.longitude) }} onClick={() => setSelectedCourt(court)} />
+                ))}
               </GoogleMap>
-            ) : <div className="h-[500px] bg-slate-50 animate-pulse rounded-[2.5rem]" />}
+            ) : <div className="h-[500px] bg-slate-100 animate-pulse rounded-[2.5rem]" />}
           </div>
         </div>
       </section>
 
-      {/* RECOMMENDED COURTS - แก้จุดวงกลม 1 & 2 */}
+      {/* 3. RECOMMENDED COURTS - แก้ชื่อสนามให้เล็กลง */}
       <section className="py-16 container mx-auto px-4 max-w-7xl">
-        <div className="flex justify-between items-end mb-10">
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-5 bg-[#CCFF00] rounded-full"></span>
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tight">Recommended Courts</h2>
-          </div>
-          <Link href="/courts" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors flex items-center gap-1">
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Recommended</h2>
+          <Link href="/courts" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] flex items-center gap-1">
             View All <ArrowRight size={12} />
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {featuredCourts.map((court) => (
-            <Link href={`/courts/${court.id}`} key={court.id} className={`group rounded-[2rem] overflow-hidden transition-all duration-300 bg-white flex flex-col shadow-sm relative border ${court.is_featured ? 'border-[#CCFF00]' : 'border-slate-100 hover:border-[#CCFF00]'}`}>
-              <div className="relative h-48 overflow-hidden bg-slate-50">
-                {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImgError} />}
+            <Link href={`/courts/${court.id}`} key={court.id} className="group rounded-[2rem] overflow-hidden border border-slate-100 bg-white shadow-sm hover:shadow-lg transition-all">
+              <div className="relative h-48 bg-slate-100">
+                {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />}
               </div>
               <div className="p-6">
-                <h3 className="text-[16px] md:text-[18px] font-black text-slate-900 group-hover:text-[#84cc16] leading-snug mb-1 uppercase italic tracking-tight">{court.name}</h3>
-                <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-wide mb-4 flex items-center gap-1"><MapPin size={12} /> {court.location}</p>
-                <div className="w-full text-center bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase tracking-widest">View Details</div>
+                <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#84cc16] mb-1 uppercase tracking-tight">
+                  {court.name}
+                </h3>
+                <p className="text-slate-400 text-[11px] font-medium uppercase mb-4 flex items-center gap-1"><MapPin size={12} /> {court.location}</p>
+                <div className="w-full text-center bg-slate-900 text-white py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all">
+                  Details
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ARTICLES & FORUM - แก้จุดวงกลม 3 & 4 */}
+      {/* 4. ARTICLES & FORUM - ขนาดกระทู้เล็กลงอ่านง่าย */}
       <section className="py-16 bg-slate-50 border-t border-slate-100">
-          <div className="container mx-auto px-4 max-w-7xl">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
-                <div>
-                   <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl md:text-2xl font-black text-slate-900 italic uppercase tracking-tight">Latest Articles</h2>
-                      <Link href="/articles" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All</Link>
-                   </div>
-                   <div className="space-y-4">
-                      {articles.map((article) => (
-                        <Link href={`/articles/${article.id}`} key={article.id} className="group flex gap-4 p-3 bg-white border border-slate-100 rounded-2xl hover:border-[#CCFF00] transition-all">
-                           <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-slate-50">
-                              {article.image_url ? <img src={article.image_url} className="w-full h-full object-cover" /> : <span className="text-xl">🎾</span>}
-                           </div>
-                           <div className="flex flex-col justify-center">
-                              <span className="text-[#84cc16] text-[9px] font-black uppercase mb-1 tracking-wider">{article.category}</span>
-                              <h3 className="text-[15px] md:text-[16px] font-black text-slate-900 group-hover:text-[#84cc16] line-clamp-2 leading-tight uppercase italic">{article.title}</h3>
-                           </div>
-                        </Link>
-                      ))}
-                   </div>
-                </div>
-                <div>
-                   <div className="flex justify-between items-end mb-8">
-                      <h2 className="text-xl md:text-2xl font-black text-slate-900 italic uppercase tracking-tight">Popular Topics</h2>
-                      <Link href="/forum" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All</Link>
-                   </div>
-                   <div className="space-y-4">
-                      {forumPosts.map((post) => (
-                        <Link href={`/forum/${post.id}`} key={post.id} className="group block p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#CCFF00] transition-all">
-                           <div className="flex items-center gap-3 mb-2">
-                              <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded border ${getTagColor(post.category)}`}>{post.category}</span>
-                              <span className="text-[9px] font-bold text-slate-400 uppercase">by {post.author_name}</span>
-                           </div>
-                           <h4 className="text-[15px] md:text-[16px] font-black text-slate-900 group-hover:text-[#84cc16] leading-snug uppercase italic">{post.title}</h4>
-                        </Link>
-                      ))}
-                   </div>
-                </div>
-             </div>
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Articles */}
+            <div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Latest Articles</h2>
+              <div className="space-y-4">
+                {articles.map((article) => (
+                  <Link href={`/articles/${article.id}`} key={article.id} className="group flex gap-4 p-3 bg-white border border-slate-100 rounded-2xl hover:border-[#CCFF00] transition-all">
+                    <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-slate-50">
+                      {article.image_url ? <img src={article.image_url} className="w-full h-full object-cover" /> : <span className="text-xl">🎾</span>}
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[#84cc16] text-[9px] font-bold uppercase mb-1">{article.category}</span>
+                      <h3 className="text-sm md:text-base font-bold text-slate-900 group-hover:text-[#84cc16] line-clamp-2 leading-tight uppercase">{article.title}</h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            {/* Forum */}
+            <div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Webboard</h2>
+              <div className="space-y-4">
+                {forumPosts.map((post) => (
+                  <Link href={`/forum/${post.id}`} key={post.id} className="group block p-4 bg-white border border-slate-100 rounded-2xl hover:border-[#CCFF00] transition-all">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded border ${getTagColor(post.category)}`}>{post.category}</span>
+                      <span className="text-[9px] font-medium text-slate-400 uppercase">by {post.author_name}</span>
+                    </div>
+                    <h4 className="text-sm md:text-base font-bold text-slate-900 group-hover:text-[#84cc16] leading-snug uppercase">{post.title}</h4>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
       </section>
     </main>
   )

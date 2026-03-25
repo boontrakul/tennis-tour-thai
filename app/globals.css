@@ -194,3 +194,18 @@ li {
 button {
   font-family: inherit;
 }
+/* --- บังคับหยุดเอียง 100% --- */
+* {
+  font-style: normal !important;
+}
+
+/* --- ล้างค่า Header ที่อาจจะใหญ่เกินไปจากจุดอื่น --- */
+h1, h2, h3, h4, h5, h6 {
+  font-style: normal !important;
+  letter-spacing: -0.02em !important; /* ช่วยให้หัวข้อดูแพงและกระชับขึ้น */
+}
+
+/* --- คุมขนาดตัวหนังสือใน Card และเนื้อหา --- */
+.line-clamp-1, .line-clamp-2 {
+  font-style: normal !important;
+}

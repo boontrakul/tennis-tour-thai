@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, MessageSquare, Send, UserCircle, Clock, CheckCircle2 } from 'lucide-react'
+import { 
+  ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, 
+  Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, 
+  Shield, MessageSquare, Send, UserCircle, Clock, CheckCircle2 
+} from 'lucide-react'
 
 export default function CourtDetailPage() {
-  // ✅ แก้ Error ที่ 1: บังคับ Type ให้ params เพื่อไม่ให้ Next.js บ่น
   const params = useParams() as { id: string }; 
   
   const [court, setCourt] = useState<any>(null)
@@ -194,8 +197,18 @@ export default function CourtDetailPage() {
 
           {galleryImages.length > 1 && (
             <>
-              <button onClick={prevHeroImg} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronLeft size={24} /></button>
-              <button onClick={nextHeroImg} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronRight size={24} /></button>
+              <button 
+                onClick={prevHeroImg} 
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button 
+                onClick={nextHeroImg} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"
+              >
+                <ChevronRight size={24} />
+              </button>
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 {galleryImages.map((_, i) => (
                   <div key={i} className={`h-1.5 rounded-full transition-all ${i === heroIdx ? 'bg-[#CCFF00] w-6' : 'bg-white/60 w-2'}`}></div>
@@ -355,13 +368,22 @@ export default function CourtDetailPage() {
           
           {galleryImages.length > 1 && (
             <>
-              <button onClick={handlePrevImage} className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"><ChevronLeft size={40} /></button>
-              <button onClick={handleNextImage} className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"><ChevronRight size={40} /></button>
+              <button 
+                onClick={handlePrevImage} 
+                className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"
+              >
+                <ChevronLeft size={40} />
+              </button>
+              <button 
+                onClick={handleNextImage} 
+                className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 text-white/50 hover:text-[#CCFF00] bg-black/20 hover:bg-black/50 p-4 rounded-full transition-all z-50 backdrop-blur-sm"
+              >
+                <ChevronRight size={40} />
+              </button>
             </>
           )}
 
           <div className="relative max-w-6xl w-full h-full flex items-center justify-center pointer-events-none" onClick={(e) => e.stopPropagation()}>
-            {/* ✅ แก้ Error ที่ 2: ระบุ Type ชัดเจนตอนดึงรูปภาพ */}
             <img src={galleryImages[selectedIndex as number]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl pointer-events-auto" />
           </div>
         </div>

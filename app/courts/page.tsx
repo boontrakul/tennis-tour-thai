@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
-  Search, MapPin, List, Plus, Star, Loader2, Shield, Navigation, ArrowRight, Clock,
+  Search, MapPin, List, Plus, Star, Loader2, Shield, Navigation, Clock,
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2 
 } from 'lucide-react'
 
@@ -48,16 +48,16 @@ function CourtsContent() {
   const filteredCourts = courts.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans">
+    <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans text-slate-900">
       <div className="container mx-auto px-4 max-w-7xl">
         
         {/* Search Bar */}
         <div className="mb-12 max-w-xl mx-auto">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#CCFF00] transition-colors" size={18} />
             <input 
               type="text" placeholder="Search court name..." 
-              className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-full shadow-lg outline-none focus:ring-2 focus:ring-[#CCFF00] transition-all text-sm font-medium"
+              className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-full shadow-lg outline-none focus:ring-2 focus:ring-[#CCFF00] transition-all text-sm font-medium text-slate-900 placeholder:text-slate-300"
               value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
@@ -73,14 +73,13 @@ function CourtsContent() {
             {filteredCourts.map((court) => {
               const facilitiesArray = court.facilities ? court.facilities.split(',').map((f: string) => f.trim()) : [];
               const displayFacilities = facilitiesArray.slice(0, 5); // เลือกมาแค่ 5 ตัวแรก
-              const hasMore = facilitiesArray.length > 5;
               
               return (
                 <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white rounded-[2.2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
                   
                   {/* Image Section */}
                   <div className="relative h-52 w-full bg-slate-100 overflow-hidden">
-                    <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase flex items-center gap-1.5">
+                    <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase flex items-center gap-1.5 shadow-sm">
                       <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
                     </div>
 
@@ -95,7 +94,7 @@ function CourtsContent() {
                     {court.image_url ? (
                       <img src={court.image_url} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🎾</div>
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-slate-100">🎾</div>
                     )}
                   </div>
 
@@ -107,11 +106,11 @@ function CourtsContent() {
                       </span>
                     </div>
                     
-                    <h3 className="text-[1.1rem] font-extrabold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight mb-2 uppercase line-clamp-1">
+                    <h3 className="text-[1.1rem] font-extrabold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight mb-2 uppercase italic line-clamp-1">
                       {court.name}
                     </h3>
                     
-                    {/* ✅ แก้ไข: ย้ายเวลามาอยู่แถวเดียวกับสถานที่ และปรับขนาดให้ใหญ่ขึ้น */}
+                    {/* Location & Opening Hours Row */}
                     <div className="flex justify-between items-center mb-5">
                       <div className="flex items-center gap-1.5 text-slate-500 text-[13px] font-bold uppercase truncate max-w-[60%]">
                         <MapPin size={14} className="text-[#84cc16] shrink-0" />
@@ -123,7 +122,7 @@ function CourtsContent() {
                       </div>
                     </div>
 
-                    {/* ✅ Facilities: แสดงแค่ 5 รายการ + See more */}
+                    {/* Facilities: แสดงแค่ 5 รายการ (เอาปุ่ม See more ออก) */}
                     <div className="flex flex-wrap gap-2 mb-6 border-t border-slate-50 pt-5">
                       {displayFacilities.map((f: string, idx: number) => (
                         <div key={idx} className="flex items-center gap-1.5 bg-slate-50/80 px-2.5 py-1 rounded-lg border border-slate-100">
@@ -133,19 +132,12 @@ function CourtsContent() {
                           </span>
                         </div>
                       ))}
-                      {hasMore && (
-                        <div className="flex items-center px-2 py-1 rounded-lg border border-dashed border-slate-200">
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
-                             + See more
-                           </span>
-                        </div>
-                      )}
                     </div>
                     
-                    {/* Footer Arrow */}
-                    <div className="mt-auto pt-4 border-t border-slate-50 flex justify-end">
-                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all">
-                        <ArrowRight size={14} />
+                    {/* ✅ เพิ่มปุ่ม "More detail..." ท้ายการ์ด */}
+                    <div className="mt-auto pt-4 border-t border-slate-50">
+                      <div className="w-full text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase tracking-widest shadow-md">
+                        More detail...
                       </div>
                     </div>
                   </div>
@@ -161,7 +153,7 @@ function CourtsContent() {
 
 export default function CourtsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold">Loading...</div>}>
       <CourtsContent />
     </Suspense>
   )

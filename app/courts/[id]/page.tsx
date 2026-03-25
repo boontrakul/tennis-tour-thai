@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useParams } from 'next/navigation' // ลบ useRouter ออกเพราะไม่ได้ใช้
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-// ลบไอคอน User ออกเพราะเราใช้ UserCircle แทน
 import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, MessageSquare, Send, UserCircle, Clock, CheckCircle2 } from 'lucide-react'
 
 export default function CourtDetailPage() {
-  const params = useParams()
+  // ✅ แก้ Error ที่ 1: บังคับ Type ให้ params เพื่อไม่ให้ Next.js บ่น
+  const params = useParams() as { id: string }; 
+  
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
@@ -114,7 +115,7 @@ export default function CourtDetailPage() {
       galleryImages = []
     }
   }
-  galleryImages = galleryImages.filter(img => typeof img === 'string' && img.trim() !== '')
+  galleryImages = galleryImages.filter((img: any) => typeof img === 'string' && img.trim() !== '')
   if (court.image_url && !galleryImages.includes(court.image_url)) {
     galleryImages.unshift(court.image_url)
   }
@@ -155,7 +156,6 @@ export default function CourtDetailPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 pb-20 font-sans">
-      
       <div className="container mx-auto px-4 max-w-5xl pt-24 md:pt-32">
         
         <div className="mb-8">
@@ -220,7 +220,7 @@ export default function CourtDetailPage() {
                 Facilities
               </h3>
               <div className="flex flex-wrap gap-2.5">
-                {facilitiesList.map((facility, idx) => (
+                {facilitiesList.map((facility: string, idx: number) => (
                   <span 
                     key={idx} 
                     className="bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-2 border border-slate-200 shadow-sm"
@@ -361,7 +361,8 @@ export default function CourtDetailPage() {
           )}
 
           <div className="relative max-w-6xl w-full h-full flex items-center justify-center pointer-events-none" onClick={(e) => e.stopPropagation()}>
-            <img src={galleryImages[selectedIndex]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl pointer-events-auto" />
+            {/* ✅ แก้ Error ที่ 2: ระบุ Type ชัดเจนตอนดึงรูปภาพ */}
+            <img src={galleryImages[selectedIndex as number]} alt="Large view" className="max-h-[90vh] max-w-full object-contain rounded-lg shadow-2xl pointer-events-auto" />
           </div>
         </div>
       )}

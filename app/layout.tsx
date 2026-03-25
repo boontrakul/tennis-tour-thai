@@ -6,7 +6,7 @@ import Navbar from '../components/navbar'
 import Footer from '../components/footer'
 
 const inter = Inter({ 
-  subsets: ['latin', 'thai'],
+  subsets: ['latin', 'latin'],
   display: 'swap',
   variable: '--font-inter',
 })

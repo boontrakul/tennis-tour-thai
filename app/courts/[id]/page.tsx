@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation' // ลบ useRouter ออกเพราะไม่ได้ใช้
 import Link from 'next/link'
-import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, User, MessageSquare, Send, UserCircle } from 'lucide-react'
+// ลบไอคอน User ออกเพราะเราใช้ UserCircle แทน
+import { ArrowLeft, MapPin, DollarSign, Phone, Tag, Navigation, Image as ImageIcon, ExternalLink, X, ChevronLeft, ChevronRight, Shield, MessageSquare, Send, UserCircle, Clock, CheckCircle2 } from 'lucide-react'
 
 export default function CourtDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const [court, setCourt] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
@@ -114,11 +114,24 @@ export default function CourtDetailPage() {
       galleryImages = []
     }
   }
-  
   galleryImages = galleryImages.filter(img => typeof img === 'string' && img.trim() !== '')
-  
   if (court.image_url && !galleryImages.includes(court.image_url)) {
     galleryImages.unshift(court.image_url)
+  }
+
+  const defaultFacilities = [
+    'Parking', 'Restaurant', 'Pro Shop', 'Coaching', 
+    'Changing Rooms', 'Lockers', 'Swimming Pool', 
+    'Lighting (ไฟส่องสว่าง)', 'Showers', 'Wi-Fi'
+  ];
+
+  let facilitiesList = [];
+  if (court.facilities && typeof court.facilities === 'string') {
+    facilitiesList = court.facilities.split(',').map((f: string) => f.trim());
+  } else if (Array.isArray(court.facilities)) {
+    facilitiesList = court.facilities;
+  } else {
+    facilitiesList = defaultFacilities; 
   }
 
   const handlePrevImage = (e: React.MouseEvent) => {
@@ -131,7 +144,6 @@ export default function CourtDetailPage() {
     if (selectedIndex === null) return
     setSelectedIndex(selectedIndex === galleryImages.length - 1 ? 0 : selectedIndex + 1)
   }
-
   const prevHeroImg = (e: React.MouseEvent) => {
     e.stopPropagation()
     setHeroIdx(prev => prev === 0 ? galleryImages.length - 1 : prev - 1)
@@ -144,10 +156,8 @@ export default function CourtDetailPage() {
   return (
     <main className="min-h-screen bg-slate-50 pb-20 font-sans">
       
-      {/* 🟢 คอนเทนเนอร์หลัก ครอบทั้ง Header และ เนื้อหา */}
       <div className="container mx-auto px-4 max-w-5xl pt-24 md:pt-32">
         
-        {/* --- ✅ 1. HEADER SECTION (ข้อมูลอยู่ด้านบนสุด ไม่มีทับรูป) --- */}
         <div className="mb-8">
           <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-xs tracking-widest mb-6 hover:text-[#84cc16] transition-colors">
             <ArrowLeft size={16} /> Back to Courts
@@ -170,13 +180,11 @@ export default function CourtDetailPage() {
           </p>
         </div>
 
-        {/* --- ✅ 2. HERO IMAGE (อยู่ในกรอบโค้งมน สะอาดตา) --- */}
         <div className="relative w-full aspect-[16/9] md:h-[500px] bg-slate-200 rounded-[2rem] overflow-hidden group shadow-lg mb-10 border-4 border-white">
           {galleryImages.length > 0 ? (
             <img 
               src={galleryImages[heroIdx]} 
               alt={court.name} 
-              // ใส่ object-contain ถ้าไม่อยากให้รูปโดนตัดขอบเลย หรือ object-cover เพื่อให้เต็มกรอบสวยงาม
               className="w-full h-full object-cover cursor-pointer transition-transform duration-700 group-hover:scale-[1.02]" 
               onClick={() => setSelectedIndex(heroIdx)} 
             />
@@ -184,16 +192,10 @@ export default function CourtDetailPage() {
             <div className="w-full h-full flex items-center justify-center text-6xl">🎾</div>
           )}
 
-          {/* ปุ่มเลื่อนรูปในกรอบ */}
           {galleryImages.length > 1 && (
             <>
-              <button onClick={prevHeroImg} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
-                <ChevronLeft size={24} />
-              </button>
-              <button onClick={nextHeroImg} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
-                <ChevronRight size={24} />
-              </button>
-              
+              <button onClick={prevHeroImg} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronLeft size={24} /></button>
+              <button onClick={nextHeroImg} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10"><ChevronRight size={24} /></button>
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 {galleryImages.map((_, i) => (
                   <div key={i} className={`h-1.5 rounded-full transition-all ${i === heroIdx ? 'bg-[#CCFF00] w-6' : 'bg-white/60 w-2'}`}></div>
@@ -203,10 +205,8 @@ export default function CourtDetailPage() {
           )}
         </div>
 
-        {/* --- ✅ 3. MAIN CONTENT (ข้อมูลรายละเอียด) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* About Facility */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
             <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
               <Tag className="text-[#CCFF00]" size={24} /> About Facility
@@ -214,9 +214,24 @@ export default function CourtDetailPage() {
             <div className="text-slate-600 font-medium text-base md:text-lg leading-relaxed whitespace-pre-line">
               {court.description || "No description provided for this court."}
             </div>
+
+            <div className="mt-10 pt-8 border-t border-slate-100">
+              <h3 className="font-bold text-slate-900 uppercase tracking-tight mb-5 text-lg">
+                Facilities
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {facilitiesList.map((facility, idx) => (
+                  <span 
+                    key={idx} 
+                    className="bg-slate-50 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-full flex items-center gap-2 border border-slate-200 shadow-sm"
+                  >
+                    <CheckCircle2 size={14} className="text-[#84cc16]" strokeWidth={3} /> {facility}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Court Info & Map */}
           <div className="lg:col-span-1 lg:row-span-3 space-y-6">
             <div className="bg-slate-900 rounded-[2rem] p-8 shadow-xl text-white">
               <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-xl">
@@ -224,6 +239,14 @@ export default function CourtDetailPage() {
               </h3>
               
               <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><Clock size={20} className="text-[#CCFF00]" /></div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Opening Hours</p>
+                    <p className="text-lg font-bold">{court.opening_hours || '06:00 - 22:00'}</p>
+                  </div>
+                </div>
+
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"><DollarSign size={20} className="text-[#CCFF00]" /></div>
                   <div>
@@ -265,7 +288,6 @@ export default function CourtDetailPage() {
             </div>
           </div>
 
-          {/* Court Gallery */}
           {galleryImages.length > 0 && (
             <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
               <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
@@ -286,7 +308,6 @@ export default function CourtDetailPage() {
             </div>
           )}
 
-          {/* Community Reviews */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 md:p-10 shadow-lg shadow-slate-200/40 border border-slate-100">
             <h2 className="font-bold text-slate-900 uppercase tracking-tighter mb-6 flex items-center gap-3 text-xl md:text-2xl">
               <MessageSquare className="text-[#CCFF00]" size={24} /> Community Reviews
@@ -325,7 +346,6 @@ export default function CourtDetailPage() {
         </div>
       </div>
 
-      {/* IMAGE MODAL */}
       {selectedIndex !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedIndex(null)}>
           <button onClick={() => setSelectedIndex(null)} className="absolute top-6 right-6 text-white/70 hover:text-[#CCFF00] transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-full z-50">

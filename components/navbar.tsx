@@ -31,7 +31,6 @@ export default function Navbar() {
     setUser(null)
   }
 
-  // รายการเมนูสำหรับใช้ทั้ง Desktop และ Mobile
   const navLinks = [
     { name: 'HOME', href: '/', icon: <Home size={20} strokeWidth={2.5} /> },
     { name: 'COURTS', href: '/courts', icon: <MapPin size={20} strokeWidth={2.5} /> },
@@ -41,14 +40,17 @@ export default function Navbar() {
 
   return (
     <>
-      {/* --- TOP NAVBAR (แสดงผลทั้ง Desktop และ Mobile แต่ซ่อนเมนูใน Mobile) --- */}
       <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 md:px-6 py-4 shadow-sm">
         <div className="container mx-auto flex justify-between items-center">
           
-          {/* Logo */}
+          {/* ✅ ส่วน Logo: ดึงจาก /logo.png แบบคลีนๆ */}
           <Link href="/" className="flex items-center gap-2 md:gap-3 group">
-            <div className="w-9 h-9 md:w-11 md:h-11 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-lg group-hover:rotate-12 transition-all overflow-hidden">
-                <img src="https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png" className="w-6 h-6 md:w-7 md:h-7 object-contain" alt="logo" />
+            <div className="w-9 h-9 md:w-11 md:h-11 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-lg group-hover:rotate-12 transition-all overflow-hidden border border-white/50">
+                <img 
+                  src="/logo.png" 
+                  className="w-full h-full object-cover" 
+                  alt="Tennis Tour Thai Logo"
+                />
             </div>
             <div className="flex flex-col">
               <span className="font-black text-lg md:text-2xl italic uppercase tracking-tighter text-slate-900 leading-none">
@@ -60,7 +62,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation (ซ่อนใน Mobile เพราะเรามีแถบล่าง) */}
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -77,7 +79,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Auth Section (Desktop) / Join Button (Mobile) */}
+          {/* Auth Section */}
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-4 md:gap-6">
@@ -102,7 +104,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ✅ BOTTOM NAVIGATION (แสดงผลเฉพาะใน Mobile ตลอดเวลาที่ด้านล่างจอ) */}
+      {/* ✅ BOTTOM NAVIGATION (Mobile Only) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-100 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
         <div className="flex justify-around items-center h-16">
           {navLinks.map((link) => (
@@ -128,7 +130,6 @@ export default function Navbar() {
             </Link>
           ))}
           
-          {/* ปุ่ม Profile/Me สำหรับ Mobile */}
           <Link href={user ? "/profile" : "/signin"} className={`flex flex-col items-center gap-1 w-full ${pathname === '/profile' || pathname === '/signin' ? 'text-[#84cc16]' : 'text-slate-400'}`}>
             <div className={`p-1.5 rounded-xl ${pathname === '/profile' || pathname === '/signin' ? 'bg-[#CCFF00]/20' : ''}`}>
               <UserCircle size={20} strokeWidth={2.5} />

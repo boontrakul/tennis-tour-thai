@@ -10,7 +10,11 @@ import { Search, MapPin, Star, ChevronRight, Navigation, Shield, ArrowRight, Mes
 // --- Map Configuration ---
 const libraries: any = ['places']
 const mapOptions = {
-  styles: [{ "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] }, { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] }],
+  // สไตล์แผนที่แบบคลีน
+  styles: [
+    { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] }, 
+    { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] }
+  ],
   disableDefaultUI: false,
   zoomControl: true,
 }
@@ -97,7 +101,14 @@ export default function HomePage() {
         </div>
         <div className="border-4 border-slate-50 shadow-2xl rounded-[2.5rem] overflow-hidden bg-slate-100">
           {isLoaded ? (
-            <GoogleMap mapContainerStyle={mapContainerStyle} zoom={11} center={center} options={mapOptions}>
+            <GoogleMap 
+              mapContainerStyle={mapContainerStyle} 
+              zoom={11} 
+              center={center} 
+              options={mapOptions}
+              // ✅ เปิดโหมด Hybrid: เห็นภาพดาวเทียมพร้อมเส้นถนนและชื่อซอย
+              mapTypeId="hybrid"
+            >
               {allCourts.map((court) => court.latitude && (
                 <MarkerF key={court.id} position={{ lat: Number(court.latitude), lng: Number(court.longitude) }} onClick={() => setSelectedCourt(court)} />
               ))}
@@ -146,6 +157,7 @@ export default function HomePage() {
           ))}
         </div>
 
+        {/* ปุ่ม Explore Full Directory ท้ายส่วนสนาม */}
         <div className="text-center">
              <Link href="/courts" className="inline-flex items-center gap-3 bg-slate-900 text-[#CCFF00] px-10 py-5 rounded-full font-black text-sm uppercase tracking-[0.3em] hover:bg-[#CCFF00] hover:text-slate-900 hover:scale-105 transition-all shadow-2xl">
                 Explore Full Directory <ArrowRight size={18} />
@@ -172,7 +184,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col justify-center overflow-hidden">
                       <span className="text-[#84cc16] text-[9px] font-black uppercase mb-1">{art.category}</span>
-                      <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] line-clamp-2">{art.title}</h3>
+                      <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] line-clamp-2 whitespace-normal break-words">{art.title}</h3>
                     </div>
                   </Link>
                 ))}

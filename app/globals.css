@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-/* 1. บังคับหยุดเอียงทุุกจุดในเว็บไซต์ */
+/* 1. บังคับหยุดเอียงทุกจุดในเว็บไซต์ */
 * {
   font-style: normal !important;
 }
 
-/* 2. บังคับแสดงชื่อเต็ม: ห้ามตัดบรรทัด ห้ามใช้ไข่ปลา และขึ้นบรรทัดใหม่เสมอ */
+/* 2. บังคับแสดงชื่อเต็ม: ห้ามใช้จุดไข่ปลา และขึ้นบรรทัดใหม่เสมอ */
 h1, h2, h3, h4, h5, h6 {
   overflow: visible !important;
   text-overflow: clip !important;
@@ -17,7 +17,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word !important;
 }
 
-/* 3. ปรับขนาดฟอนต์ให้สมดุล (Responsive) และอ่านง่าย */
+/* 3. ปรับขนาดฟอนต์ให้สมดุล (Responsive) */
 h1 { 
   font-size: clamp(1.5rem, 5vw, 2.5rem) !important; 
   line-height: 1.2 !important; 
@@ -49,10 +49,24 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden; /* ป้องกันหน้าเว็บเลื่อนซ้ายขวาเกินจำเป็น */
+  overflow-x: hidden;
 }
 
-/* 5. Custom Scrollbar ให้ดูพรีเมียมเข้ากับดีไซน์ */
+/* 5. ✅ ส่วนที่เพิ่ม: รองรับ Bottom Navigation และ Safe Area (iPhone) */
+@layer utilities {
+  /* คลาสสำหรับเว้นระยะด้านล่างให้พ้นรอยบากหรือแถบ Home ของมือถือ */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-safe {
+    bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* 6. Custom Scrollbar ให้ดูพรีเมียม */
 ::-webkit-scrollbar {
   width: 8px;
 }

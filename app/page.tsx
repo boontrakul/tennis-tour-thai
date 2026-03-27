@@ -10,7 +10,6 @@ import { Search, MapPin, Star, ChevronRight, Navigation, Shield, ArrowRight, Mes
 // --- Map Configuration ---
 const libraries: any = ['places']
 const mapOptions = {
-  // นำ Styles ออกชั่วคราวเพื่อให้เห็นสีถนนมาตรฐานของ Google ที่ชัดเจนที่สุด
   disableDefaultUI: false,
   zoomControl: true,
 }
@@ -91,7 +90,8 @@ export default function HomePage() {
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Explore Map</h2>
           </div>
-          <Link href="/courts" className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+          {/* ✅ แก้ไข Link ให้ไปหน้า /map เต็มจอ */}
+          <Link href="/map" className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
             Full Map <Navigation size={12} />
           </Link>
         </div>
@@ -102,7 +102,6 @@ export default function HomePage() {
               zoom={12} 
               center={center} 
               options={mapOptions}
-              // ✅ บังคับโหมด HYBRID เพื่อให้เห็นเส้นถนนและชื่อสถานที่บนภาพดาวเทียม
               mapTypeId="hybrid"
             >
               {allCourts.map((court) => court.latitude && (

@@ -5,7 +5,16 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
-import { Search, MapPin, Star, ChevronRight, Navigation, Clock, Shield } from 'lucide-react'
+import { Search, MapPin, Star, ChevronRight, Navigation, Clock, Shield, CircleDot } from 'lucide-react'
+
+// --- Custom Tennis Racket Icon Component ---
+const TennisIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" stroke="currentColor" cy="10" r="7" />
+    <path d="m15 15 6 6" stroke="currentColor" />
+    <path d="m12 12 2 2" stroke="currentColor" />
+  </svg>
+)
 
 // --- Map Configuration ---
 const libraries: any = ['places']
@@ -54,13 +63,10 @@ export default function HomePage() {
     async function fetchData() {
       const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
       if (all) setAllCourts(all)
-
       const { data: featured } = await supabase.from('courts').select('*').eq('status', 'approved').order('is_featured', { ascending: false }).limit(6)
       if (featured) setFeaturedCourts(featured)
-
       const { data: a } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(3)
       if (a) setArticles(a);
-
       const { data: f } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false }).limit(4)
       if (f) setForumPosts(f);
     }
@@ -71,19 +77,19 @@ export default function HomePage() {
     <main className="min-h-screen bg-white pb-20 font-sans">
       
       {/* 1. HERO SECTION */}
-      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4 relative overflow-hidden">
+      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
             <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter leading-tight">
+          <h1 className="text-3xl md:text-5xl font-black mb-8 uppercase tracking-tighter leading-tight">
             Find the Perfect <br />
             <span className="text-[#CCFF00]">Tennis Court for You</span>
           </h1>
           <form onSubmit={(e) => { e.preventDefault(); if(searchQuery) router.push(`/courts?search=${searchQuery}`) }} className="max-w-md mx-auto bg-white p-2 rounded-2xl flex shadow-2xl">
              <Search className="ml-3 text-slate-400 self-center" size={18} />
-             <input type="text" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search courts..." className="flex-grow px-3 outline-none text-sm font-bold bg-transparent" />
-             <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase transition-transform active:scale-95">Search</button>
+             <input type="text" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search courts..." className="flex-grow px-3 outline-none text-sm font-bold bg-transparent text-slate-900" />
+             <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase">Search</button>
           </form>
         </div>
       </section>
@@ -130,13 +136,21 @@ export default function HomePage() {
           {featuredCourts.map((court) => (
             <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500 relative">
               
-              {/* ✅ ปรับปรุง: ไม้เทนนิสในวงกลมสีเขียวสด */}
-              <div className="absolute top-4 left-4 z-30 w-12 h-12 rounded-full bg-[#CCFF00] border-2 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="text-3xl text-slate-900 select-none">🎾</span>
+              {/* ✅ โลโก้ไม้เทนนิสในวงกลมเขียว (แก้ไขตำแหน่งให้ลอยทับรูป ไม่ทับตัวหนังสือ) */}
+              <div className="absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-[#CCFF00] border-2 border-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="text-slate-900">
+                  <TennisIcon />
+                </div>
               </div>
               
               <div className="relative h-48 overflow-hidden bg-slate-100">
+                {/* Badge Public/Private อยู่ที่เดิม */}
+                <div className="absolute top-4 left-16 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase flex items-center gap-1.5 shadow-sm">
+                  <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
+                </div>
+
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />}
+                
                 {court.is_featured && (
                   <div className="absolute top-4 right-4 z-20">
                     <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5 border border-white/20">
@@ -145,6 +159,7 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
+
               <div className="p-6 flex flex-col flex-grow">
                 <h3 className="font-bold text-slate-900 text-base md:text-[1.1rem] mb-1 uppercase tracking-tight group-hover:text-[#84cc16] transition-colors leading-snug whitespace-normal break-words">
                   {court.name}
@@ -161,60 +176,38 @@ export default function HomePage() {
 
       {/* 4. ARTICLES & WEBBOARD */}
       <section className="py-16 bg-slate-50 border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            
-            {/* Latest Articles */}
+        <div className="container mx-auto px-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-8">
-              <div className="flex justify-between items-end">
-                <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Latest Articles</h2>
-                <Link href="/articles" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">View All</Link>
-              </div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase">Latest Articles</h2>
               <div className="space-y-4">
                 {articles.map(art => (
-                  <Link href={`/articles/${art.id}`} key={art.id} className="group flex gap-4 p-3 bg-white rounded-2xl border border-slate-100 hover:border-[#CCFF00] hover:shadow-md transition-all">
-                    <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-slate-50">
-                      {art.image_url ? <img src={art.image_url} alt={art.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">🎾</div>}
-                    </div>
+                  <Link href={`/articles/${art.id}`} key={art.id} className="group flex gap-4 p-3 bg-white rounded-2xl border border-slate-100 hover:border-[#CCFF00] transition-all">
+                    <img src={art.image_url} alt={art.title} className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
                     <div className="flex flex-col justify-center">
-                      <span className="text-[#84cc16] text-[9px] font-bold uppercase mb-1 tracking-wider">{art.category}</span>
-                      <h3 className="text-sm md:text-base font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] transition-colors whitespace-normal break-words">
-                        {art.title}
-                      </h3>
+                      <span className="text-[#84cc16] text-[9px] font-bold uppercase mb-1">{art.category}</span>
+                      <h3 className="text-sm md:text-base font-bold text-slate-800 leading-tight uppercase whitespace-normal break-words">{art.title}</h3>
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Popular Topics (Webboard) */}
             <div className="space-y-8">
-              <div className="flex justify-between items-end">
-                <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Popular Topics</h2>
-                <Link href="/forum" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">View All</Link>
-              </div>
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase">Popular Topics</h2>
               <div className="space-y-4">
                 {forumPosts.map(post => (
-                  <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-[1.5rem] hover:border-[#CCFF00] hover:shadow-lg transition-all">
+                  <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-[1.5rem] hover:border-[#CCFF00] transition-all">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className={`text-[9px] font-bold uppercase px-2.5 py-1 rounded-md border shadow-sm ${getTagColor(post.category)}`}>
-                        {post.category}
-                      </span>
+                      <span className={`text-[9px] font-bold uppercase px-2.5 py-1 rounded-md border shadow-sm ${getTagColor(post.category)}`}>{post.category}</span>
                       <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">by {post.author_name}</span>
-                      <span className="text-[9px] text-slate-300 ml-auto">{timeAgo(post.created_at)}</span>
                     </div>
-                    <h4 className="text-[15px] md:text-[16px] font-bold text-slate-800 group-hover:text-[#84cc16] leading-snug transition-colors uppercase whitespace-normal break-words">
-                      {post.title}
-                    </h4>
+                    <h4 className="text-[15px] md:text-[16px] font-bold text-slate-800 group-hover:text-[#84cc16] uppercase whitespace-normal break-words">{post.title}</h4>
                   </Link>
                 ))}
               </div>
             </div>
-
-          </div>
         </div>
       </section>
-
     </main>
   )
 }

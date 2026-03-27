@@ -30,7 +30,7 @@ function CourtsContent() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   
-  // ✅ ระบบ Pagination: เริ่มต้นแสดง 9 รายการ
+  // ระบบ Pagination: เริ่มต้นแสดง 9 รายการ
   const [visibleCount, setVisibleCount] = useState(9)
 
   useEffect(() => {
@@ -54,14 +54,14 @@ function CourtsContent() {
     c.location.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
-  // ✅ แบ่งข้อมูลมาแสดงตามจำนวน visibleCount (ทีละ 9)
+  // แบ่งข้อมูลมาแสดงตามจำนวน visibleCount (ทีละ 9)
   const displayedCourts = filteredCourts.slice(0, visibleCount)
 
   return (
     <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans text-slate-900">
       <div className="container mx-auto px-4 max-w-7xl">
         
-        {/* ✅ Header Bar: Search & Add Court Button */}
+        {/* Header Bar: Search & Add Court Button */}
         <div className="mb-12 flex flex-col md:flex-row gap-4 justify-between items-center max-w-4xl mx-auto">
           <div className="relative group flex-grow w-full">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
@@ -93,7 +93,7 @@ function CourtsContent() {
                 const displayFacilities = facilitiesArray.slice(0, 5); 
                 
                 return (
-                  <div key={court.id} className="group flex flex-col h-full bg-white rounded-[2.2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                  <div key={court.id} className="group flex flex-col h-full bg-white rounded-[2.2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 relative">
                     
                     {/* Image Section */}
                     <div className="relative h-52 w-full bg-slate-100 overflow-hidden">
@@ -124,13 +124,14 @@ function CourtsContent() {
                         </span>
                       </div>
                       
-                      <h3 className="text-[1.1rem] font-extrabold text-slate-900 transition-colors leading-tight mb-2 uppercase italic line-clamp-1">
+                      {/* ✅ ชื่อสนาม: ลบ line-clamp ออก และบังคับขึ้นบรรทัดใหม่เพื่อให้แสดงชื่อเต็ม */}
+                      <h3 className="text-[1.1rem] font-extrabold text-slate-900 leading-snug mb-2 uppercase break-words whitespace-normal">
                         {court.name}
                       </h3>
                       
-                      {/* ✅ Location & Opening Hours Row (แถวเดียวกัน ตัวหนังสือเด่นขึ้น) */}
-                      <div className="flex justify-between items-center mb-5">
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[13px] font-bold uppercase truncate max-w-[60%]">
+                      {/* Location & Opening Hours Row */}
+                      <div className="flex justify-between items-center mb-5 gap-2">
+                        <div className="flex items-center gap-1.5 text-slate-500 text-[13px] font-bold uppercase truncate flex-grow">
                           <MapPin size={14} className="text-[#84cc16] shrink-0" />
                           <span className="truncate">{court.location}</span>
                         </div>
@@ -140,7 +141,7 @@ function CourtsContent() {
                         </div>
                       </div>
 
-                      {/* Facilities (โชว์สูงสุด 5 รายการ) */}
+                      {/* Facilities */}
                       <div className="flex flex-wrap gap-2 mb-6 border-t border-slate-50 pt-5">
                         {displayFacilities.map((f: string, idx: number) => (
                           <div key={idx} className="flex items-center gap-1.5 bg-slate-50/80 px-2.5 py-1 rounded-lg border border-slate-100">
@@ -150,7 +151,7 @@ function CourtsContent() {
                         ))}
                       </div>
                       
-                      {/* ✅ ปุ่ม More detail... สีดำพรีเมียม */}
+                      {/* ปุ่ม More detail... สีดำพรีเมียม (ใช้ mt-auto เพื่อให้ปุ่มเรียงกันสวยงาม) */}
                       <Link href={`/courts/${court.id}`} className="mt-auto">
                         <div className="w-full text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase tracking-widest shadow-md">
                           More detail...
@@ -162,7 +163,7 @@ function CourtsContent() {
               })}
             </div>
 
-            {/* ✅ Load More Button (แสดงเมื่อมีข้อมูลมากกว่าที่โชว์) */}
+            {/* Load More Button */}
             {filteredCourts.length > visibleCount && (
               <div className="mt-16 flex justify-center">
                 <button 
@@ -185,7 +186,7 @@ function CourtsContent() {
 
 export default function CourtsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400 uppercase tracking-widest">Loading...</div>}>
       <CourtsContent />
     </Suspense>
   )

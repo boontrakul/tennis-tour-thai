@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
-import { Search, MapPin, Star, ChevronRight, MessageSquare, BookOpen, Navigation, Clock, Shield } from 'lucide-react'
+import { Search, MapPin, Star, ChevronRight, Navigation, Clock, Shield } from 'lucide-react'
 
 // --- Map Configuration ---
 const libraries: any = ['places']
@@ -25,7 +25,6 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
-// ✅ ฟังก์ชันสี Tag ตามหมวดหมู่ (ตรงตามหน้า Webboard)
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
@@ -60,17 +59,19 @@ export default function HomePage() {
       if (featured) setFeaturedCourts(featured)
 
       const { data: a } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(3)
+      if (a) setArticles(a);
+
       const { data: f } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false }).limit(4)
-      if (a) setArticles(a); if (f) setForumPosts(f);
+      if (f) setForumPosts(f);
     }
     fetchData()
   }, [])
 
   return (
-    <main className="min-h-screen bg-white pb-20">
+    <main className="min-h-screen bg-white pb-20 font-sans">
       
       {/* 1. HERO SECTION */}
-      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4">
+      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
             <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
@@ -91,9 +92,9 @@ export default function HomePage() {
       <section className="py-12 container mx-auto px-4 max-w-6xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
-            <span className="w-1.5 h-6 bg-[#84cc16] rounded-full"></span> Explore Map
+            <span className="w-1.5 h-6 bg-[#84cc16] rounded-full"></span> Explore Tennis Map
           </h2>
-          <Link href="/courts" className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <Link href="/courts" className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2 shadow-sm">
             Full Map Mode <Navigation size={12} />
           </Link>
         </div>
@@ -106,14 +107,14 @@ export default function HomePage() {
               {selectedCourt && (
                 <InfoWindowF position={{ lat: Number(selectedCourt.latitude), lng: Number(selectedCourt.longitude) }} onCloseClick={() => setSelectedCourt(null)}>
                   <div className="p-1 max-w-[180px]">
-                    {selectedCourt.image_url && <img src={selectedCourt.image_url} className="w-full h-20 object-cover rounded-lg mb-2" />}
-                    <h4 className="font-bold text-slate-900 text-[11px] mb-1 uppercase">{selectedCourt.name}</h4>
-                    <Link href={`/courts/${selectedCourt.id}`} className="block w-full bg-slate-900 text-[#CCFF00] text-center py-1.5 rounded-md text-[9px] font-black uppercase">Details</Link>
+                    {selectedCourt.image_url && <img src={selectedCourt.image_url} className="w-full h-20 object-cover rounded-lg mb-2" alt={selectedCourt.name} />}
+                    <h4 className="font-bold text-slate-900 text-[11px] mb-1 uppercase whitespace-normal break-words">{selectedCourt.name}</h4>
+                    <Link href={`/courts/${selectedCourt.id}`} className="block w-full bg-slate-900 text-[#CCFF00] text-center py-1.5 rounded-md text-[9px] font-black uppercase mt-2">Details</Link>
                   </div>
                 </InfoWindowF>
               )}
             </GoogleMap>
-          ) : <div className="h-[450px] bg-slate-100 animate-pulse rounded-[2.5rem]" />}
+          ) : <div className="h-[450px] bg-slate-100 animate-pulse rounded-[2.5rem] flex items-center justify-center text-slate-300 font-bold uppercase">Loading Map...</div>}
         </div>
       </section>
 
@@ -121,25 +122,31 @@ export default function HomePage() {
       <section className="py-12 container mx-auto px-4 max-w-6xl">
         <div className="flex justify-between items-center mb-10">
           <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Recommended</h2>
-          <Link href="/courts" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16]">View All</Link>
+          <Link href="/courts" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors flex items-center gap-1">
+            View All <ChevronRight size={12} />
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {featuredCourts.map((court) => (
-            <Link href={`/courts/${court.id}`} key={court.id} className="group bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-xl transition-all duration-500">
+            <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500">
               <div className="relative h-48 overflow-hidden bg-slate-100">
-                {court.image_url && <img src={court.image_url} className="w-full h-full object-cover transition-transform group-hover:scale-105" />}
+                {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />}
                 {court.is_featured && (
                   <div className="absolute top-4 right-4 z-20">
-                    <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5">
+                    <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5 border border-white/20">
                       <Star size={10} fill="currentColor" /> Recommended
                     </span>
                   </div>
                 )}
               </div>
-              <div className="p-6">
-                <h3 className="font-bold text-slate-900 text-base md:text-[1.1rem] mb-1 uppercase tracking-tight group-hover:text-[#84cc16] transition-colors line-clamp-1">{court.name}</h3>
-                <p className="text-slate-400 text-[10px] font-bold uppercase flex items-center gap-1.5 mb-4"><MapPin size={12} /> {court.location}</p>
-                <div className="w-full text-center bg-slate-900 text-white py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all">Details</div>
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="font-bold text-slate-900 text-base md:text-[1.1rem] mb-1 uppercase tracking-tight group-hover:text-[#84cc16] transition-colors leading-snug whitespace-normal break-words">
+                  {court.name}
+                </h3>
+                <p className="text-slate-400 text-[10px] font-bold uppercase flex items-center gap-1.5 mb-5"><MapPin size={12} /> {court.location}</p>
+                <div className="mt-auto w-full text-center bg-slate-900 text-white py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all shadow-md">
+                  View Details
+                </div>
               </div>
             </Link>
           ))}
@@ -148,38 +155,56 @@ export default function HomePage() {
 
       {/* 4. ARTICLES & WEBBOARD */}
       <section className="py-16 bg-slate-50 border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Latest Articles */}
-          <div>
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Latest Articles</h2>
-            <div className="space-y-4">
-              {articles.map(art => (
-                <Link href={`/articles/${art.id}`} key={art.id} className="group flex gap-4 p-3 bg-white rounded-2xl border border-slate-100 hover:border-[#CCFF00] transition-all">
-                  <img src={art.image_url} className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />
-                  <div className="flex flex-col justify-center">
-                    <span className="text-[#84cc16] text-[9px] font-bold uppercase mb-1">{art.category}</span>
-                    <h3 className="text-sm md:text-base font-bold text-slate-800 line-clamp-2 leading-tight uppercase">{art.title}</h3>
-                  </div>
-                </Link>
-              ))}
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            {/* Latest Articles */}
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Latest Articles</h2>
+                <Link href="/articles" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">View All</Link>
+              </div>
+              <div className="space-y-4">
+                {articles.map(art => (
+                  <Link href={`/articles/${art.id}`} key={art.id} className="group flex gap-4 p-3 bg-white rounded-2xl border border-slate-100 hover:border-[#CCFF00] hover:shadow-md transition-all">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-slate-50">
+                      {art.image_url ? <img src={art.image_url} alt={art.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">🎾</div>}
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[#84cc16] text-[9px] font-bold uppercase mb-1 tracking-wider">{art.category}</span>
+                      <h3 className="text-sm md:text-base font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] transition-colors whitespace-normal break-words">
+                        {art.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-          {/* Webboard - พร้อมระบบสี Tag ใหม่ */}
-          <div>
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight mb-8">Popular Topics</h2>
-            <div className="space-y-4">
-              {forumPosts.map(post => (
-                <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-[1.5rem] hover:border-[#CCFF00] hover:shadow-lg transition-all">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className={`text-[9px] font-bold uppercase px-2.5 py-1 rounded-md border shadow-sm ${getTagColor(post.category)}`}>
-                      {post.category}
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">by {post.author_name}</span>
-                  </div>
-                  <h4 className="text-[15px] md:text-[16px] font-bold text-slate-800 group-hover:text-[#84cc16] leading-snug transition-colors uppercase">{post.title}</h4>
-                </Link>
-              ))}
+
+            {/* Popular Topics (Webboard) - แก้ไข Error จุดนี้แล้ว */}
+            <div className="space-y-8">
+              <div className="flex justify-between items-end">
+                <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Popular Topics</h2>
+                <Link href="/forum" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#84cc16] transition-colors">View All</Link>
+              </div>
+              <div className="space-y-4">
+                {forumPosts.map(post => (
+                  <Link href={`/forum/${post.id}`} key={post.id} className="group block p-5 bg-white border border-slate-100 rounded-[1.5rem] hover:border-[#CCFF00] hover:shadow-lg transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className={`text-[9px] font-bold uppercase px-2.5 py-1 rounded-md border shadow-sm ${getTagColor(post.category)}`}>
+                        {post.category}
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">by {post.author_name}</span>
+                      <span className="text-[9px] text-slate-300 ml-auto">{timeAgo(post.created_at)}</span>
+                    </div>
+                    <h4 className="text-[15px] md:text-[16px] font-bold text-slate-800 group-hover:text-[#84cc16] leading-snug transition-colors uppercase whitespace-normal break-words">
+                      {post.title}
+                    </h4>
+                  </Link>
+                ))}
+              </div>
             </div>
+
           </div>
         </div>
       </section>

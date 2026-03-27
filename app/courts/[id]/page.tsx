@@ -11,7 +11,7 @@ import {
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead
 } from 'lucide-react'
 
-// ฟังก์ชันช่วยเลือกไอคอนให้ตรงกับคำศัพท์ (Icon Mapping) - ปรับขนาดไอคอนเป็น 20
+// ฟังก์ชันช่วยเลือกไอคอนให้ตรงกับคำศัพท์ (Icon Mapping) - ปรับขนาดไอคอนเป็น 20 ให้เข้ากับหัวข้อใหม่
 const getFacilityIcon = (name: string) => {
   const n = name.toLowerCase();
   if (n.includes('parking')) return <Car size={20} />;
@@ -95,6 +95,7 @@ export default function CourtDetailPage() {
     )
   }
 
+  // จัดการรูปภาพ Gallery
   let galleryImages: string[] = []
   if (Array.isArray(court.images)) {
     galleryImages = [...court.images]
@@ -117,7 +118,7 @@ export default function CourtDetailPage() {
     <main className="min-h-screen bg-slate-50 pb-20 font-sans pt-24 md:pt-32 text-slate-900">
       <div className="container mx-auto px-4 max-w-5xl">
         
-        {/* --- Header Section (ชื่อสนาม ปรับให้เล็กลง) --- */}
+        {/* --- Header Section --- */}
         <div className="mb-8">
           <Link href="/courts" className="inline-flex items-center gap-2 text-slate-400 font-bold uppercase text-[10px] mb-6 hover:text-[#84cc16] transition-colors">
             <ArrowLeft size={14} /> Back to Courts
@@ -130,8 +131,8 @@ export default function CourtDetailPage() {
               <Shield size={10} /> {court.court_type || 'Public'}
             </span>
           </div>
-          {/* ✅ ชื่อสนาม: ปรับลดขนาดเหลือ text-2xl md:text-3xl */}
-          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-2xl md:text-3xl mb-3 italic">
+          {/* ✅ ชื่อสนาม: ปรับขนาดเป็น 2xl/3xl แสดงชื่อเต็ม ไม่ใช้ line-clamp */}
+          <h1 className="font-bold text-slate-900 uppercase tracking-tight leading-tight text-2xl md:text-3xl mb-3">
             {court.name}
           </h1>
           <p className="text-slate-500 text-[11px] font-bold uppercase flex items-center gap-2">
@@ -168,9 +169,9 @@ export default function CourtDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <div className="lg:col-span-2 space-y-8">
-            {/* About Facility - ปรับหัวข้อเหลือ text-lg md:text-xl */}
+            {/* ✅ About Facility - ปรับหัวข้อลดลงเหลือ text-lg md:text-xl ให้เท่ากับ Court Info */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-6 flex items-center gap-3 italic">
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-6 flex items-center gap-3">
                 <Tag className="text-[#CCFF00]" size={20} /> About Facility
               </h2>
               <div className="text-slate-600 font-medium leading-relaxed text-sm md:text-base whitespace-pre-line">
@@ -178,9 +179,9 @@ export default function CourtDetailPage() {
               </div>
             </div>
 
-            {/* Facilities - ปรับหัวข้อเหลือ text-lg md:text-xl */}
+            {/* ✅ Facilities - ปรับหัวข้อลดลงเหลือ text-lg md:text-xl */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3 italic">
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3">
                 <CheckCircle2 className="text-[#CCFF00]" size={20} /> Facilities
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -197,9 +198,9 @@ export default function CourtDetailPage() {
               </div>
             </div>
 
-            {/* Community Reviews - ปรับหัวข้อเหลือ text-lg md:text-xl */}
+            {/* ✅ Community Reviews - ปรับหัวข้อลดลงเหลือ text-lg md:text-xl */}
             <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-slate-100">
-              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3 italic">
+              <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase mb-8 flex items-center gap-3">
                 <MessageSquare className="text-[#CCFF00]" size={20} /> Community Reviews
               </h2>
               
@@ -248,7 +249,7 @@ export default function CourtDetailPage() {
           {/* --- Sidebar (Court Info - ขนาดอ้างอิง) --- */}
           <div className="space-y-6">
             <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-xl text-white">
-              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-lg italic">Court Info</h3>
+              <h3 className="font-bold uppercase tracking-widest text-[#CCFF00] mb-8 text-lg">Court Info</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">

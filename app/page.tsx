@@ -5,16 +5,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
-import { Search, MapPin, Star, ChevronRight, Navigation, Clock, Shield, CircleDot } from 'lucide-react'
-
-// --- Custom Tennis Racket Icon Component ---
-const TennisIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="10" stroke="currentColor" cy="10" r="7" />
-    <path d="m15 15 6 6" stroke="currentColor" />
-    <path d="m12 12 2 2" stroke="currentColor" />
-  </svg>
-)
+import { Search, MapPin, Star, ChevronRight, Navigation, Clock, Shield } from 'lucide-react'
 
 // --- Map Configuration ---
 const libraries: any = ['places']
@@ -77,8 +68,8 @@ export default function HomePage() {
     <main className="min-h-screen bg-white pb-20 font-sans">
       
       {/* 1. HERO SECTION */}
-      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
-        <div className="container mx-auto max-w-7xl relative z-10">
+      <section className="pt-40 pb-16 bg-[#1a2b41] text-center px-4 relative overflow-hidden">
+        <div className="container mx-auto max-w-7xl relative z-10 text-white">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
             <span className="text-[10px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
           </div>
@@ -136,16 +127,14 @@ export default function HomePage() {
           {featuredCourts.map((court) => (
             <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500 relative">
               
-              {/* ✅ โลโก้ไม้เทนนิสในวงกลมเขียว (แก้ไขตำแหน่งให้ลอยทับรูป ไม่ทับตัวหนังสือ) */}
-              <div className="absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-[#CCFF00] border-2 border-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <div className="text-slate-900">
-                  <TennisIcon />
-                </div>
+              {/* ✅ แก้ไข: โลโก้ไม้เทนนิสในวงกลมเขียว (ใช้รูปโลโก้ของคุณโดยตรง) */}
+              <div className="absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-[#CCFF00] border-2 border-white flex items-center justify-center shadow-lg overflow-hidden group-hover:scale-110 transition-transform">
+                <img src="https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png" className="w-6 h-6 object-contain" alt="logo" />
               </div>
               
               <div className="relative h-48 overflow-hidden bg-slate-100">
-                {/* Badge Public/Private อยู่ที่เดิม */}
-                <div className="absolute top-4 left-16 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase flex items-center gap-1.5 shadow-sm">
+                {/* Badge Public/Private: ขยับหลบโลโก้ไปทางขวา */}
+                <div className="absolute top-4 left-16 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase flex items-center gap-1.5 shadow-sm">
                   <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
                 </div>
 
@@ -176,7 +165,8 @@ export default function HomePage() {
 
       {/* 4. ARTICLES & WEBBOARD */}
       <section className="py-16 bg-slate-50 border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-8">
               <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase">Latest Articles</h2>
               <div className="space-y-4">
@@ -206,6 +196,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+          </div>
         </div>
       </section>
     </main>

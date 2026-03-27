@@ -10,11 +10,7 @@ import { Search, MapPin, Star, ChevronRight, Navigation, Shield, ArrowRight, Mes
 // --- Map Configuration ---
 const libraries: any = ['places']
 const mapOptions = {
-  // สไตล์แผนที่แบบคลีน
-  styles: [
-    { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] }, 
-    { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] }
-  ],
+  // นำ Styles ออกชั่วคราวเพื่อให้เห็นสีถนนมาตรฐานของ Google ที่ชัดเจนที่สุด
   disableDefaultUI: false,
   zoomControl: true,
 }
@@ -103,10 +99,10 @@ export default function HomePage() {
           {isLoaded ? (
             <GoogleMap 
               mapContainerStyle={mapContainerStyle} 
-              zoom={11} 
+              zoom={12} 
               center={center} 
               options={mapOptions}
-              // ✅ เปิดโหมด Hybrid: เห็นภาพดาวเทียมพร้อมเส้นถนนและชื่อซอย
+              // ✅ บังคับโหมด HYBRID เพื่อให้เห็นเส้นถนนและชื่อสถานที่บนภาพดาวเทียม
               mapTypeId="hybrid"
             >
               {allCourts.map((court) => court.latitude && (
@@ -157,7 +153,6 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ปุ่ม Explore Full Directory ท้ายส่วนสนาม */}
         <div className="text-center">
              <Link href="/courts" className="inline-flex items-center gap-3 bg-slate-900 text-[#CCFF00] px-10 py-5 rounded-full font-black text-sm uppercase tracking-[0.3em] hover:bg-[#CCFF00] hover:text-slate-900 hover:scale-105 transition-all shadow-2xl">
                 Explore Full Directory <ArrowRight size={18} />
@@ -170,7 +165,6 @@ export default function HomePage() {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            {/* Left: Articles (4/12) */}
             <div className="lg:col-span-4 space-y-8">
               <div className="flex justify-between items-end border-b border-slate-200 pb-4">
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Articles</h2>
@@ -184,14 +178,13 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col justify-center overflow-hidden">
                       <span className="text-[#84cc16] text-[9px] font-black uppercase mb-1">{art.category}</span>
-                      <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] line-clamp-2 whitespace-normal break-words">{art.title}</h3>
+                      <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] line-clamp-2">{art.title}</h3>
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Right: Community - Compact Mode like Forum (8/12) */}
             <div className="lg:col-span-8 space-y-8">
               <div className="flex justify-between items-end border-b border-slate-200 pb-4">
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Community</h2>

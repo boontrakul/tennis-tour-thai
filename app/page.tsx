@@ -83,7 +83,7 @@ export default function HomePage() {
           <form onSubmit={(e) => { e.preventDefault(); if(searchQuery) router.push(`/courts?search=${searchQuery}`) }} className="max-w-md mx-auto bg-white p-2 rounded-2xl flex shadow-2xl">
              <Search className="ml-3 text-slate-400 self-center" size={18} />
              <input type="text" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search courts..." className="flex-grow px-3 outline-none text-sm font-bold bg-transparent" />
-             <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase">Search</button>
+             <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase transition-transform active:scale-95">Search</button>
           </form>
         </div>
       </section>
@@ -128,7 +128,13 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {featuredCourts.map((court) => (
-            <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500">
+            <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500 relative">
+              
+              {/* ✅ ปรับปรุง: ไม้เทนนิสในวงกลมสีเขียวสด */}
+              <div className="absolute top-4 left-4 z-30 w-12 h-12 rounded-full bg-[#CCFF00] border-2 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-3xl text-slate-900 select-none">🎾</span>
+              </div>
+              
               <div className="relative h-48 overflow-hidden bg-slate-100">
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-700" />}
                 {court.is_featured && (
@@ -181,7 +187,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Popular Topics (Webboard) - แก้ไข Error จุดนี้แล้ว */}
+            {/* Popular Topics (Webboard) */}
             <div className="space-y-8">
               <div className="flex justify-between items-end">
                 <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Popular Topics</h2>

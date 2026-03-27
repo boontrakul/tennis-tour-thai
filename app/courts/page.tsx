@@ -83,13 +83,13 @@ function CourtsContent() {
               <Navigation size={16} /> Full Map
             </Link>
 
-            {/* ปุ่ม Add Court */}
-            <Link 
-              href="/courts/add" 
-              className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-[#CCFF00] text-slate-900 px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all shadow-xl border border-[#CCFF00]/50"
-            >
-              <Plus size={16} strokeWidth={4} /> Add Court
-            </Link>
+            {/* ปุ่ม Add Court สีส้มโดดเด่น */}
+<Link 
+  href="/courts/add" 
+  className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-orange-500 text-white px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-orange-600 active:scale-95 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)] border border-orange-400/20"
+>
+  <Plus size={16} strokeWidth={4} /> Add Court
+</Link>
           </div>
         </div>
 

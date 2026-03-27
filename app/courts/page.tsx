@@ -61,9 +61,10 @@ function CourtsContent() {
     <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans text-slate-900">
       <div className="container mx-auto px-4 max-w-7xl">
         
-        {/* Header Bar: Search & Add Court Button */}
-        <div className="mb-12 flex flex-col md:flex-row gap-4 justify-between items-center max-w-4xl mx-auto">
-          <div className="relative group flex-grow w-full">
+        {/* Header Bar: Search, Full Map & Add Court */}
+        <div className="mb-12 flex flex-col lg:flex-row gap-4 justify-between items-center max-w-5xl mx-auto">
+          {/* Search Box */}
+          <div className="relative group flex-grow w-full lg:max-w-md">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
             <input 
               type="text" placeholder="Search court name or location..." 
@@ -71,12 +72,25 @@ function CourtsContent() {
               value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Link 
-            href="/courts/add" 
-            className="bg-[#CCFF00] text-slate-900 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all flex items-center gap-2 shadow-lg whitespace-nowrap"
-          >
-            <Plus size={16} strokeWidth={4} /> Add Court
-          </Link>
+
+          {/* ✅ ส่วนที่เพิ่ม: กลุ่มปุ่มทางขวา */}
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            {/* ปุ่ม Full Map View */}
+            <Link 
+              href="/map" 
+              className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-slate-900 text-[#CCFF00] px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-[#CCFF00] hover:text-slate-900 transition-all shadow-xl border border-slate-800"
+            >
+              <Navigation size={16} /> Full Map
+            </Link>
+
+            {/* ปุ่ม Add Court */}
+            <Link 
+              href="/courts/add" 
+              className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-[#CCFF00] text-slate-900 px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all shadow-xl border border-[#CCFF00]/50"
+            >
+              <Plus size={16} strokeWidth={4} /> Add Court
+            </Link>
+          </div>
         </div>
 
         {loading ? (
@@ -124,7 +138,6 @@ function CourtsContent() {
                         </span>
                       </div>
                       
-                      {/* ✅ ชื่อสนาม: ลบ line-clamp ออก และบังคับขึ้นบรรทัดใหม่เพื่อให้แสดงชื่อเต็ม */}
                       <h3 className="text-[1.1rem] font-extrabold text-slate-900 leading-snug mb-2 uppercase break-words whitespace-normal">
                         {court.name}
                       </h3>
@@ -151,7 +164,6 @@ function CourtsContent() {
                         ))}
                       </div>
                       
-                      {/* ปุ่ม More detail... สีดำพรีเมียม (ใช้ mt-auto เพื่อให้ปุ่มเรียงกันสวยงาม) */}
                       <Link href={`/courts/${court.id}`} className="mt-auto">
                         <div className="w-full text-center bg-slate-900 text-white py-4 rounded-xl font-black text-[12px] group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all uppercase tracking-widest shadow-md">
                           More detail...

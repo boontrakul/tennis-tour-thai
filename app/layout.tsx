@@ -1,28 +1,29 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Prompt } from 'next/font/google' // ✅ นำเข้าฟอนต์สมัยใหม่
 import Navbar from '../components/navbar'
 import Footer from '../components/footer'
 
-const inter = Inter({ subsets: ['latin'] })
+// ✅ ตั้งค่าฟอนต์ Inter (Modern Sans)
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
+
+// ✅ ตั้งค่าฟอนต์ Prompt (Minimalist Thai Sans-serif)
+const prompt = Prompt({ 
+  subsets: ['thai', 'latin'],
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-prompt',
+})
 
 export const metadata: Metadata = {
   title: 'Tennis Tour Thai - Community',
   description: "Thailand's #1 Tennis Community",
-  // ✅ ตั้งค่าโลโก้บน Browser Tab (Favicon)
+  // ✅ เปลี่ยนมาใช้โลโก้จากโฟลเดอร์ public/logo.png เพื่อความชัวร์ 100%
   icons: {
-    icon: [
-      {
-        url: 'https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png',
-        href: 'https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png',
-      },
-    ],
-    apple: [
-      {
-        url: 'https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png',
-        href: 'https://img5.pic.in.th/file/secure-sv1/tennis-ball-logo.png',
-      },
-    ],
+    icon: '/logo.png',
+    apple: '/logo.png',
   },
 }
 
@@ -32,28 +33,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="th" className={`${inter.variable} ${prompt.variable}`}>
       <head>
-        {/* บังคับ viewport ให้เหมาะสมกับมือถือ และรองรับพื้นที่รอยบาก (Safe Area) */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
       </head>
-      <body className={`${inter.className} bg-white`}>
+      {/* ✅ ใช้ font-prompt เป็นหลักทั้งเว็บไซต์ */}
+      <body className={`${prompt.className} bg-white antialiased text-slate-900`}>
         <Navbar />
         
-        {/* ✅ การจัดการ Layout:
-          - ในมือถือใส่ pb-20 (Padding Bottom) เพื่อเว้นพื้นที่ให้ Bottom Navigation
-          - ในคอมพิวเตอร์ (md ขึ้นไป) pb-0 ปกติ
-        */}
+        {/* การจัดการ Layout */}
         <div className="min-h-screen flex flex-col pb-20 md:pb-0">
           <main className="flex-grow">
             {children}
           </main>
         </div>
 
-        {/* ✅ Footer:
-          - มักจะซ่อนในหน้ามือถือเพื่อให้ดูเหมือน Application 
-          - หากต้องการให้โชว์ในมือถือด้วย ให้ลบ class hidden md:block ออกครับ
-        */}
+        {/* Footer: ซ่อนในหน้ามือถือเพื่อความเป็น Application */}
         <div className="hidden md:block">
           <Footer />
         </div>

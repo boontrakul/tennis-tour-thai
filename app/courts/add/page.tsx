@@ -228,7 +228,7 @@ export default function AddCourtPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="relative group">
                     <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
-                      <Sun size={12} /> Daytime
+                      <Sun size={12} /> Daytime 
                     </label>
                     <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
                     <input name="price_day" type="number" required placeholder="e.g. 400" className={inputStyle} />

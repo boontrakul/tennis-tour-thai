@@ -65,7 +65,7 @@ function ForumContent() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Link href="/forum/new" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
+                <Link href="/forum/add" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
                     <Plus size={16} strokeWidth={3} /> New Topic
                 </Link>
             </div>

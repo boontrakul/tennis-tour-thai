@@ -7,7 +7,7 @@ import {
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
   Navigation, GripHorizontal, X, User, Shield, DollarSign, Phone, 
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
-  Clock, Sun, Moon, Home
+  Clock, Sun, Moon, Home, FileText
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -99,13 +99,10 @@ export default function AddCourtPage() {
       const { error: insertError } = await supabase.from('courts').insert([{
         name: formData.get('name'),
         location: formData.get('location'),
-        // ✅ ส่งข้อมูลราคาแยก Day/Night
         price_day: parseInt(formData.get('price_day') as string) || 0,
         price_night: parseInt(formData.get('price_night') as string) || 0,
-        // ✅ ส่งเวลาเปิด-ปิดแยกฟิลด์
         open_time: formData.get('open_time'),
         close_time: formData.get('close_time'),
-        // ✅ สภาพแวดล้อมและพื้นผิว
         environment: formData.get('environment'),
         surface: formData.get('surface'), 
         description: formData.get('description'),
@@ -171,8 +168,8 @@ export default function AddCourtPage() {
               </div>
             </div>
 
-            {/* 2. Basic Court Details */}
             <div className="space-y-8">
+              {/* 2. Basic Court Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}>Court Name</label>
@@ -228,14 +225,14 @@ export default function AddCourtPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="relative group">
                     <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
-                      <Sun size={12} /> Daytime 
+                      <Sun size={12} /> Daytime (ไม่เปิดไฟ)
                     </label>
                     <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
                     <input name="price_day" type="number" required placeholder="e.g. 400" className={inputStyle} />
                   </div>
                   <div className="relative group">
                     <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
-                      <Moon size={12} /> Nighttime (with lighting)
+                      <Moon size={12} /> Nighttime (เปิดไฟ)
                     </label>
                     <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
                     <input name="price_night" type="number" required placeholder="e.g. 600" className={inputStyle} />
@@ -243,7 +240,7 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 6. Facilities */}
+              {/* 6. Facilities Chips */}
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
                 <label className={labelStyle}><CheckCircle2 size={16} /> Facilities</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -265,7 +262,18 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 7. Access & Submitter */}
+              {/* ✅ 7. Description & Facility Details (ย้ายมาแยกกล่องให้ชัดเจน) */}
+              <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 relative group">
+                <label className={labelStyle}><FileText size={16} /> Facility Details & Description</label>
+                <textarea 
+                  name="description" 
+                  rows={5} 
+                  className="w-full bg-white border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] transition-all outline-none resize-none" 
+                  placeholder="บอกรายละเอียดเพิ่มเติม เช่น จำนวนสนาม, ที่จอดรถกี่คัน, การจองล่วงหน้า หรือโปรโมชั่นต่างๆ..."
+                ></textarea>
+              </div>
+
+              {/* 8. Access & Submitter */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Shield size={14} /> Access Type</label>
@@ -285,7 +293,7 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 8. Location & Map (Auto-extract) */}
+              {/* 9. Location & Map (Auto-extract) */}
               <div className="p-8 bg-slate-50/50 border-2 border-slate-100 rounded-[2.5rem] space-y-8">
                 <div className="relative group">
                   <label className={labelStyle}>District / Location</label>
@@ -328,7 +336,7 @@ export default function AddCourtPage() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#ff6b00] text-white py-6 rounded-[2rem] font-black uppercase text-sm tracking-[0.3em] shadow-xl hover:bg-[#e66000] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full bg-[#ff6b00] text-white py-6 rounded-[2rem] font-black uppercase text-sm tracking-[0.3em] shadow-[0_20px_40px_-10px_rgba(255,107,0,0.4)] hover:bg-[#e66000] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? <Loader2 className="animate-spin" /> : 'Submit Court Application'}
             </button>

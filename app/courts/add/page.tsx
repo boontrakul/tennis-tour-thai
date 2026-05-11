@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
   Navigation, GripHorizontal, X, User, Shield, DollarSign, Phone, 
-  Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2 
+  Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
+  Clock, Sun, Moon, Home
 } from 'lucide-react'
 import Link from 'next/link'
 
-// รายการ Facilities สำหรับให้เลือก (สไตล์ Modern Chips)
 const facilityOptions = [
   { id: 'parking', name: 'Parking', icon: <Car size={16} /> },
   { id: 'restaurant', name: 'Restaurant', icon: <Utensils size={16} /> },
@@ -30,12 +30,10 @@ export default function AddCourtPage() {
   const [preview, setPreview] = useState<string[]>([])
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null)
   
-  // ✅ State สำหรับระบบพิกัดและสิ่งอำนวยความสะดวก
   const [lat, setLat] = useState('')
   const [lng, setLng] = useState('')
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
 
-  // ฟังก์ชันดึงพิกัดจาก Google Maps URL อัตโนมัติ
   const handleMapUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
     const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
@@ -89,7 +87,6 @@ export default function AddCourtPage() {
     const uploadedUrls: string[] = []
 
     try {
-      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage
       for (const file of images) {
         const fileExt = file.name.split('.').pop()
         const fileName = `court-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -99,11 +96,17 @@ export default function AddCourtPage() {
         uploadedUrls.push(publicUrl)
       }
 
-      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง courts
       const { error: insertError } = await supabase.from('courts').insert([{
         name: formData.get('name'),
         location: formData.get('location'),
-        price_per_hour: parseInt(formData.get('price') as string),
+        // ✅ ส่งข้อมูลราคาแยก Day/Night
+        price_day: parseInt(formData.get('price_day') as string) || 0,
+        price_night: parseInt(formData.get('price_night') as string) || 0,
+        // ✅ ส่งเวลาเปิด-ปิดแยกฟิลด์
+        open_time: formData.get('open_time'),
+        close_time: formData.get('close_time'),
+        // ✅ สภาพแวดล้อมและพื้นผิว
+        environment: formData.get('environment'),
         surface: formData.get('surface'), 
         description: formData.get('description'),
         phone: formData.get('phone'),
@@ -116,12 +119,12 @@ export default function AddCourtPage() {
         court_type: formData.get('court_type') || 'Public',
         submitted_by: formData.get('submitted_by') || 'Anonymous',
         facilities: selectedFacilities.join(', '), 
-        status: 'pending' // ต้องรอแอดมินตรวจสอบ
+        status: 'pending' 
       }])
 
       if (insertError) throw insertError
       router.push('/courts')
-      setTimeout(() => alert('🎉 สนามของคุณถูกส่งให้แอดมินตรวจสอบเรียบร้อยแล้ว!'), 500)
+      setTimeout(() => alert('🎉 สนามของคุณถูกส่งให้แอดมินตรวจสอบแล้ว!'), 500)
     } catch (error: any) { alert(error.message) } finally { setLoading(false) }
   }
 
@@ -148,7 +151,7 @@ export default function AddCourtPage() {
 
           <form onSubmit={handleSubmit} className="space-y-12">
             
-            {/* ส่วนที่ 1: การอัปโหลดรูปภาพ */}
+            {/* 1. Photo Gallery */}
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
               <label className={labelStyle}><ImagePlus size={16} /> Court Photo Gallery (Max 6)</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -156,7 +159,6 @@ export default function AddCourtPage() {
                   <div key={url} draggable onDragStart={() => handleDragStart(i)} onDragOver={handleDragOver} onDrop={() => handleDrop(i)} className={`aspect-[4/3] rounded-2xl overflow-hidden border-2 relative group cursor-move transition-all ${draggedIdx === i ? 'opacity-50 scale-95 border-[#CCFF00]' : 'border-white hover:border-[#CCFF00]'}`}>
                     <img src={url} className="w-full h-full object-cover" />
                     <button type="button" onClick={() => removeImage(i)} className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
-                    {i === 0 && <div className="absolute bottom-2 left-2 bg-[#CCFF00] text-slate-900 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Cover</div>}
                   </div>
                 ))}
                 {preview.length < 6 && (
@@ -169,7 +171,7 @@ export default function AddCourtPage() {
               </div>
             </div>
 
-            {/* ส่วนที่ 2: ข้อมูลพื้นฐาน */}
+            {/* 2. Basic Court Details */}
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
@@ -178,18 +180,70 @@ export default function AddCourtPage() {
                   <input name="name" required placeholder="Club or Arena Name" className={inputStyle} />
                 </div>
                 <div className="relative group">
-                  <label className={labelStyle}>Surface Type</label>
-                  <MapPin size={18} className={inputIconStyle} />
+                  <label className={labelStyle}>Contact / Booking</label>
+                  <Phone size={18} className={inputIconStyle} />
+                  <input name="phone" required placeholder="Phone or Line ID" className={inputStyle} />
+                </div>
+              </div>
+
+              {/* 3. Environment & Surface */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative group">
+                  <label className={labelStyle}><Home size={16} /> Environment</label>
+                  <Navigation size={18} className={inputIconStyle} />
+                  <select name="environment" className={inputStyle + " appearance-none cursor-pointer"}>
+                    <option value="Outdoor">Outdoor (กลางแจ้ง)</option>
+                    <option value="Indoor">Indoor (ในร่ม)</option>
+                    <option value="Both">Both (มีทั้ง 2 แบบ)</option>
+                  </select>
+                </div>
+                <div className="relative group">
+                  <label className={labelStyle}><MapPin size={16} /> Surface Type</label>
+                  <Tag size={18} className={inputIconStyle} />
                   <select name="surface" className={inputStyle + " appearance-none cursor-pointer"}>
-                    <option value="Hard Court">Hard Court</option>
-                    <option value="Clay Court">Clay Court</option>
-                    <option value="Grass Court">Grass Court</option>
-                    <option value="Indoor">Indoor / Carpet</option>
+                    <option value="Hard Court">Hard Court (ปูน/อะคริลิก)</option>
+                    <option value="Clay Court">Clay Court (ดินแดง)</option>
+                    <option value="Grass Court">Grass Court (หญ้า)</option>
                   </select>
                 </div>
               </div>
 
-              {/* ส่วนที่ 3: สิ่งอำนวยความสะดวก (Facilities) */}
+              {/* 4. Opening Hours */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative group">
+                  <label className={labelStyle}><Clock size={16} /> Opening Time</label>
+                  <Clock size={18} className={inputIconStyle} />
+                  <input name="open_time" type="time" defaultValue="07:00" className={inputStyle} />
+                </div>
+                <div className="relative group">
+                  <label className={labelStyle}><Clock size={16} /> Closing Time</label>
+                  <Clock size={18} className={inputIconStyle} />
+                  <input name="close_time" type="time" defaultValue="22:00" className={inputStyle} />
+                </div>
+              </div>
+
+              {/* 5. Hourly Rates */}
+              <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+                <label className={labelStyle}><DollarSign size={16} /> Hourly Rates (฿)</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="relative group">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
+                      <Sun size={12} /> Daytime
+                    </label>
+                    <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
+                    <input name="price_day" type="number" required placeholder="e.g. 400" className={inputStyle} />
+                  </div>
+                  <div className="relative group">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
+                      <Moon size={12} /> Nighttime (with lighting)
+                    </label>
+                    <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
+                    <input name="price_night" type="number" required placeholder="e.g. 600" className={inputStyle} />
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Facilities */}
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
                 <label className={labelStyle}><CheckCircle2 size={16} /> Facilities</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -211,7 +265,7 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* ส่วนที่ 4: การเข้าถึงและชื่อผู้ส่ง */}
+              {/* 7. Access & Submitter */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Shield size={14} /> Access Type</label>
@@ -227,14 +281,14 @@ export default function AddCourtPage() {
                 <div className="relative group">
                   <label className={labelStyle}><User size={14} /> Added By</label>
                   <User size={18} className={inputIconStyle} />
-                  <input name="submitted_by" placeholder="Your Name / Nickname" className={inputStyle} />
+                  <input name="submitted_by" placeholder="Your Name" className={inputStyle} />
                 </div>
               </div>
 
-              {/* ส่วนที่ 5: สถานที่และพิกัด (ดึงอัตโนมัติ) */}
+              {/* 8. Location & Map (Auto-extract) */}
               <div className="p-8 bg-slate-50/50 border-2 border-slate-100 rounded-[2.5rem] space-y-8">
                 <div className="relative group">
-                  <label className={labelStyle}>Location / District</label>
+                  <label className={labelStyle}>District / Location</label>
                   <MapPin size={18} className={inputIconStyle} />
                   <input name="location" required placeholder="e.g. Bang Na, Bangkok" className={inputStyle} />
                 </div>
@@ -269,32 +323,12 @@ export default function AddCourtPage() {
                   </div>
                 </div>
               </div>
-
-              {/* ส่วนที่ 6: ราคาและติดต่อ */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative group">
-                  <label className={labelStyle}>Rate per Hour (฿)</label>
-                  <DollarSign size={18} className={inputIconStyle} />
-                  <input name="price" type="number" required placeholder="e.g. 450" className={inputStyle} />
-                </div>
-                <div className="relative group">
-                  <label className={labelStyle}>Contact / Booking</label>
-                  <Phone size={18} className={inputIconStyle} />
-                  <input name="phone" required placeholder="Phone or Line ID" className={inputStyle} />
-                </div>
-              </div>
-
-              <div className="relative group">
-                <label className={labelStyle}>Description & Details</label>
-                <textarea name="description" rows={5} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] focus:bg-white transition-all outline-none resize-none" placeholder="บอกรายละเอียดเพิ่มเติม เช่น จำนวนสนาม, ที่จอดรถกี่คัน, หรือโปรโมชั่น..."></textarea>
-              </div>
             </div>
 
-            {/* ✅ ปุ่ม Submit สีส้มสด โดดเด่นตามสั่ง! */}
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#ff6b00] text-white py-6 rounded-[2rem] font-black uppercase text-sm tracking-[0.3em] shadow-[0_20px_40px_-10px_rgba(255,107,0,0.4)] hover:bg-[#e66000] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-[#ff6b00] text-white py-6 rounded-[2rem] font-black uppercase text-sm tracking-[0.3em] shadow-xl hover:bg-[#e66000] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               {loading ? <Loader2 className="animate-spin" /> : 'Submit Court Application'}
             </button>

@@ -34,9 +34,9 @@ export default function ArticlesPage() {
   const [visibleCount, setVisibleCount] = useState(9)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
-
-  // หมวดหมู่บทความ (อิงตาม Category ใน Database ของคุณ)
-  const categories = ['All', 'Training', 'Gear', 'News', 'Health']
+  
+  // ✅ เปลี่ยนเป็น Dynamic State เพื่อเก็บหมวดหมู่ที่ดึงมาจาก Database จริงๆ
+  const [categories, setCategories] = useState<string[]>(['All'])
 
   useEffect(() => {
     async function fetchArticles() {
@@ -49,7 +49,17 @@ export default function ArticlesPage() {
       if (error) {
         console.error('Error fetching articles:', error)
       }
-      if (data) setArticles(data)
+      if (data) {
+        setArticles(data)
+        
+        // ✅ สกัดหมวดหมู่ที่มีอยู่จริงทั้งหมดจาก Database ออกมาทำปุ่มแบบไม่ซ้ำกัน (Unique Categories)
+        const dbCategories = data
+          .map((art: Article) => art.category)
+          .filter((cat: string): cat is string => !!cat && cat.trim() !== '')
+        
+        const uniqueCategories = ['All', ...Array.from(new Set(dbCategories))]
+        setCategories(uniqueCategories)
+      }
       setLoading(false)
     }
     fetchArticles()
@@ -81,10 +91,10 @@ export default function ArticlesPage() {
       <section className="bg-slate-900 pt-32 pb-20 text-center text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="relative z-10 container mx-auto px-4">
-          <span className="bg-[#CCFF00] text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg mb-6 inline-block">
+          <span className="bg-[#CCFF00] text-slate-900 px-5 py-2 rounded-full text-[12px] font-black uppercase tracking-widest shadow-lg mb-6 inline-block">
             The Blog
           </span>
-          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic leading-none mb-4">
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-none mb-4">
             Tennis <span className="text-[#CCFF00]">Tour Thai</span>
           </h1>
           <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] max-w-xl mx-auto">
@@ -96,8 +106,8 @@ export default function ArticlesPage() {
       <section className="container mx-auto px-4 max-w-7xl -mt-10 relative z-20">
         
         {/* --- CONTROLS BAR --- */}
-        <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 mb-16 border border-slate-100 flex flex-col md:flex-row gap-6 items-center justify-between">
-            <div className="relative w-full md:w-1/3">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 mb-16 border border-slate-100 flex flex-col lg:flex-row gap-6 items-center justify-between">
+            <div className="relative w-full lg:w-1/3">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
               <input 
                 type="text" 
@@ -108,15 +118,16 @@ export default function ArticlesPage() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 justify-center">
+            {/* แถบกดเลือกหมวดหมู่ที่ปรับขนาดให้อ่านง่ายขึ้น */}
+            <div className="flex flex-wrap gap-2.5 justify-center">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border ${
+                  className={`px-6 py-3 rounded-full text-[13px] font-bold uppercase tracking-wider transition-all border ${
                     selectedCategory === cat
                       ? 'bg-slate-900 border-slate-900 text-[#CCFF00] shadow-lg scale-105'
-                      : 'bg-white border-slate-100 text-slate-400 hover:border-[#CCFF00]'
+                      : 'bg-white border-slate-100 text-slate-400 hover:border-[#CCFF00] hover:text-slate-900'
                   }`}
                 >
                   {cat}
@@ -132,68 +143,89 @@ export default function ArticlesPage() {
              <span className="text-xs font-black uppercase tracking-widest">Loading Content...</span>
            </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-            {displayedArticles.map((article) => (
-              <Link href={`/articles/${article.id}`} key={article.id} className="group flex flex-col h-full">
-                <div className="bg-white rounded-[2.5rem] p-4 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#CCFF00]/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col relative overflow-hidden">
-                  
-                  {/* Image Area */}
-                  <div className="relative h-56 w-full rounded-[2rem] overflow-hidden mb-6 bg-slate-100">
-                    <div className={`emoji-fallback ${article.image_url ? 'hidden' : ''} absolute inset-0 flex flex-col items-center justify-center gap-2`}>
-                      <div className="w-12 h-12 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-md rotate-12 group-hover:rotate-0 transition-transform">
-                        <span className="text-2xl">🎾</span>
+          <>
+            {displayedArticles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+                {displayedArticles.map((article) => (
+                  <Link href={`/articles/${article.id}`} key={article.id} className="group flex flex-col h-full">
+                    <div className="bg-white rounded-[2.5rem] p-4 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-[#CCFF00]/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col relative overflow-hidden">
+                      
+                      {/* Image Area */}
+                      <div className="relative h-56 w-full rounded-[2rem] overflow-hidden mb-6 bg-slate-100">
+                        <div className={`emoji-fallback ${article.image_url ? 'hidden' : ''} absolute inset-0 flex flex-col items-center justify-center gap-2`}>
+                          <div className="w-12 h-12 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-md rotate-12 group-hover:rotate-0 transition-transform">
+                            <span className="text-2xl">🎾</span>
+                          </div>
+                        </div>
+
+                        {article.image_url && (
+                          <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={handleImgError} />
+                        )}
+
+                        {/* ✅ ขยายขนาด Category Badge บนรูปภาพเป็น 11px และปรับ Padding ให้สวยงาม */}
+                        <div className="absolute top-4 left-4">
+                          <span className="bg-slate-900/90 backdrop-blur-sm text-[#CCFF00] text-[11px] font-black px-4 py-2 rounded-xl uppercase tracking-wider border border-white/10 shadow-md">
+                            {article.category || 'Article'}
+                          </span>
+                        </div>
+
+                        {/* Featured Badge */}
+                        {article.is_featured && (
+                          <div className="absolute top-4 right-4">
+                            <span className="bg-[#CCFF00] text-slate-900 text-[11px] font-black px-4 py-2 rounded-xl uppercase tracking-wider shadow-lg flex items-center gap-1">
+                              <Star size={11} fill="currentColor" /> Featured
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Text Content */}
+                      <div className="flex flex-col flex-grow px-2 pb-2">
+                        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">
+                           <Clock size={12} className="text-[#CCFF00]" /> 
+                           <span>{timeAgo(article.created_at)}</span>
+                        </div>
+                        
+                        <h2 className="text-xl font-black text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight mb-3 uppercase italic line-clamp-2">
+                          {article.title}
+                        </h2>
+                        
+                        <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6 font-medium">
+                          {article.content?.replace(/<[^>]*>/g, '')}...
+                        </p>
+
+                        {/* ✅ ขยายขนาดปุ่มทางนำด้านล่างเป็น 12px */}
+                        <div className="mt-auto flex items-center justify-between border-t border-slate-50 pt-4">
+                          <span className="text-[12px] font-black uppercase text-slate-400 tracking-widest group-hover:text-slate-900 transition-colors">
+                            Read Full Story
+                          </span>
+                          <span className="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:scale-110 transition-all">
+                            <ChevronRight size={18} className="text-slate-400 group-hover:text-slate-900" />
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-24 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm mb-20">
+                <p className="text-slate-400 font-bold uppercase tracking-wider text-base">No articles found in this category.</p>
+              </div>
+            )}
 
-                    {article.image_url && (
-                      <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={handleImgError} />
-                    )}
-
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-slate-900/90 backdrop-blur-sm text-[#CCFF00] text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider border border-white/10">
-                        {article.category || 'Article'}
-                      </span>
-                    </div>
-
-                    {/* Featured Badge */}
-                    {article.is_featured && (
-                      <div className="absolute top-4 right-4">
-                        <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1">
-                          <Star size={10} fill="currentColor" /> Featured
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Text Content */}
-                  <div className="flex flex-col flex-grow px-2 pb-2">
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
-                       <Clock size={12} className="text-[#CCFF00]" /> 
-                       <span>{timeAgo(article.created_at)}</span>
-                    </div>
-                    
-                    <h2 className="text-xl font-black text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight mb-3 uppercase italic line-clamp-2">
-                      {article.title}
-                    </h2>
-                    
-                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 mb-6 font-medium">
-                      {article.content?.replace(/<[^>]*>/g, '')}...
-                    </p>
-
-                    <div className="mt-auto flex items-center justify-between border-t border-slate-50 pt-4">
-                      <span className="text-[10px] font-black uppercase text-slate-300 tracking-widest group-hover:text-slate-900 transition-colors">
-                        Read Full Story
-                      </span>
-                      <span className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] group-hover:scale-110 transition-all">
-                        <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-900" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+            {/* ระบบ Pagination ปุ่มโหลดเพิ่ม */}
+            {filteredArticles.length > visibleCount && (
+              <div className="flex justify-center mb-12">
+                <button 
+                  onClick={() => setVisibleCount(prev => prev + 6)}
+                  className="bg-slate-900 text-[#CCFF00] px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-[#CCFF00] hover:text-slate-900 transition-all shadow-lg"
+                >
+                  Load More Articles
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </main>

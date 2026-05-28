@@ -5,11 +5,10 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Send, Loader2, MessageSquare, Tag, 
-  User, AlignLeft, AlertCircle, CheckCircle2 
+  User, AlignLeft, AlertCircle, ImagePlus, X, Upload
 } from 'lucide-react'
 import Link from 'next/link'
 
-// รายการหมวดหมู่กระทู้ (Category) ให้ตรงกับที่เราทำสี Tag ไว้
 const forumCategories = [
   'หาเพื่อนตีเทนนิส',
   'รีวิวอุปกรณ์เทนนิส',
@@ -22,14 +21,52 @@ export default function AddForumPostPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState(forumCategories[0])
+  
+  // ✅ State สำหรับจัดการไฟล์รูปภาพและการ Preview
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setImageFile(file)
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const removeImage = () => {
+    setImageFile(null)
+    setPreviewUrl('')
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    let uploadedImageUrl = null
     
     try {
+      // ✅ 1. ตรวจสอบและอัปโหลดรูปภาพไปยัง Supabase Storage (ถ้าผู้ใช้ใส่รูป)
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop()
+        const fileName = `forum-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        
+        // แนะนำให้ใช้ Bucket ชื่อ 'forum_images' หรือแชร์ร่วมกับ 'Court_image' ได้ครับ
+        const { error: uploadError } = await supabase.storage
+          .from('Court_image') 
+          .upload(fileName, imageFile)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('Court_image')
+          .getPublicUrl(fileName)
+        
+        uploadedImageUrl = publicUrl
+      }
+
+      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง forum_posts
       const { error } = await supabase
         .from('forum_posts')
         .insert([{
@@ -37,7 +74,7 @@ export default function AddForumPostPage() {
           content: formData.get('content'),
           category: category,
           author_name: formData.get('author_name') || 'Anonymous Member',
-          // status: 'approved' // ถ้าอยากให้แอดมินตรวจก่อนค่อยเปิดบรรทัดนี้แล้วเปลี่ยนเป็น 'pending'
+          image_url: uploadedImageUrl // ✅ ส่งลิงก์รูปภาพเข้าไปบันทึก
         }])
 
       if (error) throw error
@@ -99,7 +136,32 @@ export default function AddForumPostPage() {
               </div>
             </div>
 
-            {/* 2. Topic Details */}
+            {/* ✅ 2. ใหม่: กล่องสำหรับเลือกรูปภาพประกอบกระทู้ (Optional) */}
+            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+              <label className={labelStyle}><ImagePlus size={16} /> Topic Cover Image (ไม่บังคับใส่)</label>
+              <div className="max-w-md">
+                {previewUrl ? (
+                  <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border-2 border-white shadow-md group">
+                    <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
+                    <button 
+                      type="button" 
+                      onClick={removeImage} 
+                      className="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 hover:scale-110 transition-all"
+                    >
+                      <X size={14} strokeWidth={3} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="aspect-[16/9] rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#CCFF00] bg-white flex flex-col items-center justify-center cursor-pointer text-slate-300 hover:text-[#CCFF00] transition-all">
+                    <Upload size={28} />
+                    <span className="text-[10px] font-black uppercase mt-3 tracking-widest">Add Photo</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Topic Details */}
             <div className="space-y-6">
               <div className="relative group">
                 <label className={labelStyle}>Topic Title (หัวข้อ)</label>
@@ -134,16 +196,15 @@ export default function AddForumPostPage() {
               </div>
             </div>
 
-            {/* 3. Guidelines Note */}
+            {/* 4. Guidelines Note */}
             <div className="flex gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100 items-start">
                <AlertCircle className="text-[#84cc16] shrink-0" size={20} />
                <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
                  <strong className="text-slate-900 uppercase">Community Guidelines:</strong> <br />
-                 โปรดใช้คำสุภาพในการตั้งกระทู้ และไม่โพสต์ข้อความที่เป็นการโฆษณาชวนเชื่อหรือเนื้อหาที่ไม่เหมาะสม เพื่อสังคมเทนนิสที่ดีของเราครับ
+                 โปรดใช้คำสุภาพในการตั้งกระทู้ และไม่โพสต์ข้อความที่เป็นการโฆษณาชวนเชื่อเพื่อสังคมเทนนิสที่ดีของเราครับ
                </p>
             </div>
 
-            {/* Submit Button - สีส้มโดดเด่นตามสไตล์ Add Action */}
             <button 
               type="submit" 
               disabled={loading}

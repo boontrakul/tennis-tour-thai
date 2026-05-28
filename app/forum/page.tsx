@@ -5,14 +5,14 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Search, Pin, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
 
-// ✅ ข้อมูลหมวดหมู่และสี - เพิ่ม "พูดคุยทั่วไป" สีชมพูโมเดิร์นเรียบร้อยครับ
+// ✅ ข้อมูลหมวดหมู่และสีสันสำหรับตัวกรอง (มีหมวดหมู่พูดคุยทั่วไปครบถ้วน)
 const categoriesData = [
   { name: 'All', bg: '#f1f5f9', text: '#475569' },
   { name: 'หาเพื่อนตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
   { name: 'รีวิวอุปกรณ์เทนนิส', bg: '#faf5ff', text: '#9333ea' },
   { name: 'รีวิวสนามเทนนิส', bg: '#ecfdf5', text: '#059669' },
   { name: 'เทคนิคและการฝึกซ้อม', bg: '#fff7ed', text: '#ea580c' },
-  { name: 'พูดคุยทั่วไป', bg: '#fdf2f8', text: '#db2777' } // ✅ เพิ่มหมวดหมู่ใหม่ตรงนี้ครับ
+  { name: 'พูดคุยทั่วไป', bg: '#fdf2f8', text: '#db2777' }
 ]
 
 function ForumContent() {
@@ -66,7 +66,8 @@ function ForumContent() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                {/* ✅ ตรวจเช็คลิงก์ปุ่ม New Topic ให้ชี้ไปที่ /forum/new เรียบร้อยครับ */}
+                
+                {/* ✅ แก้ไขจุดนี้เป็น /forum/add ให้วิ่งเข้าโฟลเดอร์ของพี่บุ๊คตรงๆ แล้วครับ */}
                 <Link href="/forum/add" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
                     <Plus size={16} strokeWidth={3} /> New Topic
                 </Link>

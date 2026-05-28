@@ -28,15 +28,26 @@ const timeAgo = (dateString: string) => {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
+// ✅ ล็อกรายการหมวดหมู่คงที่ตามหน้าฟอร์มกรอกข้อมูล (เพิ่ม General และ Lifestyle ครบถ้วน)
+const fixedCategories = [
+  'All',
+  'General',
+  'Lifestyle',
+  'Training',
+  'Gear',
+  'News',
+  'Health',
+  'Mental Game',
+  'Pro Tour',
+  'Nutrition'
+]
+
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [visibleCount, setVisibleCount] = useState(9)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
-  
-  // ✅ เปลี่ยนเป็น Dynamic State เพื่อเก็บหมวดหมู่ที่ดึงมาจาก Database จริงๆ
-  const [categories, setCategories] = useState<string[]>(['All'])
 
   useEffect(() => {
     async function fetchArticles() {
@@ -51,14 +62,6 @@ export default function ArticlesPage() {
       }
       if (data) {
         setArticles(data)
-        
-        // ✅ สกัดหมวดหมู่ที่มีอยู่จริงทั้งหมดจาก Database ออกมาทำปุ่มแบบไม่ซ้ำกัน (Unique Categories)
-        const dbCategories = data
-          .map((art: Article) => art.category)
-          .filter((cat: string): cat is string => !!cat && cat.trim() !== '')
-        
-        const uniqueCategories = ['All', ...Array.from(new Set(dbCategories))]
-        setCategories(uniqueCategories)
       }
       setLoading(false)
     }
@@ -118,11 +121,12 @@ export default function ArticlesPage() {
               />
             </div>
 
-            {/* แถบกดเลือกหมวดหมู่ที่ปรับขนาดให้อ่านง่ายขึ้น */}
+            {/* แถบปุ่มเลือกหมวดหมู่ - ดึงจากอาเรย์คงที่เพื่อให้ปุ่มขึ้นพร้อมรอใช้งาน */}
             <div className="flex flex-wrap gap-2.5 justify-center">
-              {categories.map((cat) => (
+              {fixedCategories.map((cat) => (
                 <button
                   key={cat}
+                  type="button"
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-6 py-3 rounded-full text-[13px] font-bold uppercase tracking-wider transition-all border ${
                     selectedCategory === cat
@@ -162,14 +166,12 @@ export default function ArticlesPage() {
                           <img src={article.image_url} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onError={handleImgError} />
                         )}
 
-                        {/* ✅ ขยายขนาด Category Badge บนรูปภาพเป็น 11px และปรับ Padding ให้สวยงาม */}
                         <div className="absolute top-4 left-4">
                           <span className="bg-slate-900/90 backdrop-blur-sm text-[#CCFF00] text-[11px] font-black px-4 py-2 rounded-xl uppercase tracking-wider border border-white/10 shadow-md">
                             {article.category || 'Article'}
                           </span>
                         </div>
 
-                        {/* Featured Badge */}
                         {article.is_featured && (
                           <div className="absolute top-4 right-4">
                             <span className="bg-[#CCFF00] text-slate-900 text-[11px] font-black px-4 py-2 rounded-xl uppercase tracking-wider shadow-lg flex items-center gap-1">
@@ -194,7 +196,6 @@ export default function ArticlesPage() {
                           {article.content?.replace(/<[^>]*>/g, '')}...
                         </p>
 
-                        {/* ✅ ขยายขนาดปุ่มทางนำด้านล่างเป็น 12px */}
                         <div className="mt-auto flex items-center justify-between border-t border-slate-50 pt-4">
                           <span className="text-[12px] font-black uppercase text-slate-400 tracking-widest group-hover:text-slate-900 transition-colors">
                             Read Full Story
@@ -214,7 +215,7 @@ export default function ArticlesPage() {
               </div>
             )}
 
-            {/* ระบบ Pagination ปุ่มโหลดเพิ่ม */}
+            {/* ระบบ Pagination */}
             {filteredArticles.length > visibleCount && (
               <div className="flex justify-center mb-12">
                 <button 

@@ -9,8 +9,10 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-// หมวดหมู่บทความอิงตามข้อมูลจริงในตารางด้านหลังบ้านของพี่บุ๊ค
+// ✅ ซิงค์ชุดหมวดหมู่ เพิ่ม General และ Lifestyle เข้าไปสแตนบายเปิดใช้งานตรงนี้แล้วครับพี่บุ๊ค!
 const articleCategories = [
+  'General',
+  'Lifestyle',
   'Training',
   'Gear',
   'News',
@@ -51,7 +53,7 @@ export default function AdminAddArticlePage() {
     let uploadedImageUrl = null
     
     try {
-      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage ใน Bucket 'Court_image' ที่ใช้งานได้จริง
+      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage ใน Bucket 'Court_image'
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `article-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -69,7 +71,7 @@ export default function AdminAddArticlePage() {
         uploadedImageUrl = publicUrl
       }
 
-      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง articles ตรงตามคอลัมน์ของพี่บุ๊ค
+      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง articles
       const { error } = await supabase
         .from('articles')
         .insert([{

@@ -5,11 +5,10 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Upload, Loader2, Tag, ImagePlus, X, 
-  FileText, Heading, AlignLeft, Star, Shield, Languages, User
+  FileText, Heading, AlignLeft, Star, Shield, Languages, User // ✅ เพิ่ม Shield ตรงนี้เรียบร้อยครับ
 } from 'lucide-react'
 import Link from 'next/link'
 
-// หมวดหมู่บทความอิงตามข้อมูลจริงในตารางด้านหลังบ้านของพี่บุ๊ค
 const articleCategories = [
   'Training',
   'Gear',
@@ -51,7 +50,6 @@ export default function AdminAddArticlePage() {
     let uploadedImageUrl = null
     
     try {
-      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage ใน Bucket 'Court_image'
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `article-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -69,7 +67,6 @@ export default function AdminAddArticlePage() {
         uploadedImageUrl = publicUrl
       }
 
-      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง articles (ตรงตามคอลัมน์จริงใน Supabase)
       const { error } = await supabase
         .from('articles')
         .insert([{
@@ -102,7 +99,6 @@ export default function AdminAddArticlePage() {
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-50 pt-32 pb-20 font-sans">
       <div className="container mx-auto px-4 max-w-3xl relative z-10">
         
-        {/* ✅ ปิดแท็ก </Link> ตรงนี้ถูกต้องเรียบร้อย ไม่ดึงโครงสร้างอื่นมาพังแล้วครับ */}
         <Link href="/admin" className="inline-flex items-center gap-2 text-white/70 font-bold uppercase text-[11px] tracking-widest mb-10 hover:text-[#CCFF00] transition-all">
           <ArrowLeft size={16} strokeWidth={3} /> Back to Dashboard
         </Link>

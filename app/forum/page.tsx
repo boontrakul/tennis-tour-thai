@@ -5,13 +5,14 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Search, Pin, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
 
-// ✅ ข้อมูลหมวดหมู่และสี
+// ✅ ข้อมูลหมวดหมู่และสี - เพิ่ม "พูดคุยทั่วไป" สีชมพูโมเดิร์นเรียบร้อยครับ
 const categoriesData = [
   { name: 'All', bg: '#f1f5f9', text: '#475569' },
   { name: 'หาเพื่อนตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
   { name: 'รีวิวอุปกรณ์เทนนิส', bg: '#faf5ff', text: '#9333ea' },
   { name: 'รีวิวสนามเทนนิส', bg: '#ecfdf5', text: '#059669' },
-  { name: 'เทคนิคและการฝึกซ้อม', bg: '#fff7ed', text: '#ea580c' }
+  { name: 'เทคนิคและการฝึกซ้อม', bg: '#fff7ed', text: '#ea580c' },
+  { name: 'พูดคุยทั่วไป', bg: '#fdf2f8', text: '#db2777' } // ✅ เพิ่มหมวดหมู่ใหม่ตรงนี้ครับ
 ]
 
 function ForumContent() {
@@ -65,7 +66,8 @@ function ForumContent() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Link href="/forum/add" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
+                {/* ✅ ตรวจเช็คลิงก์ปุ่ม New Topic ให้ชี้ไปที่ /forum/new เรียบร้อยครับ */}
+                <Link href="/forum/new" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
                     <Plus size={16} strokeWidth={3} /> New Topic
                 </Link>
             </div>
@@ -88,7 +90,7 @@ function ForumContent() {
             </div>
         </div>
 
-        {/* --- THREADS LIST: รายการกระทู้ที่ปรับปรุงใหม่ --- */}
+        {/* --- THREADS LIST: รายการกระทู้ --- */}
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
           {loading ? (
             <div className="py-40 flex flex-col items-center gap-4">
@@ -106,7 +108,7 @@ function ForumContent() {
                     <div className="flex items-center gap-5">
                       <div className="flex-grow min-w-0">
                         
-                        {/* ✅ บรรทัดบน: รวมหมวดหมู่ + ผู้เขียน + วันที่ เพื่อประหยัดพื้นที่ */}
+                        {/* รวมหมวดหมู่ + ผู้เขียน + วันที่ */}
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
                           <span 
                             style={{ backgroundColor: catInfo.bg, color: catInfo.text }}
@@ -131,7 +133,7 @@ function ForumContent() {
                           )}
                         </div>
                         
-                        {/* ✅ ชื่อกระทู้ขนาดกะทัดรัด (Compact Style) */}
+                        {/* ชื่อกระทู้ขนาดกะทัดรัด (Compact Style) */}
                         <h3 className="!text-[15px] md:!text-[17px] font-bold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight truncate">
                           {post.title}
                         </h3>

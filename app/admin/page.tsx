@@ -19,7 +19,7 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-bold uppercase tracking-tight mb-2">Article Management</h3>
               <p className="text-slate-400 text-xs">จัดการบทความ ข่าวสาร และรีวิวอุปกรณ์เทนนิสทั้งหมดบนเว็บไซต์</p>
             </div>
-            <Link href="/admin/articles/add" className="w-fit bg-[#ff6b00] text-white px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 hover:bg-white hover:text-slate-950 transition-all">
+            <Link href="/articles/add" className="w-fit bg-[#ff6b00] text-white px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 hover:bg-white hover:text-slate-950 transition-all">
               <Plus size={14} strokeWidth={3} /> Add New Article
             </Link>
           </div>

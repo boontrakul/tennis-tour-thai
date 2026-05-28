@@ -27,7 +27,6 @@ export default function ForumDetailPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
-  // ✅ เพิ่ม State สำหรับจัดการรูปภาพในคอมเมนต์
   const [commentImage, setCommentImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -51,7 +50,6 @@ export default function ForumDetailPage() {
     fetchData()
   }, [id])
 
-  // ✅ ฟังก์ชันจัดการรูปภาพ
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
@@ -60,7 +58,6 @@ export default function ForumDetailPage() {
     }
   }
 
-  // ✅ ฟังก์ชันส่งคอมเมนต์ (พร้อมอัปโหลดรูป)
   const handlePostComment = async () => {
     if (!newComment.trim() && !commentImage) return
 
@@ -68,25 +65,24 @@ export default function ForumDetailPage() {
     let uploadedImageUrl = null
 
     try {
-      // 1. อัปโหลดรูปภาพถ้ามีการเลือก
+      // ✅ เปลี่ยนจาก Bucket 'forum_images' มาใช้ 'Court_image' ที่มีอยู่จริงเพื่อความเสถียร
       if (commentImage) {
         const fileExt = commentImage.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const fileName = `comment-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
         
         const { error: uploadError } = await supabase.storage
-          .from('forum_images') // ✅ ตรวจสอบว่าคุณมี Bucket ชื่อนี้ใน Supabase แล้ว
+          .from('Court_image') 
           .upload(fileName, commentImage)
 
         if (uploadError) throw uploadError
 
         const { data: { publicUrl } } = supabase.storage
-          .from('forum_images')
+          .from('Court_image')
           .getPublicUrl(fileName)
         
         uploadedImageUrl = publicUrl
       }
 
-      // 2. บันทึกคอมเมนต์ลง Database
       const { error } = await supabase
         .from('forum_comments')
         .insert([
@@ -94,7 +90,7 @@ export default function ForumDetailPage() {
             post_id: id,
             content: newComment,
             author_name: 'BOONTRAKUL', 
-            image_url: uploadedImageUrl // ✅ เพิ่ม URL รูปภาพลงในคอมเมนต์
+            image_url: uploadedImageUrl 
           }
         ])
 
@@ -145,14 +141,18 @@ export default function ForumDetailPage() {
       {/* --- MAIN CONTENT --- */}
       <section className="container mx-auto px-4 max-w-4xl -mt-10 relative z-20">
         <div className="bg-white p-8 md:p-14 rounded-[3rem] shadow-2xl border border-slate-100 mb-12">
-          {/* ✅ ฟอนต์เนื้อหากระทู้อ่านง่าย (text-lg md:text-xl) */}
           <p className="text-slate-700 text-lg md:text-xl leading-relaxed mb-12 whitespace-pre-wrap font-medium">
             {post.content}
           </p>
           
+          {/* ✅ แก้ไขกล่องรูปภาพประกอบเนื้อหากระทู้หลัก: object-contain เต็มใบ ไม่โดน Crop */}
           {post.image_url && (
-            <div className="rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner">
-              <img src={post.image_url} alt="" className="w-full h-auto max-h-[600px] object-cover block" />
+            <div className="w-full rounded-[2rem] overflow-hidden border border-slate-100 bg-slate-50/50 p-2">
+              <img 
+                src={post.image_url} 
+                alt="" 
+                className="w-full h-auto max-h-[75vh] object-contain rounded-[1.5rem] mx-auto block" 
+              />
             </div>
           )}
         </div>
@@ -176,14 +176,18 @@ export default function ForumDetailPage() {
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{timeAgo(comment.created_at)}</p>
                   </div>
                 </div>
-                {/* ✅ ฟอนต์คอมเมนต์ (text-base md:text-lg) */}
-                <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-4">
+                <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium mb-6">
                   {comment.content}
                 </p>
-                {/* แสดงรูปภาพในคอมเมนต์ (ถ้ามี) */}
+                
+                {/* ✅ แก้ไขรูปภาพในส่วนคอมเมนต์ย่อย: object-contain เต็มสัดส่วนเช่นกัน ไม่ Crop */}
                 {comment.image_url && (
-                  <div className="rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 max-w-md">
-                    <img src={comment.image_url} alt="comment photo" className="w-full h-auto object-cover" />
+                  <div className="rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 max-w-md p-1.5">
+                    <img 
+                      src={comment.image_url} 
+                      alt="comment photo" 
+                      className="w-full h-auto max-h-[50vh] object-contain rounded-xl mx-auto" 
+                    />
                   </div>
                 )}
               </div>
@@ -191,11 +195,10 @@ export default function ForumDetailPage() {
           </div>
         </div>
 
-        {/* --- INPUT AREA: ส่งข้อความ + รูปภาพ --- */}
+        {/* --- INPUT AREA --- */}
         <div className="pt-10 border-t-2 border-slate-100">
           <div className="bg-white rounded-[2.5rem] border-2 border-slate-100 overflow-hidden focus-within:border-[#CCFF00] transition-all">
             
-            {/* แสดง Preview รูปที่จะอัปโหลด */}
             {imagePreview && (
               <div className="p-4 bg-slate-50 flex items-center gap-4">
                 <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200">
@@ -236,3 +239,4 @@ export default function ForumDetailPage() {
     </main>
   )
 }
+        {/* --- REPLIES SECTION --- */}

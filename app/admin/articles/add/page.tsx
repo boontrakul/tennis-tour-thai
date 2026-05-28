@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Upload, Loader2, Tag, ImagePlus, X, 
-  FileText, Heading, AlignLeft, Star, Shield, Languages, User // ✅ เพิ่ม Shield ตรงนี้เรียบร้อยครับ
+  FileText, Heading, AlignLeft, Star, Shield, Languages, User
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,10 +26,10 @@ export default function AdminAddArticlePage() {
   const [isFeatured, setIsFeatured] = useState(false)
   const [lang, setLang] = useState('TH') 
   
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageFile, setImageFile] = useState<any>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: any) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setImageFile(file)
@@ -42,7 +42,7 @@ export default function AdminAddArticlePage() {
     setPreviewUrl('')
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
     setLoading(true)
 

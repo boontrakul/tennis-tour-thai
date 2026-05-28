@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-// ✅ ซิงค์ชุดหมวดหมู่ เพิ่ม General และ Lifestyle เข้าไปสแตนบายเปิดใช้งานตรงนี้แล้วครับพี่บุ๊ค!
+// ✅ อัปเดตชุดหมวดหมู่ เพิ่ม General และ Lifestyle เข้าไปสแตนบายตรงนี้เรียบร้อยครับพี่บุ๊ค!
 const articleCategories = [
   'General',
   'Lifestyle',
@@ -228,12 +228,18 @@ export default function AdminAddArticlePage() {
 
               <div className="relative group">
                 <label className={labelStyle}><AlignLeft size={16} /> Main Content (เนื้อหาบทความ)</label>
+                
+                {/* ✅ คำแนะนำเล็กๆ บนหน้าจอให้พี่บุ๊คจัดตัวหนังสือตัวหนา ขีดเส้นใต้ หัวข้อ ได้ง่ายขึ้นครับ */}
+                <p className="text-[10px] text-slate-400 font-bold uppercase mb-2 ml-3">
+                  Tips: ใช้ <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> สำหรับตัวหนา | <u>&lt;u&gt;ข้อความ&lt;/u&gt;</u> สำหรับขีดเส้นใต้ | &lt;h2&gt;หัวข้อ&lt;/h2&gt; สำหรับหัวข้อใหญ่
+                </p>
+
                 <textarea 
                   name="content" 
                   required 
                   rows={15} 
                   className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] focus:bg-white transition-all outline-none resize-none leading-relaxed" 
-                  placeholder="พิมพ์หรือวางเนื้อหาบทความแบบเต็มที่นี่..."
+                  placeholder="พิมพ์เนื้อหาที่นี่... สามารถใช้ <b>ตัวหนา</b> หรือ <u>ขีดเส้นใต้</u> ได้ตามต้องการ"
                 ></textarea>
               </div>
             </div>

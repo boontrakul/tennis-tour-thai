@@ -1,191 +1,161 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Search, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
+import { Search, BookOpen, Clock, ChevronRight, Loader2 } from 'lucide-react'
 
-// คู่สีหมวดหมู่ชุดใหม่หลัก
-const categoriesData = [
-  { name: 'All', bg: '#f1f5f9', text: '#475569' },
-  { name: 'หาเพื่อน/โค้ชตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
-  { name: 'รีวิวสนามและอุปกรณ์เทนนิส', bg: '#faf5ff', text: '#9333ea' },
-  { name: 'ซื้อขายอุปกรณ์เทนนิส', bg: '#ecfdf5', text: '#059669' },
-  { name: 'พูดคุยทั่วไป', bg: '#fdf2f8', text: '#db2777' }
+const categories = [
+  'All',
+  'General',
+  'Lifestyle',
+  'Training',
+  'Gear',
+  'News',
+  'Health',
+  'Mental Game',
+  'Pro Tour',
+  'Nutrition'
 ]
 
-function ForumContent() {
-  const [posts, setPosts] = useState<any[]>([])
+export default function ArticlesPage() {
+  const [articles, setArticles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
   useEffect(() => {
-    async function fetchPosts() {
+    async function fetchArticles() {
       setLoading(true)
       const { data, error } = await supabase
-        .from('forum_posts')
+        .from('articles')
         .select('*')
+        // ✅ จัดเรียงลำดับตัวเลขจากน้อยไปมาก และปัดค่าว่าง (NULL) ไปไว้ท้ายสุด
         .order('is_featured', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
-        
-      if (error) console.error('Error fetching forum posts:', error)
-      if (data) setPosts(data)
+      
+      if (error) {
+        console.error('Error fetching articles:', error)
+      }
+      if (data) {
+        setArticles(data)
+      }
       setLoading(false)
     }
-    fetchPosts()
+    fetchArticles()
   }, [])
 
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    // ดักกรองระบบ Category ให้เข้าล็อกกับชื่อหมวดหมู่เดิมใน Database ด้วย
-    let categoryName = post.category
-    if (selectedCategory === 'หาเพื่อน/โค้ชตีเทนนิส' && post.category === 'หาเพื่อนตีเทนนิส') {
-      return matchesSearch
-    }
-    if (selectedCategory === 'รีวิวสนามและอุปกรณ์เทนนิส' && (post.category === 'รีวิวอุปกรณ์เทนนิส' || post.category === 'รีวิวสนามเทนนิส')) {
-      return matchesSearch
-    }
-
-    const matchesCategory = selectedCategory === 'All' || categoryName === selectedCategory
+  // ระบบกรองข้อมูล (Search & Filter Category)
+  const filteredArticles = articles.filter(art => {
+    const matchesSearch = art.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          art.content?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === 'All' || art.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-20 font-sans">
-      {/* --- HERO SECTION --- */}
-      <section className="bg-slate-900 pt-32 pb-16 text-center text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="relative z-10 container mx-auto px-4">
-            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic leading-none">Tennis <span className="text-[#CCFF00]">Forum</span></h1>
-        </div>
-      </section>
+    <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans text-slate-900">
+      <div className="container mx-auto px-4 max-w-6xl">
+        
+        {/* --- HEADER BAR --- */}
+        <div className="mb-12 flex flex-col lg:flex-row gap-6 justify-between items-center max-w-4xl mx-auto">
+          <div className="text-center lg:text-left">
+            <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-slate-900">
+              Tennis <span className="text-[#84cc16]">Insights</span>
+            </h1>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Knowledge, Techniques, and Gear Reviews</p>
+          </div>
 
-      <section className="container mx-auto px-4 max-w-5xl -mt-10 relative z-20">
-        {/* --- CONTROLS BAR --- */}
-        <div className="bg-white p-5 rounded-[2.5rem] shadow-xl border border-slate-100 mb-6">
-            <div className="flex flex-col md:flex-row gap-4 mb-5">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="Search discussions..." 
-                    className="w-full pl-14 pr-6 py-3.5 bg-slate-50 border border-slate-200 rounded-full text-slate-900 font-bold text-sm outline-none focus:border-[#CCFF00] transition-all placeholder:text-slate-400"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+          {/* Search Box */}
+          <div className="relative group w-full lg:max-w-md">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#84cc16] transition-colors" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search articles..." 
+              className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-full shadow-lg outline-none focus:ring-2 focus:ring-[#84cc16]/20 focus:border-[#84cc16] transition-all text-sm font-bold placeholder:text-slate-300"
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* --- CATEGORIES FILTER --- */}
+        <div className="flex flex-wrap gap-2 justify-center mb-12 max-w-4xl mx-auto p-2 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-wider transition-all ${
+                selectedCategory === cat
+                  ? 'bg-slate-900 text-[#CCFF00] shadow-md'
+                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* --- ARTICLES GRID --- */}
+        {loading ? (
+          <div className="py-40 flex flex-col items-center gap-4 text-slate-300 font-bold uppercase animate-pulse">
+            <Loader2 className="animate-spin text-[#84cc16]" size={40} />
+            <span className="text-xs tracking-widest text-slate-400">Loading Insights...</span>
+          </div>
+        ) : filteredArticles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredArticles.map((art) => (
+              <Link 
+                href={`/articles/${art.id}`} 
+                key={art.id} 
+                className="group flex flex-col h-full bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+              >
+                {/* Image Wrap */}
+                <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
+                  <span className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                    {art.category}
+                  </span>
+                  
+                  {art.image_url ? (
+                    <img 
+                      src={art.image_url} 
+                      alt={art.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl">🎾</div>
+                  )}
                 </div>
-                
-                <Link href="/forum/add" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
-                    <Plus size={16} strokeWidth={3} /> New Topic
-                </Link>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 pt-5 border-t border-slate-100">
-              {categoriesData.map((cat) => (
-                <button 
-                  key={cat.name} 
-                  type="button"
-                  onClick={() => setSelectedCategory(cat.name)} 
-                  style={{ 
-                    backgroundColor: selectedCategory === cat.name ? '#0f172a' : cat.bg,
-                    color: selectedCategory === cat.name ? '#CCFF00' : cat.text,
-                    borderColor: selectedCategory === cat.name ? '#0f172a' : 'transparent'
-                  }}
-                  className="px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider transition-all border shadow-sm"
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-        </div>
 
-        {/* --- THREADS LIST --- */}
-        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
-          {loading ? (
-            <div className="py-40 flex flex-col items-center gap-4">
-               <Loader2 className="animate-spin text-[#CCFF00]" size={40} />
-               <p className="font-black text-slate-300 uppercase text-xs tracking-widest">Loading Content...</p>
-            </div>
-          ) : filteredPosts.length > 0 ? (
-            <div className="divide-y divide-slate-100">
-              {filteredPosts.map((post) => {
-                // ✅ แก้ไข Logic ตรงนี้: ดักเช็กชื่อเก่าใน DB แล้วจับคู่สีของหมวดหมู่ใหม่ให้ถูกต้องสวยงามครับ
-                let displayCategory = post.category;
-                let catInfo = categoriesData.find(c => c.name === post.category);
+                {/* Content Details */}
+                <div className="p-6 md:p-8 flex flex-col flex-grow">
+                  <div className="flex items-center gap-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-3">
+                    <span className="flex items-center gap-1.5"><Clock size={12} /> {new Date(art.created_at).toLocaleDateString('en-GB')}</span>
+                    <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-500 text-[9px]">Lng: {art.lang || 'TH'}</span>
+                  </div>
 
-                if (!catInfo) {
-                  if (post.category === 'หาเพื่อนตีเทนนิส') {
-                    catInfo = categoriesData.find(c => c.name === 'หาเพื่อน/โค้ชตีเทนนิส');
-                    displayCategory = 'หาเพื่อน/โค้ชตีเทนนิส';
-                  } else if (post.category === 'รีวิวอุปกรณ์เทนนิส' || post.category === 'รีวิวสนามเทนนิส') {
-                    catInfo = categoriesData.find(c => c.name === 'รีวิวสนามและอุปกรณ์เทนนิส');
-                    displayCategory = 'รีวิวสนามและอุปกรณ์เทนนิส';
-                  } else {
-                    catInfo = categoriesData[0]; // fallback เผื่อไว้
-                  }
-                }
+                  <h3 className="text-base md:text-lg font-black text-slate-900 leading-snug mb-4 uppercase italic group-hover:text-[#84cc16] transition-colors line-clamp-2">
+                    {art.title}
+                  </h3>
 
-                const commentCount = post.comments?.[0]?.count || 0;
-
-                return (
-                  <Link href={`/forum/${post.id}`} key={post.id} className="group block px-6 py-4 hover:bg-slate-50/50 transition-all">
-                    <div className="flex items-center gap-5">
-                      <div className="flex-grow min-w-0">
-                        
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
-                          <span 
-                            style={{ backgroundColor: catInfo?.bg, color: catInfo?.text }}
-                            className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded border border-slate-100/50"
-                          >
-                            {displayCategory}
-                          </span>
-                          
-                          <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            <span className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                              <User size={12} className="text-slate-300" /> {post.author_name || 'Anonymous'}
-                            </span>
-                            <span className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                              <Clock size={12} className="text-slate-300" /> {new Date(post.created_at).toLocaleDateString('en-GB')}
-                            </span>
-                          </div>
-
-                          {post.is_featured !== null && post.is_featured !== undefined && (
-                            <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-2.5 py-0.5 rounded border border-red-100 ml-auto md:ml-0 flex items-center gap-1 shadow-sm">
-                              📌 Pinned #{post.is_featured}
-                            </span>
-                          )}
-                        </div>
-                        
-                        <h3 className="!text-[15px] md:!text-[17px] font-bold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight truncate uppercase italic">
-                          {post.title}
-                        </h3>
-                        
-                      </div>
-                      
-                      <div className="flex-shrink-0 bg-slate-50 px-4 py-2 rounded-2xl text-center min-w-[75px] border border-slate-100 group-hover:border-[#CCFF00] group-hover:bg-white transition-all">
-                        <div className="text-[18px] font-black text-slate-900 leading-none">{commentCount}</div>
-                        <div className="text-[9px] font-black text-slate-400 uppercase mt-1">Replies</div>
-                      </div>
+                  <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
+                    <span>Read Article</span>
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] transition-all">
+                      <ChevronRight size={14} className="text-slate-400 group-hover:text-slate-900" />
                     </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-40 font-black text-slate-200 uppercase tracking-widest italic">No Discussions Found</div>
-          )}
-        </div>
-      </section>
-    </main>
-  )
-}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-40 font-black text-slate-200 uppercase tracking-widest italic text-xl">
+            No Articles Found
+          </div>
+        )}
 
-export default function ForumPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center"><Loader2 className="animate-spin text-[#CCFF00]" size={40} /></div>}>
-      <ForumContent />
-    </Suspense>
+      </div>
+    </main>
   )
 }

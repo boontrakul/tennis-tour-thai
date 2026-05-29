@@ -3,9 +3,9 @@
 import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Search, Pin, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
+import { Search, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
 
-// ✅ อัปเดตผังชุดหมวดหมู่ฟอรัมแบบใหม่ล่าสุดตามที่พี่บุ๊คกำหนดเรียบร้อยครับ!
+// คู่สีหมวดหมู่ชุดใหม่หลัก
 const categoriesData = [
   { name: 'All', bg: '#f1f5f9', text: '#475569' },
   { name: 'หาเพื่อน/โค้ชตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
@@ -38,7 +38,17 @@ function ForumContent() {
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory
+    
+    // ดักกรองระบบ Category ให้เข้าล็อกกับชื่อหมวดหมู่เดิมใน Database ด้วย
+    let categoryName = post.category
+    if (selectedCategory === 'หาเพื่อน/โค้ชตีเทนนิส' && post.category === 'หาเพื่อนตีเทนนิส') {
+      return matchesSearch
+    }
+    if (selectedCategory === 'รีวิวสนามและอุปกรณ์เทนนิส' && (post.category === 'รีวิวอุปกรณ์เทนนิส' || post.category === 'รีวิวสนามเทนนิส')) {
+      return matchesSearch
+    }
+
+    const matchesCategory = selectedCategory === 'All' || categoryName === selectedCategory
     return matchesSearch && matchesCategory
   })
 
@@ -101,7 +111,22 @@ function ForumContent() {
           ) : filteredPosts.length > 0 ? (
             <div className="divide-y divide-slate-100">
               {filteredPosts.map((post) => {
-                const catInfo = categoriesData.find(c => c.name === post.category) || categoriesData[0];
+                // ✅ แก้ไข Logic ตรงนี้: ดักเช็กชื่อเก่าใน DB แล้วจับคู่สีของหมวดหมู่ใหม่ให้ถูกต้องสวยงามครับ
+                let displayCategory = post.category;
+                let catInfo = categoriesData.find(c => c.name === post.category);
+
+                if (!catInfo) {
+                  if (post.category === 'หาเพื่อนตีเทนนิส') {
+                    catInfo = categoriesData.find(c => c.name === 'หาเพื่อน/โค้ชตีเทนนิส');
+                    displayCategory = 'หาเพื่อน/โค้ชตีเทนนิส';
+                  } else if (post.category === 'รีวิวอุปกรณ์เทนนิส' || post.category === 'รีวิวสนามเทนนิส') {
+                    catInfo = categoriesData.find(c => c.name === 'รีวิวสนามและอุปกรณ์เทนนิส');
+                    displayCategory = 'รีวิวสนามและอุปกรณ์เทนนิส';
+                  } else {
+                    catInfo = categoriesData[0]; // fallback เผื่อไว้
+                  }
+                }
+
                 const commentCount = post.comments?.[0]?.count || 0;
 
                 return (
@@ -111,10 +136,10 @@ function ForumContent() {
                         
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
                           <span 
-                            style={{ backgroundColor: catInfo.bg, color: catInfo.text }}
+                            style={{ backgroundColor: catInfo?.bg, color: catInfo?.text }}
                             className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded border border-slate-100/50"
                           >
-                            {post.category}
+                            {displayCategory}
                           </span>
                           
                           <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">

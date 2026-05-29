@@ -1,9 +1,5 @@
 'use client'
 
-// ✅ บังคับล้างแคชฝั่งเซิร์ฟเวอร์ ดึงข้อมูลสดใหม่จาก Supabase ทุกครั้งที่เปิดหน้าเว็บ
-export const revalidate = 0
-export const dynamic = 'force-dynamic'
-
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -34,7 +30,6 @@ export default function ArticlesPage() {
       const { data, error } = await supabase
         .from('articles')
         .select('*')
-        // ✅ เรียงลำดับตัวเลขควบคุมเอง และปัดค่าว่าง (NULL) ไปไว้ท้ายสุด
         .order('is_featured', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
       
@@ -49,7 +44,6 @@ export default function ArticlesPage() {
     fetchArticles()
   }, [])
 
-  // ระบบกรองข้อมูล (Search & Filter Category)
   const filteredArticles = articles.filter(art => {
     const matchesSearch = art.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           art.content?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -61,7 +55,6 @@ export default function ArticlesPage() {
     <main className="min-h-screen bg-slate-50 pb-20 pt-32 font-sans text-slate-900">
       <div className="container mx-auto px-4 max-w-6xl">
         
-        {/* --- HEADER BAR --- */}
         <div className="mb-12 flex flex-col lg:flex-row gap-6 justify-between items-center max-w-4xl mx-auto">
           <div className="text-center lg:text-left">
             <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-slate-900">
@@ -70,9 +63,8 @@ export default function ArticlesPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Knowledge, Techniques, and Gear Reviews</p>
           </div>
 
-          {/* Search Box */}
           <div className="relative group w-full lg:max-w-md">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#84cc16] transition-colors" size={18} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
             <input 
               type="text" 
               placeholder="Search articles..." 
@@ -83,7 +75,6 @@ export default function ArticlesPage() {
           </div>
         </div>
 
-        {/* --- CATEGORIES FILTER --- */}
         <div className="flex flex-wrap gap-2 justify-center mb-12 max-w-4xl mx-auto p-2 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
           {categories.map((cat) => (
             <button
@@ -101,7 +92,6 @@ export default function ArticlesPage() {
           ))}
         </div>
 
-        {/* --- ARTICLES GRID --- */}
         {loading ? (
           <div className="py-40 flex flex-col items-center gap-4 text-slate-300 font-bold uppercase animate-pulse">
             <Loader2 className="animate-spin text-[#84cc16]" size={40} />
@@ -115,34 +105,25 @@ export default function ArticlesPage() {
                 key={art.id} 
                 className="group flex flex-col h-full bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
               >
-                {/* Image Wrap */}
                 <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
                   <span className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
                     {art.category}
                   </span>
-                  
                   {art.image_url ? (
-                    <img 
-                      src={art.image_url} 
-                      alt={art.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                    />
+                    <img src={art.image_url} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-4xl">🎾</div>
                   )}
                 </div>
 
-                {/* Content Details */}
                 <div className="p-6 md:p-8 flex flex-col flex-grow">
                   <div className="flex items-center gap-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-3">
                     <span className="flex items-center gap-1.5"><Clock size={12} /> {new Date(art.created_at).toLocaleDateString('en-GB')}</span>
                     <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-500 text-[9px]">Lng: {art.lang || 'TH'}</span>
                   </div>
-
                   <h3 className="text-base md:text-lg font-black text-slate-900 leading-snug mb-4 uppercase italic group-hover:text-[#84cc16] transition-colors line-clamp-2">
                     {art.title}
                   </h3>
-
                   <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
                     <span>Read Article</span>
                     <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#CCFF00] transition-all">

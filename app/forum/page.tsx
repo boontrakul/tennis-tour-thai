@@ -5,13 +5,12 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Search, Pin, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
 
-// ✅ ข้อมูลหมวดหมู่และสีสันสำหรับตัวกรอง (มีหมวดหมู่พูดคุยทั่วไปครบถ้วน)
+// ✅ อัปเดตผังชุดหมวดหมู่ฟอรัมแบบใหม่ล่าสุดตามที่พี่บุ๊คกำหนดเรียบร้อยครับ!
 const categoriesData = [
   { name: 'All', bg: '#f1f5f9', text: '#475569' },
-  { name: 'หาเพื่อนตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
-  { name: 'รีวิวอุปกรณ์เทนนิส', bg: '#faf5ff', text: '#9333ea' },
-  { name: 'รีวิวสนามเทนนิส', bg: '#ecfdf5', text: '#059669' },
-  { name: 'เทคนิคและการฝึกซ้อม', bg: '#fff7ed', text: '#ea580c' },
+  { name: 'หาเพื่อน/โค้ชตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
+  { name: 'รีวิวสนามและอุปกรณ์เทนนิส', bg: '#faf5ff', text: '#9333ea' },
+  { name: 'ซื้อขายอุปกรณ์เทนนิส', bg: '#ecfdf5', text: '#059669' },
   { name: 'พูดคุยทั่วไป', bg: '#fdf2f8', text: '#db2777' }
 ]
 
@@ -21,7 +20,6 @@ function ForumContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
-  // ✅ ดึงข้อมูลกระทู้คอมมูนิตี้ (Forum) เรียงตามเลขลำดับ 1 -> 2 -> 3 และเอาโพสต์ทั่วไป (NULL) ไว้ท้ายแถว
   useEffect(() => {
     async function fetchPosts() {
       setLoading(true)
@@ -93,7 +91,7 @@ function ForumContent() {
             </div>
         </div>
 
-        {/* --- THREADS LIST: รายการกระทู้ --- */}
+        {/* --- THREADS LIST --- */}
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
           {loading ? (
             <div className="py-40 flex flex-col items-center gap-4">
@@ -111,7 +109,6 @@ function ForumContent() {
                     <div className="flex items-center gap-5">
                       <div className="flex-grow min-w-0">
                         
-                        {/* รวมหมวดหมู่ + ผู้เขียน + วันที่ */}
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
                           <span 
                             style={{ backgroundColor: catInfo.bg, color: catInfo.text }}
@@ -129,7 +126,6 @@ function ForumContent() {
                             </span>
                           </div>
 
-                          {/* ✅ แถบป้ายกำกับแจ้งเตือนการปักหมุดลำดับตัวเลขรูปแบบใหม่สไตล์นิตยสารพรีเมียม */}
                           {post.is_featured !== null && post.is_featured !== undefined && (
                             <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-2.5 py-0.5 rounded border border-red-100 ml-auto md:ml-0 flex items-center gap-1 shadow-sm">
                               📌 Pinned #{post.is_featured}
@@ -137,14 +133,12 @@ function ForumContent() {
                           )}
                         </div>
                         
-                        {/* ชื่อกระทู้ขนาดกะทัดรัด (Compact Style) */}
                         <h3 className="!text-[15px] md:!text-[17px] font-bold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight truncate uppercase italic">
                           {post.title}
                         </h3>
                         
                       </div>
                       
-                      {/* ส่วนแสดงจำนวน Replies */}
                       <div className="flex-shrink-0 bg-slate-50 px-4 py-2 rounded-2xl text-center min-w-[75px] border border-slate-100 group-hover:border-[#CCFF00] group-hover:bg-white transition-all">
                         <div className="text-[18px] font-black text-slate-900 leading-none">{commentCount}</div>
                         <div className="text-[9px] font-black text-slate-400 uppercase mt-1">Replies</div>

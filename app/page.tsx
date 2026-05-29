@@ -24,14 +24,20 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
+// ✅ อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริงของพี่บุ๊ค ให้แสดงผลแยกสีสันพรีเมียมชัดเจน
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
-    case 'หาเพื่อนตีเทนนิส': return 'bg-blue-50 text-blue-600 border-blue-100';
-    case 'รีวิวอุปกรณ์เทนนิส': return 'bg-purple-50 text-purple-600 border-purple-100';
-    case 'รีวิวสนามเทนนิส': return 'bg-green-50 text-green-600 border-green-100';
-    case 'เทคนิคและการฝึกซ้อม': return 'bg-orange-50 text-orange-600 border-orange-100';
-    default: return 'bg-slate-50 text-slate-500 border-slate-100';
+    case 'พูดคุยทั่วไป': 
+      return 'bg-blue-50 text-blue-600 border-blue-100';
+    case 'หาเพื่อนเล่น': 
+      return 'bg-green-50 text-green-600 border-green-100';
+    case 'ซื้อขายอุปกรณ์': 
+      return 'bg-purple-50 text-purple-600 border-purple-100';
+    case 'ข่าวสารและทัวร์นาเมนต์': 
+      return 'bg-orange-50 text-orange-600 border-orange-100';
+    default: 
+      return 'bg-slate-50 text-slate-500 border-slate-100';
   }
 };
 
@@ -68,7 +74,8 @@ export default function HomePage() {
       
       {/* 1. HERO SECTION */}
       <section className="pt-40 pb-20 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
-        <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="relative z-10 container mx-auto max-w-7xl relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
             <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
           </div>
@@ -166,7 +173,6 @@ export default function HomePage() {
             <div className="lg:col-span-4 space-y-8">
               <div className="flex justify-between items-end border-b border-slate-200 pb-4">
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Articles</h2>
-                {/* ขยายขนาด View All */}
                 <Link href="/articles" className="text-[13px] font-bold text-[#84cc16] uppercase tracking-widest">View All</Link>
               </div>
               <div className="space-y-4">
@@ -176,7 +182,6 @@ export default function HomePage() {
                       <img src={art.image_url} alt={art.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col justify-center overflow-hidden">
-                      {/* ขยายขนาด Tag บทความ */}
                       <span className="text-[#84cc16] text-[11px] font-black uppercase mb-1">{art.category}</span>
                       <h3 className="text-sm font-bold text-slate-800 leading-tight uppercase group-hover:text-[#84cc16] line-clamp-2">{art.title}</h3>
                     </div>
@@ -188,7 +193,6 @@ export default function HomePage() {
             <div className="lg:col-span-8 space-y-8">
               <div className="flex justify-between items-end border-b border-slate-200 pb-4">
                 <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Community</h2>
-                {/* ขยายขนาด All Topics */}
                 <Link href="/forum" className="text-[13px] font-bold text-[#84cc16] uppercase tracking-widest flex items-center gap-1 group">
                   All Topics <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -203,7 +207,7 @@ export default function HomePage() {
                   >
                     <div className="flex flex-col gap-1.5 flex-grow pr-4">
                       <div className="flex items-center gap-3">
-                        {/* ขยายขนาด Tag กระทู้ */}
+                        {/* ✅ ใช้ฟังก์ชันสีใหม่ที่ดักชื่อหมวดหมู่ภาษาไทย ทำให้แต่ละบอร์ดเด้งสีสันสวยงามแยกกันชัดเจนแล้วครับพี่บุ๊ค */}
                         <span className={`text-[11px] font-black uppercase px-3 py-1 rounded-md border ${getTagColor(post.category)}`}>
                           {post.category}
                         </span>

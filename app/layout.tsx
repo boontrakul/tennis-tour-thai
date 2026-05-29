@@ -46,10 +46,8 @@ export default function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
-        </div>
-
-        {/* Footer: ซ่อนในหน้ามือถือเพื่อความเป็น Application */}
-        <div className="hidden md:block">
+          
+          {/* ✅ ย้าย Footer มาไว้ตรงนี้ และเอา hidden md:block ออกเพื่อให้โชว์หน้า Contact บนมือถือสวยๆ ครับ */}
           <Footer />
         </div>
       </body>

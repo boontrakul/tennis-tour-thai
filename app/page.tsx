@@ -24,7 +24,7 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
-// อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริงของพี่บุ๊ค
+// อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริง
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
@@ -57,41 +57,40 @@ export default function HomePage() {
     libraries
   })
 
-// 🛠️ ค้นหาและวางทับฟังก์ชัน useEffect ดึงข้อมูลชุดนี้ในไฟล์ app/page.tsx ครับพี่บุ๊ค
-useEffect(() => {
-  async function fetchData() {
-    const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
-    if (all) setAllCourts(all)
-    
-    // 1. ดึงข้อมูลสนามเทนนิสเด่น (Featured Courts): บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุดชัวร์ๆ
-    const { data: featured } = await supabase
-      .from('courts')
-      .select('*')
-      .eq('status', 'approved')
-      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ บังคับ nullsFirst: false ล็อกอันดับผ่านฉลุย
-      .limit(6)
-    if (featured) setFeaturedCourts(featured)
-    
-    // 2. ดึงข้อมูลบทความหน้าแรก: บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุด
-    const { data: a } = await supabase
-      .from('articles')
-      .select('*')
-      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ ล็อกลำดับตัวเลขบทความหน้าแรก
-      .order('created_at', { ascending: false })
-      .limit(3)
-    if (a) setArticles(a);
-    
-    // 3. ดึงข้อมูลกระทู้คอมมูนิตี้หน้าแรก: บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุด
-    const { data: f } = await supabase
-      .from('forum_posts')
-      .select('*')
-      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ ล็อกลำดับตัวเลขกระทู้หน้าแรก
-      .order('created_at', { ascending: false })
-      .limit(5)
-    if (f) setForumPosts(f);
-  }
-  fetchData()
-}, [])
+  useEffect(() => {
+    async function fetchData() {
+      const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
+      if (all) setAllCourts(all)
+      
+      // 1. ดึงข้อมูลสนามเทนนิสเด่น (Featured Courts) เรียงตามตัวเลขลำดับควบคุมเอง
+      const { data: featured } = await supabase
+        .from('courts')
+        .select('*')
+        .eq('status', 'approved')
+        .order('is_featured', { ascending: true, nullsFirst: false })
+        .limit(6)
+      if (featured) setFeaturedCourts(featured)
+      
+      // 2. ดึงข้อมูลบทความหน้าแรก เรียงตามลำดับปักหมุดตัวเลข
+      const { data: a } = await supabase
+        .from('articles')
+        .select('*')
+        .order('is_featured', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(3)
+      if (a) setArticles(a);
+      
+      // 3. ดึงข้อมูลกระทู้คอมมูนิตี้หน้าแรก เรียงตามลำดับปักหมุดตัวเลข
+      const { data: f } = await supabase
+        .from('forum_posts')
+        .select('*')
+        .order('is_featured', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(5)
+      if (f) setForumPosts(f);
+    }
+    fetchData()
+  }, [])
 
   return (
     <main className="min-h-screen bg-white pb-20 font-sans">
@@ -163,13 +162,29 @@ useEffect(() => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {featuredCourts.map((court) => (
             <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 relative">
+              
+              {/* Image Container Area */}
               <div className="relative h-56 overflow-hidden bg-slate-100">
-                <div className="absolute top-5 left-5 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-black px-3.5 py-1.5 rounded-full uppercase flex items-center gap-2 shadow-lg">
-                  <Shield size={12} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
+                <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase flex items-center gap-1.5 shadow-md">
+                  <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
                 </div>
+
+                {/* ✅ เพิ่มป้าย Recommended กำกับไว้ด้านขวาบนของรูปภาพสไตล์พรีเมียมเหมือนหน้าหลัก Courts แล้วครับพี่บุ๊ค! */}
+                {court.is_featured !== null && court.is_featured !== undefined && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5 border border-white/10">
+                      <Star size={10} fill="currentColor" /> Recommended #{court.is_featured}
+                    </span>
+                  </div>
+                )}
+
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />}
               </div>
+
               <div className="p-8 flex flex-col flex-grow">
+                <span className="text-[9px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded uppercase flex inline-flex items-center gap-1 mb-3 self-start">
+                  <Navigation size={10} className="text-[#84cc16]" /> {court.surface || 'Hard Court'}
+                </span>
                 <h3 className="font-bold text-slate-900 text-lg mb-2 uppercase tracking-tight group-hover:text-[#84cc16] transition-colors leading-tight whitespace-normal break-words">
                   {court.name}
                 </h3>

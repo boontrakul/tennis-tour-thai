@@ -7,7 +7,7 @@ import {
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
   Navigation, GripHorizontal, X, User, Shield, DollarSign, Phone, 
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
-  Clock, Sun, Moon, Home, FileText, CheckSquare, Square
+  Clock, Sun, Moon, Home, FileText, CheckSquare, Square, Star
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -45,6 +45,9 @@ export default function AddCourtPage() {
   
   // ✅ สร้าง State ในการจำค่าพื้นผิวสนามที่เลือก (เริ่มต้นให้เลือกเป็น Hard Court ไว้เป็นค่าหลัก)
   const [selectedSurfaces, setSelectedSurfaces] = useState<string[]>(['Hard Court'])
+
+  // ✅ เพิ่ม State สำหรับจัดการปุ่มสวิตช์ปักหมุดแนะนำ (Featured Court)
+  const [isFeatured, setIsFeatured] = useState(false)
 
   const handleMapUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
@@ -134,7 +137,8 @@ export default function AddCourtPage() {
         phone: formData.get('phone'),
         image_url: uploadedUrls[0] || null, 
         images: uploadedUrls,
-        is_featured: null, // ค่าเริ่มต้นให้เป็นค่าว่างเพื่อรอดีเลย์สลับตัวเลข
+        // ✅ ปรับแก้จุดนี้: แปลงจาก Boolean true/false ของสวิตช์หน้าเว็บให้ส่งเป็นตัวเลข 1 หรือค่า null เข้าคอลัมน์ int4
+        is_featured: isFeatured ? 1 : null, 
         map_url: formData.get('map_url'),
         latitude: lat ? parseFloat(lat) : null,
         longitude: lng ? parseFloat(lng) : null,
@@ -220,7 +224,6 @@ export default function AddCourtPage() {
                   </select>
                 </div>
 
-                {/* ✅ แก้ไขจุดนี้: เปลี่ยนจากกล่อง <select> เดิมเป็นปุ่มกด Multi-Select เลือกได้มากกว่าหนึ่งผิวสนามครับ */}
                 <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 col-span-1 md:col-span-2">
                   <label className={labelStyle}><MapPin size={16} /> Surface Type (ประเภทพื้นผิวสนาม - เลือกได้มากกว่า 1)</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
@@ -314,7 +317,7 @@ export default function AddCourtPage() {
                 ></textarea>
               </div>
 
-              {/* 8. Access & Submitter */}
+              {/* 8. Access & Submitter & Featured */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Shield size={14} /> Access Type</label>
@@ -331,6 +334,27 @@ export default function AddCourtPage() {
                   <label className={labelStyle}><User size={14} /> Added By</label>
                   <User size={18} className={inputIconStyle} />
                   <input name="submitted_by" placeholder="Your Name" className={inputStyle} />
+                </div>
+
+                {/* ✅ เพิ่ม UI ปุ่ม Toggle สวิตช์สำหรับ Featured Court ดีไซน์เดียวกับระบบบทความหน้าแรก */}
+                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 col-span-1 md:col-span-2 flex items-center justify-between">
+                  <div>
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] flex items-center gap-2">
+                      <Star size={16} className={isFeatured ? "text-[#CCFF00] fill-[#CCFF00]" : "text-slate-400"} /> Featured Court
+                    </label>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase mt-1 tracking-wider">ปักหมุดแนะนำบนหน้าแรกของระบบ</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsFeatured(!isFeatured)}
+                    className={`w-14 h-8 flex items-center rounded-full p-1 transition-all duration-300 outline-none ${
+                      isFeatured ? 'bg-slate-900 justify-end' : 'bg-slate-200 justify-start'
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full shadow-md transform transition-all duration-300 ${
+                      isFeatured ? 'bg-[#CCFF00]' : 'bg-white'
+                    }`} />
+                  </button>
                 </div>
               </div>
 

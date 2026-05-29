@@ -21,15 +21,17 @@ function ForumContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
+  // ✅ ดึงข้อมูลกระทู้คอมมูนิตี้ (Forum) เรียงตามเลขลำดับ 1 -> 2 -> 3 และเอาโพสต์ทั่วไป (NULL) ไว้ท้ายแถว
   useEffect(() => {
     async function fetchPosts() {
       setLoading(true)
       const { data, error } = await supabase
         .from('forum_posts')
-        .select(`*, comments:forum_comments(count)`)
-        .order('is_pinned', { ascending: false })
+        .select('*')
+        .order('is_featured', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
-      
+        
+      if (error) console.error('Error fetching forum posts:', error)
       if (data) setPosts(data)
       setLoading(false)
     }
@@ -46,7 +48,7 @@ function ForumContent() {
     <main className="min-h-screen bg-slate-50 pb-20 font-sans">
       {/* --- HERO SECTION --- */}
       <section className="bg-slate-900 pt-32 pb-16 text-center text-white relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="relative z-10 container mx-auto px-4">
             <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic leading-none">Tennis <span className="text-[#CCFF00]">Forum</span></h1>
         </div>
@@ -61,13 +63,12 @@ function ForumContent() {
                   <input 
                     type="text" 
                     placeholder="Search discussions..." 
-                    className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-200 rounded-full text-slate-900 font-bold text-sm outline-none focus:border-[#CCFF00] transition-all"
+                    className="w-full pl-14 pr-6 py-3.5 bg-slate-50 border border-slate-200 rounded-full text-slate-900 font-bold text-sm outline-none focus:border-[#CCFF00] transition-all placeholder:text-slate-400"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 
-                {/* ✅ แก้ไขจุดนี้เป็น /forum/add ให้วิ่งเข้าโฟลเดอร์ของพี่บุ๊คตรงๆ แล้วครับ */}
                 <Link href="/forum/add" className="bg-[#CCFF00] text-slate-900 px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-[#CCFF00] transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#CCFF00]/20">
                     <Plus size={16} strokeWidth={3} /> New Topic
                 </Link>
@@ -77,6 +78,7 @@ function ForumContent() {
               {categoriesData.map((cat) => (
                 <button 
                   key={cat.name} 
+                  type="button"
                   onClick={() => setSelectedCategory(cat.name)} 
                   style={{ 
                     backgroundColor: selectedCategory === cat.name ? '#0f172a' : cat.bg,
@@ -96,7 +98,7 @@ function ForumContent() {
           {loading ? (
             <div className="py-40 flex flex-col items-center gap-4">
                <Loader2 className="animate-spin text-[#CCFF00]" size={40} />
-               <p className="font-black text-slate-300 uppercase text-xs tracking-widest">Loading...</p>
+               <p className="font-black text-slate-300 uppercase text-xs tracking-widest">Loading Content...</p>
             </div>
           ) : filteredPosts.length > 0 ? (
             <div className="divide-y divide-slate-100">
@@ -120,22 +122,23 @@ function ForumContent() {
                           
                           <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                             <span className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                              <User size={12} className="text-slate-300" /> {post.author_name}
+                              <User size={12} className="text-slate-300" /> {post.author_name || 'Anonymous'}
                             </span>
                             <span className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
                               <Clock size={12} className="text-slate-300" /> {new Date(post.created_at).toLocaleDateString('en-GB')}
                             </span>
                           </div>
 
-                          {post.is_pinned && (
-                            <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100 ml-auto md:ml-0">
-                              Pinned
+                          {/* ✅ แถบป้ายกำกับแจ้งเตือนการปักหมุดลำดับตัวเลขรูปแบบใหม่สไตล์นิตยสารพรีเมียม */}
+                          {post.is_featured !== null && post.is_featured !== undefined && (
+                            <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-2.5 py-0.5 rounded border border-red-100 ml-auto md:ml-0 flex items-center gap-1 shadow-sm">
+                              📌 Pinned #{post.is_featured}
                             </span>
                           )}
                         </div>
                         
                         {/* ชื่อกระทู้ขนาดกะทัดรัด (Compact Style) */}
-                        <h3 className="!text-[15px] md:!text-[17px] font-bold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight truncate">
+                        <h3 className="!text-[15px] md:!text-[17px] font-bold text-slate-900 group-hover:text-[#84cc16] transition-colors leading-tight truncate uppercase italic">
                           {post.title}
                         </h3>
                         
@@ -152,7 +155,7 @@ function ForumContent() {
               })}
             </div>
           ) : (
-            <div className="text-center py-40 font-black text-slate-200 uppercase tracking-widest italic">No Content Found</div>
+            <div className="text-center py-40 font-black text-slate-200 uppercase tracking-widest italic">No Discussions Found</div>
           )}
         </div>
       </section>

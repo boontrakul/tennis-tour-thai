@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Search, MessageSquare, Clock, Plus, User, Loader2 } from 'lucide-react'
 
-// คู่สีหมวดหมู่ชุดใหม่หลัก
 const categoriesData = [
   { name: 'All', bg: '#f1f5f9', text: '#475569' },
   { name: 'หาเพื่อน/โค้ชตีเทนนิส', bg: '#eff6ff', text: '#2563eb' },
@@ -23,9 +22,11 @@ function ForumContent() {
   useEffect(() => {
     async function fetchPosts() {
       setLoading(true)
+      
+      // ✅ เรียกดึงข้อมูลกระทู้ พร้อมสั่งเจาะทะลุไปนับจำนวน Comment แถวหลังบ้านกลับมาแบบ Realtime
       const { data, error } = await supabase
         .from('forum_posts')
-        .select('*')
+        .select('*, forum_comments(count)')
         .order('is_featured', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
         
@@ -39,8 +40,6 @@ function ForumContent() {
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title?.toLowerCase().includes(searchQuery.toLowerCase())
     
-    // ดักกรองระบบ Category ให้เข้าล็อกกับชื่อหมวดหมู่เดิมใน Database ด้วย
-    let categoryName = post.category
     if (selectedCategory === 'หาเพื่อน/โค้ชตีเทนนิส' && post.category === 'หาเพื่อนตีเทนนิส') {
       return matchesSearch
     }
@@ -48,7 +47,7 @@ function ForumContent() {
       return matchesSearch
     }
 
-    const matchesCategory = selectedCategory === 'All' || categoryName === selectedCategory
+    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
@@ -111,7 +110,6 @@ function ForumContent() {
           ) : filteredPosts.length > 0 ? (
             <div className="divide-y divide-slate-100">
               {filteredPosts.map((post) => {
-                // ✅ แก้ไข Logic ตรงนี้: ดักเช็กชื่อเก่าใน DB แล้วจับคู่สีของหมวดหมู่ใหม่ให้ถูกต้องสวยงามครับ
                 let displayCategory = post.category;
                 let catInfo = categoriesData.find(c => c.name === post.category);
 
@@ -123,11 +121,12 @@ function ForumContent() {
                     catInfo = categoriesData.find(c => c.name === 'รีวิวสนามและอุปกรณ์เทนนิส');
                     displayCategory = 'รีวิวสนามและอุปกรณ์เทนนิส';
                   } else {
-                    catInfo = categoriesData[0]; // fallback เผื่อไว้
+                    catInfo = categoriesData[0];
                   }
                 }
 
-                const commentCount = post.comments?.[0]?.count || 0;
+                // ✅ ประมวลผลจำนวนข้อความ Replies กลับมาโชว์ที่กล่องขวาอย่างถูกต้องแม่นยำ
+                const commentCount = post.forum_comments?.[0]?.count || 0;
 
                 return (
                   <Link href={`/forum/${post.id}`} key={post.id} className="group block px-6 py-4 hover:bg-slate-50/50 transition-all">

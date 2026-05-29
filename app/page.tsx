@@ -24,7 +24,7 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
-// ✅ แก้ไขฟังก์ชัน getTagColor ใน app/page.tsx ให้ดักชื่อและสีตรงกับหน้า Forum เป๊ะๆ ครับพี่บุ๊ค
+// อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริงของพี่บุ๊ค
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
@@ -37,7 +37,7 @@ const getTagColor = (category: string) => {
     case 'เทคนิคและการฝึกซ้อม': 
       return 'bg-orange-50 text-orange-600 border-orange-100';
     case 'พูดคุยทั่วไป': 
-      return 'bg-pink-50 text-pink-600 border-pink-100'; // 🎨 เปลี่ยนเป็นสีชมพูพรีเมียมตรงตามหน้าบอร์ดแล้วครับ!
+      return 'bg-pink-50 text-pink-600 border-pink-100';
     default: 
       return 'bg-slate-50 text-slate-500 border-slate-100';
   }
@@ -57,19 +57,41 @@ export default function HomePage() {
     libraries
   })
 
-  useEffect(() => {
-    async function fetchData() {
-      const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
-      if (all) setAllCourts(all)
-      const { data: featured } = await supabase.from('courts').select('*').eq('status', 'approved').order('is_featured', { ascending: false }).limit(6)
-      if (featured) setFeaturedCourts(featured)
-      const { data: a } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(3)
-      if (a) setArticles(a);
-      const { data: f } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false }).limit(5)
-      if (f) setForumPosts(f);
-    }
-    fetchData()
-  }, [])
+// 🛠️ ค้นหาและวางทับฟังก์ชัน useEffect ดึงข้อมูลชุดนี้ในไฟล์ app/page.tsx ครับพี่บุ๊ค
+useEffect(() => {
+  async function fetchData() {
+    const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
+    if (all) setAllCourts(all)
+    
+    // 1. ดึงข้อมูลสนามเทนนิสเด่น (Featured Courts): บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุดชัวร์ๆ
+    const { data: featured } = await supabase
+      .from('courts')
+      .select('*')
+      .eq('status', 'approved')
+      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ บังคับ nullsFirst: false ล็อกอันดับผ่านฉลุย
+      .limit(6)
+    if (featured) setFeaturedCourts(featured)
+    
+    // 2. ดึงข้อมูลบทความหน้าแรก: บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุด
+    const { data: a } = await supabase
+      .from('articles')
+      .select('*')
+      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ ล็อกลำดับตัวเลขบทความหน้าแรก
+      .order('created_at', { ascending: false })
+      .limit(3)
+    if (a) setArticles(a);
+    
+    // 3. ดึงข้อมูลกระทู้คอมมูนิตี้หน้าแรก: บังคับเอาเลขน้อยขึ้นก่อน และเตะค่า NULL ไปไว้ท้ายสุด
+    const { data: f } = await supabase
+      .from('forum_posts')
+      .select('*')
+      .order('is_featured', { ascending: true, nullsFirst: false }) // ✅ ล็อกลำดับตัวเลขกระทู้หน้าแรก
+      .order('created_at', { ascending: false })
+      .limit(5)
+    if (f) setForumPosts(f);
+  }
+  fetchData()
+}, [])
 
   return (
     <main className="min-h-screen bg-white pb-20 font-sans">
@@ -77,7 +99,7 @@ export default function HomePage() {
       {/* 1. HERO SECTION */}
       <section className="pt-40 pb-20 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="relative z-10 container mx-auto max-w-7xl relative z-10">
+        <div className="relative z-10 container mx-auto max-w-7xl">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
             <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
           </div>
@@ -209,7 +231,6 @@ export default function HomePage() {
                   >
                     <div className="flex flex-col gap-1.5 flex-grow pr-4">
                       <div className="flex items-center gap-3">
-                        {/* ✅ ใช้ฟังก์ชันสีใหม่ที่ดักชื่อหมวดหมู่ภาษาไทย ทำให้แต่ละบอร์ดเด้งสีสันสวยงามแยกกันชัดเจนแล้วครับพี่บุ๊ค */}
                         <span className={`text-[11px] font-black uppercase px-3 py-1 rounded-md border ${getTagColor(post.category)}`}>
                           {post.category}
                         </span>

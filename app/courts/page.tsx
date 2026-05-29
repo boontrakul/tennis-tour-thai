@@ -40,7 +40,8 @@ function CourtsContent() {
         .from('courts')
         .select('*')
         .eq('status', 'approved')
-        .order('is_featured', { ascending: false })
+        // ✅ ปรับเงื่อนไขตรงนี้: เรียงลำดับตามตัวเลขการปักหมุดควบคุมเอง (1, 2, 3) และเอาค่า NULL ไว้ท้ายสุด
+        .order('is_featured', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false })
       if (data) setCourts(data)
       setLoading(false)
@@ -73,7 +74,7 @@ function CourtsContent() {
             />
           </div>
 
-          {/* ✅ ส่วนที่เพิ่ม: กลุ่มปุ่มทางขวา */}
+          {/* กลุ่มปุ่มทางขวา */}
           <div className="flex items-center gap-3 w-full lg:w-auto">
             {/* ปุ่ม Full Map View */}
             <Link 
@@ -84,12 +85,12 @@ function CourtsContent() {
             </Link>
 
             {/* ปุ่ม Add Court สีส้มโดดเด่น */}
-<Link 
-  href="/courts/add" 
-  className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-orange-500 text-white px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-orange-600 active:scale-95 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)] border border-orange-400/20"
->
-  <Plus size={16} strokeWidth={4} /> Add Court
-</Link>
+            <Link 
+              href="/courts/add" 
+              className="flex-grow lg:flex-none flex items-center justify-center gap-2 bg-orange-500 text-white px-6 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-orange-600 active:scale-95 transition-all shadow-[0_10px_20px_rgba(249,115,22,0.3)] border border-orange-400/20"
+            >
+              <Plus size={16} strokeWidth={4} /> Add Court
+            </Link>
           </div>
         </div>
 
@@ -115,10 +116,11 @@ function CourtsContent() {
                         <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
                       </div>
 
-                      {court.is_featured && (
+                      {/* ✅ แสดงเครื่องหมายแนะนำ ถ้าค่าตัวเลขปักหมุดไม่ว่าง (ไม่เป็น null) */}
+                      {court.is_featured !== null && court.is_featured !== undefined && (
                         <div className="absolute top-4 right-4 z-20">
                           <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5 border border-white/10">
-                            <Star size={10} fill="currentColor" /> Recommended
+                            <Star size={10} fill="currentColor" /> Recommended #{court.is_featured}
                           </span>
                         </div>
                       )}

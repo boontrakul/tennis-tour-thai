@@ -24,18 +24,20 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
-// ✅ อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริงของพี่บุ๊ค ให้แสดงผลแยกสีสันพรีเมียมชัดเจน
+// ✅ แก้ไขฟังก์ชัน getTagColor ใน app/page.tsx ให้ดักชื่อและสีตรงกับหน้า Forum เป๊ะๆ ครับพี่บุ๊ค
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
-    case 'พูดคุยทั่วไป': 
+    case 'หาเพื่อนตีเทนนิส': 
       return 'bg-blue-50 text-blue-600 border-blue-100';
-    case 'หาเพื่อนเล่น': 
-      return 'bg-green-50 text-green-600 border-green-100';
-    case 'ซื้อขายอุปกรณ์': 
+    case 'รีวิวอุปกรณ์เทนนิส': 
       return 'bg-purple-50 text-purple-600 border-purple-100';
-    case 'ข่าวสารและทัวร์นาเมนต์': 
+    case 'รีวิวสนามเทนนิส': 
+      return 'bg-green-50 text-green-600 border-green-100';
+    case 'เทคนิคและการฝึกซ้อม': 
       return 'bg-orange-50 text-orange-600 border-orange-100';
+    case 'พูดคุยทั่วไป': 
+      return 'bg-pink-50 text-pink-600 border-pink-100'; // 🎨 เปลี่ยนเป็นสีชมพูพรีเมียมตรงตามหน้าบอร์ดแล้วครับ!
     default: 
       return 'bg-slate-50 text-slate-500 border-slate-100';
   }

@@ -7,7 +7,7 @@ import {
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
   Navigation, GripHorizontal, X, User, Shield, DollarSign, Phone, 
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
-  Clock, Sun, Moon, Home, FileText
+  Clock, Sun, Moon, Home, FileText, CheckSquare, Square
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -23,6 +23,15 @@ const facilityOptions = [
   { id: 'shower', name: 'Shower', icon: <ShowerHead size={16} /> },
 ]
 
+// ✅ รายการตัวเลือกพื้นผิวสนามทั้งหมดของ Tennis Tour Thai
+const surfaceOptions = [
+  'Hard Court',
+  'Clay Court',
+  'Grass Court',
+  'Artificial Grass',
+  'Acrylic'
+]
+
 export default function AddCourtPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -33,6 +42,9 @@ export default function AddCourtPage() {
   const [lat, setLat] = useState('')
   const [lng, setLng] = useState('')
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
+  
+  // ✅ สร้าง State ในการจำค่าพื้นผิวสนามที่เลือก (เริ่มต้นให้เลือกเป็น Hard Court ไว้เป็นค่าหลัก)
+  const [selectedSurfaces, setSelectedSurfaces] = useState<string[]>(['Hard Court'])
 
   const handleMapUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
@@ -48,6 +60,18 @@ export default function AddCourtPage() {
     setSelectedFacilities(prev => 
       prev.includes(name) ? prev.filter(f => f !== name) : [...prev, name]
     )
+  }
+
+  // ✅ ฟังก์ชันสลับการติ๊กปุ่มเลือกพื้นผิวสนาม (สับเปลี่ยนค่าใน Array)
+  const handleSurfaceToggle = (surfName: string) => {
+    setSelectedSurfaces(prev => {
+      if (prev.includes(surfName)) {
+        // ดักเงื่อนไขให้เหลือขั้นต่ำ 1 ชนิด ห้ามว่างเปล่า
+        return prev.length > 1 ? prev.filter(s => s !== surfName) : prev
+      } else {
+        return [...prev, surfName]
+      }
+    })
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,12 +128,13 @@ export default function AddCourtPage() {
         open_time: formData.get('open_time'),
         close_time: formData.get('close_time'),
         environment: formData.get('environment'),
-        surface: formData.get('surface'), 
+        // ✅ นำ Array พื้นผิวสนามทั้งหมดมาผูกรวบข้อความคั่นด้วยจุลภาคยิงส่งหลังบ้านตรงๆ ครับพี่บุ๊ค
+        surface: selectedSurfaces.join(', '), 
         description: formData.get('description'),
         phone: formData.get('phone'),
         image_url: uploadedUrls[0] || null, 
         images: uploadedUrls,
-        is_featured: false,
+        is_featured: null, // ค่าเริ่มต้นให้เป็นค่าว่างเพื่อรอดีเลย์สลับตัวเลข
         map_url: formData.get('map_url'),
         latitude: lat ? parseFloat(lat) : null,
         longitude: lng ? parseFloat(lng) : null,
@@ -183,7 +208,7 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 3. Environment & Surface */}
+              {/* 3. Environment & Surface Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Home size={16} /> Environment</label>
@@ -194,14 +219,30 @@ export default function AddCourtPage() {
                     <option value="Both">Both (มีทั้ง 2 แบบ)</option>
                   </select>
                 </div>
-                <div className="relative group">
-                  <label className={labelStyle}><MapPin size={16} /> Surface Type</label>
-                  <Tag size={18} className={inputIconStyle} />
-                  <select name="surface" className={inputStyle + " appearance-none cursor-pointer"}>
-                    <option value="Hard Court">Hard Court (ปูน/อะคริลิก)</option>
-                    <option value="Clay Court">Clay Court (ดินแดง)</option>
-                    <option value="Grass Court">Grass Court (หญ้า)</option>
-                  </select>
+
+                {/* ✅ แก้ไขจุดนี้: เปลี่ยนจากกล่อง <select> เดิมเป็นปุ่มกด Multi-Select เลือกได้มากกว่าหนึ่งผิวสนามครับ */}
+                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 col-span-1 md:col-span-2">
+                  <label className={labelStyle}><MapPin size={16} /> Surface Type (ประเภทพื้นผิวสนาม - เลือกได้มากกว่า 1)</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                    {surfaceOptions.map((surf) => {
+                      const isChecked = selectedSurfaces.includes(surf);
+                      return (
+                        <button
+                          key={surf}
+                          type="button"
+                          onClick={() => handleSurfaceToggle(surf)}
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-[11px] font-black uppercase tracking-tight transition-all ${
+                            isChecked 
+                              ? 'bg-slate-900 border-slate-900 text-[#CCFF00] shadow-md' 
+                              : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                          }`}
+                        >
+                          {isChecked ? <CheckSquare size={14} className="text-[#CCFF00]" /> : <Square size={14} />}
+                          <span>{surf}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -262,13 +303,13 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* ✅ 7. Description & Facility Details (ย้ายมาแยกกล่องให้ชัดเจน) */}
+              {/* 7. Description & Facility Details */}
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 relative group">
                 <label className={labelStyle}><FileText size={16} /> Facility Details & Description</label>
                 <textarea 
                   name="description" 
                   rows={5} 
-                  className="w-full bg-white border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] transition-all outline-none resize-none" 
+                  className="w-full bg-white border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] transition-all outline-none resize-none placeholder:text-slate-300" 
                   placeholder="บอกรายละเอียดเพิ่มเติม เช่น จำนวนสนาม, ที่จอดรถกี่คัน, การจองล่วงหน้า หรือโปรโมชั่นต่างๆ..."
                 ></textarea>
               </div>
@@ -293,7 +334,7 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 9. Location & Map (Auto-extract) */}
+              {/* 9. Location & Map */}
               <div className="p-8 bg-slate-50/50 border-2 border-slate-100 rounded-[2.5rem] space-y-8">
                 <div className="relative group">
                   <label className={labelStyle}>District / Location</label>

@@ -5,11 +5,10 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Upload, Loader2, Tag, ImagePlus, X, 
-  FileText, Heading, AlignLeft, Star, Shield, Languages, User
+  FileText, Heading, AlignLeft, Star, Shield, Languages, User, CheckSquare, Square
 } from 'lucide-react'
 import Link from 'next/link'
 
-// รายการชุดหมวดหมู่บทความ
 const articleCategories = [
   'General',
   'Lifestyle',
@@ -25,12 +24,14 @@ const articleCategories = [
 export default function AdminAddArticlePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [category, setCategory] = useState(articleCategories[0])
   const [isFeatured, setIsFeatured] = useState(false)
   const [lang, setLang] = useState('TH') 
   
   const [imageFile, setImageFile] = useState<any>(null)
   const [previewUrl, setPreviewUrl] = useState<string>('')
+
+  // ✅ เปลี่ยนมาใช้ State Array เพื่อรองรับการเลือกหมวดหมู่พร้อมกันได้มากกว่า 1 ชนิด
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['General'])
 
   const handleImageChange = (e: any) => {
     if (e.target.files && e.target.files[0]) {
@@ -45,6 +46,18 @@ export default function AdminAddArticlePage() {
     setPreviewUrl('')
   }
 
+  // ✅ ฟังก์ชันสลับสถานะการเลือกหมวดหมู่บทความ (ติ๊กเข้า-ติ๊กออก)
+  const handleCategoryToggle = (catName: string) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(catName)) {
+        // ล็อกเงื่อนไขให้เหลือขั้นต่ำอย่างน้อย 1 หมวดหมู่เสมอ ห้ามปล่อยว่างเปล่า
+        return prev.length > 1 ? prev.filter(c => c !== catName) : prev
+      } else {
+        return [...prev, catName]
+      }
+    })
+  }
+
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setLoading(true)
@@ -53,7 +66,7 @@ export default function AdminAddArticlePage() {
     let uploadedImageUrl = null
     
     try {
-      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage ใน Bucket 'Court_image'
+      // 1. อัปโหลดรูปภาพไปยัง Supabase Storage
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `article-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -71,15 +84,15 @@ export default function AdminAddArticlePage() {
         uploadedImageUrl = publicUrl
       }
 
-      // 2. บันทึกข้อมูลลงฐานข้อมูลตาราง articles
+      // 2. บันทึกข้อมูลลงตาราง articles
       const { error } = await supabase
         .from('articles')
         .insert([{
           title: formData.get('title'),
           content: formData.get('content'),
-          category: category,
+          // ✅ รวมหมวดหมู่ทั้งหมดที่เลือกเป็นข้อความคั่นด้วย Comma ส่งเข้าคอลัมน์ category
+          category: selectedCategories.join(', '),
           image_url: uploadedImageUrl,
-          // ✅ ปรับแก้จุดสำคัญ: แปลงจากสวิตช์ true/false หน้าเว็บ ให้ส่งเลข 1 หรือค่า null เข้าคอลัมน์หลังบ้านให้ตรงประเภทข้อมูล
           is_featured: isFeatured ? 1 : null,
           lang: lang, 
           author: formData.get('author') || 'Admin Hub', 
@@ -124,24 +137,28 @@ export default function AdminAddArticlePage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             
-            {/* 1. Category Selection */}
-            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-              <label className={labelStyle}><Tag size={16} /> Select Category</label>
-              <div className="flex flex-wrap gap-2">
-                {articleCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(cat)}
-                    className={`px-5 py-3 rounded-xl border-2 text-[11px] font-black uppercase tracking-tight transition-all ${
-                      category === cat 
-                        ? 'bg-slate-900 border-slate-900 text-[#CCFF00] shadow-lg' 
-                        : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+            {/* 1. Multi-Select Category Selection */}
+            <div className="bg-slate-50 p-6 md:p-8 rounded-[2.5rem] border border-slate-100">
+              <label className={labelStyle}><Tag size={16} /> Select Categories (เลือกหมวดหมู่บทความ - เลือกได้มากกว่า 1)</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                {articleCategories.map((cat) => {
+                  const isChecked = selectedCategories.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => handleCategoryToggle(cat)}
+                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-[11px] font-black uppercase tracking-tight transition-all ${
+                        isChecked 
+                          ? 'bg-slate-900 border-slate-900 text-[#CCFF00] shadow-md' 
+                          : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                      }`}
+                    >
+                      {isChecked ? <CheckSquare size={14} className="text-[#CCFF00]" /> : <Square size={14} />}
+                      <span>{cat}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

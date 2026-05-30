@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-// ✅ อัปเดตชุดหมวดหมู่ เพิ่ม General และ Lifestyle เข้าไปสแตนบายตรงนี้เรียบร้อยครับพี่บุ๊ค!
+// รายการชุดหมวดหมู่บทความ
 const articleCategories = [
   'General',
   'Lifestyle',
@@ -79,7 +79,8 @@ export default function AdminAddArticlePage() {
           content: formData.get('content'),
           category: category,
           image_url: uploadedImageUrl,
-          is_featured: isFeatured,
+          // ✅ ปรับแก้จุดสำคัญ: แปลงจากสวิตช์ true/false หน้าเว็บ ให้ส่งเลข 1 หรือค่า null เข้าคอลัมน์หลังบ้านให้ตรงประเภทข้อมูล
+          is_featured: isFeatured ? 1 : null,
           lang: lang, 
           author: formData.get('author') || 'Admin Hub', 
           created_at: new Date().toISOString()
@@ -229,7 +230,6 @@ export default function AdminAddArticlePage() {
               <div className="relative group">
                 <label className={labelStyle}><AlignLeft size={16} /> Main Content (เนื้อหาบทความ)</label>
                 
-                {/* ✅ คำแนะนำเล็กๆ บนหน้าจอให้พี่บุ๊คจัดตัวหนังสือตัวหนา ขีดเส้นใต้ หัวข้อ ได้ง่ายขึ้นครับ */}
                 <p className="text-[10px] text-slate-400 font-bold uppercase mb-2 ml-3">
                   Tips: ใช้ <b>&lt;b&gt;ข้อความ&lt;/b&gt;</b> สำหรับตัวหนา | <u>&lt;u&gt;ข้อความ&lt;/u&gt;</u> สำหรับขีดเส้นใต้ | &lt;h2&gt;หัวข้อ&lt;/h2&gt; สำหรับหัวข้อใหญ่
                 </p>

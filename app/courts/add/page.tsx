@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
-  Navigation, GripHorizontal, X, User, Shield, DollarSign, Phone, 
+  Navigation, X, User, Shield, DollarSign, Phone, 
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
-  Clock, Sun, Moon, Home, FileText, CheckSquare, Square, Star
+  Clock, Sun, Moon, Home, FileText, CheckSquare, Square
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -23,7 +23,7 @@ const facilityOptions = [
   { id: 'shower', name: 'Shower', icon: <ShowerHead size={16} /> },
 ]
 
-// ✅ รายการตัวเลือกพื้นผิวสนามทั้งหมดของ Tennis Tour Thai
+// รายการตัวเลือกพื้นผิวสนามทั้งหมดของ Tennis Tour Thai
 const surfaceOptions = [
   'Hard Court',
   'Clay Court',
@@ -43,11 +43,8 @@ export default function AddCourtPage() {
   const [lng, setLng] = useState('')
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([])
   
-  // ✅ สร้าง State ในการจำค่าพื้นผิวสนามที่เลือก (เริ่มต้นให้เลือกเป็น Hard Court ไว้เป็นค่าหลัก)
+  // สร้าง State ในการจำค่าพื้นผิวสนามที่เลือก (เริ่มต้นให้เลือกเป็น Hard Court ไว้เป็นค่าหลัก)
   const [selectedSurfaces, setSelectedSurfaces] = useState<string[]>(['Hard Court'])
-
-  // ✅ เพิ่ม State สำหรับจัดการปุ่มสวิตช์ปักหมุดแนะนำ (Featured Court)
-  const [isFeatured, setIsFeatured] = useState(false)
 
   const handleMapUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
@@ -65,7 +62,7 @@ export default function AddCourtPage() {
     )
   }
 
-  // ✅ ฟังก์ชันสลับการติ๊กปุ่มเลือกพื้นผิวสนาม (สับเปลี่ยนค่าใน Array)
+  // ฟังก์ชันสลับการติ๊กปุ่มเลือกพื้นผิวสนาม (สับเปลี่ยนค่าใน Array)
   const handleSurfaceToggle = (surfName: string) => {
     setSelectedSurfaces(prev => {
       if (prev.includes(surfName)) {
@@ -131,14 +128,13 @@ export default function AddCourtPage() {
         open_time: formData.get('open_time'),
         close_time: formData.get('close_time'),
         environment: formData.get('environment'),
-        // ✅ นำ Array พื้นผิวสนามทั้งหมดมาผูกรวบข้อความคั่นด้วยจุลภาคยิงส่งหลังบ้านตรงๆ ครับพี่บุ๊ค
         surface: selectedSurfaces.join(', '), 
         description: formData.get('description'),
         phone: formData.get('phone'),
         image_url: uploadedUrls[0] || null, 
         images: uploadedUrls,
-        // ✅ ปรับแก้จุดนี้: แปลงจาก Boolean true/false ของสวิตช์หน้าเว็บให้ส่งเป็นตัวเลข 1 หรือค่า null เข้าคอลัมน์ int4
-        is_featured: isFeatured ? 1 : null, 
+        // ✅ ปล่อยค่า null ทิ้งไว้ให้เป็นคิวตรวจของ Admin ระบบหลังบ้าน
+        is_featured: null, 
         map_url: formData.get('map_url'),
         latitude: lat ? parseFloat(lat) : null,
         longitude: lng ? parseFloat(lng) : null,
@@ -317,7 +313,7 @@ export default function AddCourtPage() {
                 ></textarea>
               </div>
 
-              {/* 8. Access & Submitter & Featured */}
+              {/* 8. Access & Submitter (ถอดส่วน Featured Court ออกแล้วเหลือแค่ 2 อันนี้) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Shield size={14} /> Access Type</label>
@@ -334,27 +330,6 @@ export default function AddCourtPage() {
                   <label className={labelStyle}><User size={14} /> Added By</label>
                   <User size={18} className={inputIconStyle} />
                   <input name="submitted_by" placeholder="Your Name" className={inputStyle} />
-                </div>
-
-                {/* ✅ เพิ่ม UI ปุ่ม Toggle สวิตช์สำหรับ Featured Court ดีไซน์เดียวกับระบบบทความหน้าแรก */}
-                <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 col-span-1 md:col-span-2 flex items-center justify-between">
-                  <div>
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] flex items-center gap-2">
-                      <Star size={16} className={isFeatured ? "text-[#CCFF00] fill-[#CCFF00]" : "text-slate-400"} /> Featured Court
-                    </label>
-                    <p className="text-slate-400 text-[10px] font-bold uppercase mt-1 tracking-wider">ปักหมุดแนะนำบนหน้าแรกของระบบ</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsFeatured(!isFeatured)}
-                    className={`w-14 h-8 flex items-center rounded-full p-1 transition-all duration-300 outline-none ${
-                      isFeatured ? 'bg-slate-900 justify-end' : 'bg-slate-200 justify-start'
-                    }`}
-                  >
-                    <div className={`w-6 h-6 rounded-full shadow-md transform transition-all duration-300 ${
-                      isFeatured ? 'bg-[#CCFF00]' : 'bg-white'
-                    }`} />
-                  </button>
                 </div>
               </div>
 

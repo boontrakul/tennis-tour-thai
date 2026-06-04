@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { Home, MapPin, FileText, MessageSquare, User, LogOut, UserCircle } from 'lucide-react'
+import { Home, MapPin, FileText, MessageSquare, User, LogOut, UserCircle, HeartHandshake } from 'lucide-react'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
@@ -31,11 +31,13 @@ export default function Navbar() {
     setUser(null)
   }
 
+  // ✅ อัปเดตเพิ่มเมนู OUR STORY พร้อมไอคอน HeartHandshake เพื่อให้เชื่อมโยงกับหน้า About Us
   const navLinks = [
     { name: 'HOME', href: '/', icon: <Home size={20} strokeWidth={2.5} /> },
     { name: 'COURTS', href: '/courts', icon: <MapPin size={20} strokeWidth={2.5} /> },
     { name: 'ARTICLES', href: '/articles', icon: <FileText size={20} strokeWidth={2.5} /> },
     { name: 'FORUM', href: '/forum', icon: <MessageSquare size={20} strokeWidth={2.5} /> },
+    { name: 'OUR STORY', href: '/about', icon: <HeartHandshake size={20} strokeWidth={2.5} /> },
   ]
 
   return (
@@ -43,7 +45,7 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 md:px-6 py-4 shadow-sm">
         <div className="container mx-auto flex justify-between items-center">
           
-          {/* ✅ ส่วน Logo: ดึงจาก /logo.png แบบคลีนๆ */}
+          {/* ส่วน Logo */}
           <Link href="/" className="flex items-center gap-2 md:gap-3 group">
             <div className="w-9 h-9 md:w-11 md:h-11 bg-[#CCFF00] rounded-full flex items-center justify-center shadow-lg group-hover:rotate-12 transition-all overflow-hidden border border-white/50">
                 <img 
@@ -104,7 +106,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ✅ BOTTOM NAVIGATION (Mobile Only) */}
+      {/* BOTTOM NAVIGATION (Mobile Only) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-slate-100 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
         <div className="flex justify-around items-center h-16">
           {navLinks.map((link) => (
@@ -125,7 +127,8 @@ export default function Navbar() {
                 {link.icon}
               </div>
               <span className="text-[9px] font-black uppercase tracking-tighter">
-                {link.name === 'HOME' ? 'Home' : link.name.charAt(0) + link.name.slice(1).toLowerCase()}
+                {/* ✅ จัดระเบียบข้อความบนมือถือ ย่อคำว่า OUR STORY ให้เหลือแค่ Story เพื่อไม่ให้แถบเมนูล่างดูอึดอัด */}
+                {link.name === 'HOME' ? 'Home' : link.name === 'OUR STORY' ? 'Story' : link.name.charAt(0) + link.name.slice(1).toLowerCase()}
               </span>
             </Link>
           ))}

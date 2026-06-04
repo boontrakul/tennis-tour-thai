@@ -24,7 +24,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Section 2: Explore Links (ขยายเพิ่มลิ้งก์สำคัญแทนกลุ่ม Categories ที่ลบออกไปครับ) */}
+          {/* Section 2: Explore Links */}
           <div className="md:col-span-3 space-y-4">
             <h4 className="text-white text-[11px] font-black uppercase tracking-[0.25em]">Explore</h4>
             <ul className="space-y-2.5 text-xs font-bold uppercase">
@@ -40,13 +40,17 @@ export default function Footer() {
               <li>
                 <Link href="/forum" className="hover:text-[#CCFF00] transition-colors">Community Forum</Link>
               </li>
+              {/* ✅ เพิ่มเมนู Our Story เข้ามาตรงนี้ครับ */}
+              <li>
+                <Link href="/about" className="hover:text-[#CCFF00] transition-colors">Our Story</Link>
+              </li>
               <li>
                 <Link href="/courts/add" className="text-orange-400 hover:text-orange-300 transition-colors">Add New Court</Link>
               </li>
             </ul>
           </div>
 
-          {/* Section 3: Contact Us (ชุดการ์ดติดต่อสไตล์พรีเมียม เด่นชัดและกดง่ายบนมือถือ) */}
+          {/* Section 3: Contact Us */}
           <div className="md:col-span-4 space-y-4 w-full">
             <h4 className="text-white text-[11px] font-black uppercase tracking-[0.25em]">Contact Us</h4>
             

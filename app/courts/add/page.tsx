@@ -7,7 +7,7 @@ import {
   ArrowLeft, Upload, Loader2, MapPin, Tag, ImagePlus, Link as LinkIcon, 
   Navigation, X, User, Shield, DollarSign, Phone, 
   Car, Utensils, Store, GraduationCap, PersonStanding, Lock, Waves, Wifi, ShowerHead, CheckCircle2,
-  Clock, Sun, Moon, Home, FileText, CheckSquare, Square
+  Clock, Sun, Moon, Home, FileText, CheckSquare, Square, Info
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -120,11 +120,15 @@ export default function AddCourtPage() {
         uploadedUrls.push(publicUrl)
       }
 
+      // ดักค่าราคา หากปล่อยว่างมาให้ใช้เป็น 0 แทน (เนื่องจากปลด required ออกแล้ว)
+      const priceDay = formData.get('price_day') ? parseInt(formData.get('price_day') as string) : 0
+      const priceNight = formData.get('price_night') ? parseInt(formData.get('price_night') as string) : 0
+
       const { error: insertError } = await supabase.from('courts').insert([{
         name: formData.get('name'),
         location: formData.get('location'),
-        price_day: parseInt(formData.get('price_day') as string) || 0,
-        price_night: parseInt(formData.get('price_night') as string) || 0,
+        price_day: priceDay,
+        price_night: priceNight,
         open_time: formData.get('open_time'),
         close_time: formData.get('close_time'),
         environment: formData.get('environment'),
@@ -133,7 +137,6 @@ export default function AddCourtPage() {
         phone: formData.get('phone'),
         image_url: uploadedUrls[0] || null, 
         images: uploadedUrls,
-        // ✅ ปล่อยค่า null ทิ้งไว้ให้เป็นคิวตรวจของ Admin ระบบหลังบ้าน
         is_featured: null, 
         map_url: formData.get('map_url'),
         latitude: lat ? parseFloat(lat) : null,
@@ -150,9 +153,9 @@ export default function AddCourtPage() {
     } catch (error: any) { alert(error.message) } finally { setLoading(false) }
   }
 
-  const labelStyle = "block text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] mb-4 ml-3 flex items-center gap-2"
-  const inputStyle = "w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold text-slate-900 focus:border-[#CCFF00] focus:bg-white transition-all outline-none"
-  const inputIconStyle = "absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#CCFF00] transition-colors"
+  const labelStyle = "block text-[11px] font-black text-slate-500 uppercase tracking-[0.25em] mb-2 ml-3 flex items-center gap-2"
+  const inputStyle = "w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold text-slate-900 focus:border-[#CCFF00] focus:bg-white transition-all outline-none mt-2"
+  const inputIconStyle = "absolute left-5 top-1/2 -translate-y-1/2 mt-1 text-slate-400 group-focus-within:text-[#CCFF00] transition-colors"
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-700 to-slate-50 pt-32 pb-20 font-sans">
@@ -176,7 +179,7 @@ export default function AddCourtPage() {
             {/* 1. Photo Gallery */}
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
               <label className={labelStyle}><ImagePlus size={16} /> Court Photo Gallery (Max 6)</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 {preview.map((url, i) => (
                   <div key={url} draggable onDragStart={() => handleDragStart(i)} onDragOver={handleDragOver} onDrop={() => handleDrop(i)} className={`aspect-[4/3] rounded-2xl overflow-hidden border-2 relative group cursor-move transition-all ${draggedIdx === i ? 'opacity-50 scale-95 border-[#CCFF00]' : 'border-white hover:border-[#CCFF00]'}`}>
                     <img src={url} className="w-full h-full object-cover" />
@@ -222,7 +225,7 @@ export default function AddCourtPage() {
 
                 <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 col-span-1 md:col-span-2">
                   <label className={labelStyle}><MapPin size={16} /> Surface Type (ประเภทพื้นผิวสนาม - เลือกได้มากกว่า 1)</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                     {surfaceOptions.map((surf) => {
                       const isChecked = selectedSurfaces.includes(surf);
                       return (
@@ -259,23 +262,29 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 5. Hourly Rates */}
+              {/* 5. Hourly Rates (✅ ปรับให้เว้นว่างได้ และเพิ่มคำแนะนำ) */}
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
                 <label className={labelStyle}><DollarSign size={16} /> Hourly Rates (฿)</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                   <div className="relative group">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
-                      <Sun size={12} /> Daytime (ไม่เปิดไฟ)
-                    </label>
-                    <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
-                    <input name="price_day" type="number" required placeholder="e.g. 400" className={inputStyle} />
+                    <div className="ml-3 mb-2">
+                      <label className="text-[10px] font-bold text-slate-900 uppercase flex items-center gap-2">
+                        <Sun size={12} /> Daytime (ไม่เปิดไฟ)
+                      </label>
+                      <p className="text-[9px] text-slate-400 font-bold mt-0.5">หากไม่ทราบให้เว้นว่างได้</p>
+                    </div>
+                    <DollarSign size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00]" />
+                    <input name="price_day" type="number" placeholder="e.g. 400" className={inputStyle} />
                   </div>
                   <div className="relative group">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 ml-3 flex items-center gap-2">
-                      <Moon size={12} /> Nighttime (เปิดไฟ)
-                    </label>
-                    <DollarSign size={18} className="absolute left-5 top-[42px] text-slate-400 group-focus-within:text-[#CCFF00]" />
-                    <input name="price_night" type="number" required placeholder="e.g. 600" className={inputStyle} />
+                    <div className="ml-3 mb-2">
+                      <label className="text-[10px] font-bold text-slate-900 uppercase flex items-center gap-2">
+                        <Moon size={12} /> Nighttime (เปิดไฟ)
+                      </label>
+                      <p className="text-[9px] text-slate-400 font-bold mt-0.5">หากไม่ทราบให้เว้นว่างได้</p>
+                    </div>
+                    <DollarSign size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00]" />
+                    <input name="price_night" type="number" placeholder="e.g. 600" className={inputStyle} />
                   </div>
                 </div>
               </div>
@@ -283,7 +292,7 @@ export default function AddCourtPage() {
               {/* 6. Facilities Chips */}
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
                 <label className={labelStyle}><CheckCircle2 size={16} /> Facilities</label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
                   {facilityOptions.map((f) => (
                     <button
                       key={f.id}
@@ -308,16 +317,16 @@ export default function AddCourtPage() {
                 <textarea 
                   name="description" 
                   rows={5} 
-                  className="w-full bg-white border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] transition-all outline-none resize-none placeholder:text-slate-300" 
+                  className="w-full bg-white border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm font-bold text-slate-900 focus:border-[#CCFF00] transition-all outline-none resize-none placeholder:text-slate-300 mt-2" 
                   placeholder="บอกรายละเอียดเพิ่มเติม เช่น จำนวนสนาม, ที่จอดรถกี่คัน, การจองล่วงหน้า หรือโปรโมชั่นต่างๆ..."
                 ></textarea>
               </div>
 
-              {/* 8. Access & Submitter (ถอดส่วน Featured Court ออกแล้วเหลือแค่ 2 อันนี้) */}
+              {/* 8. Access & Submitter */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="relative group">
                   <label className={labelStyle}><Shield size={14} /> Access Type</label>
-                  <div className="flex gap-4 p-2 bg-slate-50 border-2 border-slate-100 rounded-2xl h-[60px] items-center">
+                  <div className="flex gap-4 p-2 bg-slate-50 border-2 border-slate-100 rounded-2xl h-[60px] items-center mt-2">
                     <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer h-full rounded-xl hover:bg-white transition-all font-bold text-xs text-slate-600 has-[:checked]:bg-slate-900 has-[:checked]:text-[#CCFF00]">
                       <input type="radio" name="court_type" value="Public" defaultChecked className="hidden" /> Public
                     </label>
@@ -333,20 +342,26 @@ export default function AddCourtPage() {
                 </div>
               </div>
 
-              {/* 9. Location & Map */}
+              {/* 9. Location & Map (✅ เพิ่มตัวอย่างและปลด required จุดที่ไม่บังคับ) */}
               <div className="p-8 bg-slate-50/50 border-2 border-slate-100 rounded-[2.5rem] space-y-8">
                 <div className="relative group">
-                  <label className={labelStyle}>District / Location</label>
-                  <MapPin size={18} className={inputIconStyle} />
-                  <input name="location" required placeholder="e.g. Bang Na, Bangkok" className={inputStyle} />
+                  <div className="ml-3 mb-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">District / Location</label>
+                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">ตัวอย่าง: บางนา, สุขุมวิท, กทม. (หากมีหลายพื้นที่ให้คั่นด้วย ,)</p>
+                  </div>
+                  <MapPin size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00] transition-colors" />
+                  <input name="location" required placeholder="e.g. บางนา, กรุงเทพฯ" className={inputStyle} />
                 </div>
                 
                 <div className="relative group">
-                  <label className={labelStyle}>Google Maps Link</label>
-                  <LinkIcon size={18} className={inputIconStyle} />
+                  <div className="ml-3 mb-2">
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Google Maps Link</label>
+                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">วางลิงก์จาก Google Maps (หากไม่ทราบให้เว้นว่างได้)</p>
+                  </div>
+                  <LinkIcon size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00] transition-colors" />
                   <input 
                     name="map_url" 
-                    placeholder="วางลิงก์ที่นี่เพื่อดึงพิกัด..." 
+                    placeholder="วางลิงก์ที่นี่เพื่อดึงพิกัดอัตโนมัติ..." 
                     className={inputStyle} 
                     onChange={handleMapUrlChange}
                   />
@@ -354,22 +369,39 @@ export default function AddCourtPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="relative group">
-                    <label className={labelStyle}>Latitude</label>
-                    <Navigation size={18} className={inputIconStyle} />
+                    <div className="ml-3 mb-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Latitude</label>
+                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">ละติจูด (หากไม่ทราบให้เว้นว่างได้)</p>
+                    </div>
+                    <Navigation size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00] transition-colors" />
                     <input 
-                      name="latitude" type="number" step="any" required 
+                      name="latitude" type="number" step="any"
                       className={inputStyle} value={lat} onChange={(e) => setLat(e.target.value)}
                     />
                   </div>
                   <div className="relative group">
-                    <label className={labelStyle}>Longitude</label>
-                    <Navigation size={18} className={inputIconStyle} />
+                    <div className="ml-3 mb-2">
+                      <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.25em]">Longitude</label>
+                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">ลองจิจูด (หากไม่ทราบให้เว้นว่างได้)</p>
+                    </div>
+                    <Navigation size={18} className="absolute left-5 top-[52px] text-slate-400 group-focus-within:text-[#CCFF00] transition-colors" />
                     <input 
-                      name="longitude" type="number" step="any" required 
+                      name="longitude" type="number" step="any"
                       className={inputStyle} value={lng} onChange={(e) => setLng(e.target.value)}
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* ✅ กล่องแจ้งเตือนสถานะการตรวจสอบโดย Admin ก่อนกดส่ง */}
+            <div className="bg-orange-50 border border-orange-100 p-5 rounded-2xl flex items-start gap-4">
+              <Info size={20} className="text-orange-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-black text-orange-700 uppercase">Information Check</h4>
+                <p className="text-xs font-bold text-orange-600/80 mt-1">
+                  ข้อมูลสนามทั้งหมดที่คุณกรอก จะถูกส่งเข้าสู่ระบบหลังบ้านเพื่อให้ทีมงาน Admin ตรวจสอบความถูกต้องก่อนนำขึ้นแสดงผลบนเว็บไซต์จริงครับ
+                </p>
               </div>
             </div>
 

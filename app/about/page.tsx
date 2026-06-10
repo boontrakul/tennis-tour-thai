@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Map, Users, BookOpen, HeartHandshake, ArrowRight, MapPin } from 'lucide-react'
+import { Map, Users, BookOpen, HeartHandshake, ArrowRight, MapPin, Compass } from 'lucide-react'
 
 export const metadata = {
   title: 'Our Story | Tennis Tour Thai',
@@ -51,7 +51,30 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Block 2: Community Driven */}
+        {/* ✅ Block 2: The Core Vision (เที่ยวไป ตีเทนนิสไป - แรงบันดาลใจที่อบอุ่น) */}
+        <div className="bg-[#ff6b00] text-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_40px_-10px_rgba(255,107,0,0.3)] flex flex-col md:flex-row gap-10 items-center relative overflow-hidden hover:-translate-y-1 transition-transform duration-500">
+          <div className="w-20 h-20 shrink-0 bg-white/10 rounded-full flex items-center justify-center border-2 border-white/20 relative z-10 backdrop-blur-sm">
+            <Compass size={32} className="text-white" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full relative z-10">
+            <div>
+              <h3 className="text-lg font-black uppercase text-white mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-white"></span> Play & Travel
+              </h3>
+              <p className="text-white/90 text-sm leading-relaxed font-medium">
+                Have you ever imagined packing your racket and discovering local courts while traveling? Exploring new provinces by day, and hitting the courts with local players by sunset... That is the true inspiration behind the name <strong>"Tennis Tour Thai"</strong>. We dream of making this platform the ultimate companion for traveling tennis lovers.
+              </p>
+            </div>
+            <div className="border-t-2 md:border-t-0 md:border-l-2 border-white/20 pt-6 md:pt-0 md:pl-8">
+              <h3 className="text-sm font-black uppercase text-white/70 mb-3">เป้าหมายสูงสุดของเรา</h3>
+              <p className="text-white text-sm leading-relaxed font-bold">
+                คุณเคยคิดไหมว่า... จะสนุกแค่ไหนถ้าเราได้พกไม้เทนนิสคู่ใจ เดินทางไปสัมผัสคอร์ทใหม่ๆ ในจังหวัดที่เราไม่เคยไป? เที่ยวพักผ่อนตอนกลางวัน และลงสนามพบปะเพื่อนใหม่ชาวโลคอลในตอนเย็น... นี่คือความหมายและที่มาของชื่อ <strong>"Tennis Tour Thai"</strong> เราอยากให้ที่นี่เป็นเหมือนไกด์บุ๊กและเพื่อนร่วมทาง สำหรับนักเทนนิสสายท่องเที่ยวทุกคน
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Block 3: Community Driven (ชวนมาร่วมสร้าง) */}
         <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl flex flex-col md:flex-row gap-10 items-center relative overflow-hidden hover:-translate-y-1 transition-transform duration-500">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#CCFF00]/10 blur-[80px] rounded-full pointer-events-none"></div>
           <div className="w-20 h-20 shrink-0 bg-slate-800 rounded-full flex items-center justify-center border-2 border-slate-700 relative z-10">
@@ -63,13 +86,13 @@ export default function AboutPage() {
                 <span className="w-2 h-2 rounded-full bg-[#CCFF00]"></span> Community Driven
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                This platform isn't complete without <strong>'YOU'</strong>. This is a 100% community-driven space. We invite everyone to help shape this home for tennis lovers. Whether it's adding a hidden local court or finding a hitting partner... <strong>Let's build the strongest community together!</strong>
+                This dream can only become a reality if we build it together. We invite everyone to help shape this home. Whether it's pinning a hidden local court in your hometown, reviewing a coach, or welcoming traveling players... <strong>Let's build the warmest tennis community together!</strong>
               </p>
             </div>
             <div className="border-t-2 md:border-t-0 md:border-l-2 border-slate-800 pt-6 md:pt-0 md:pl-8">
               <h3 className="text-sm font-black uppercase text-[#CCFF00] mb-3">พื้นที่ของพวกเรา</h3>
               <p className="text-slate-300 text-sm leading-relaxed font-bold">
-                แพลตฟอร์มนี้จะสมบูรณ์ไม่ได้เลย หากขาด <strong>'พวกเราทุกคน'</strong> เว็บไซต์นี้ขับเคลื่อนด้วยคอมมูนิตี้ เราชวนทุกคนมาช่วยกันปั้นที่นี่ให้เป็นบ้านของคนรักเทนนิส มาช่วยกันเพิ่มพิกัดสนามลับๆ รีวิวโค้ช หรือหาเพื่อนตี... <strong>มาสร้างสังคมเทนนิสที่แข็งแกร่งไปด้วยกันครับ!</strong>
+                ภาพความฝันนั้นจะเกิดขึ้นไม่ได้เลย หากขาด <strong>'พวกเราทุกคน'</strong> เราชวนทุกคนมาร่วมเป็นเจ้าบ้านที่ดี ช่วยกันปักหมุดคอร์ทลับๆ ในจังหวัดของคุณ แนะนำของอร่อย หรือหาเพื่อนตี... เพื่อต้อนรับนักเทนนิสจากทั่วประเทศ <strong>มาสร้างสังคมเทนนิสที่อบอุ่นที่สุดไปด้วยกันครับ!</strong>
               </p>
             </div>
           </div>

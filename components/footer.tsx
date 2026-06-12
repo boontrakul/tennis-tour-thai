@@ -55,6 +55,7 @@ export default function Footer() {
             <h4 className="text-white text-[11px] font-black uppercase tracking-[0.25em]">Contact Us</h4>
             
             <div className="bg-slate-900/40 border border-slate-900 rounded-[1.5rem] p-5 space-y-3.5 shadow-inner">
+            {/*  ซ่อนเบอร์ไว้ก่อน
               <a 
                 href="tel:+66866506659" 
                 className="flex items-center gap-3.5 text-xs font-black text-slate-300 hover:text-[#CCFF00] transition-all group"
@@ -64,6 +65,7 @@ export default function Footer() {
                 </div>
                 <span>+66 86 650 6659</span>
               </a>
+              */}
 
               <a 
                 href="https://line.me" 

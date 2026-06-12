@@ -4,6 +4,10 @@ import { Inter, Prompt } from 'next/font/google' // ✅ นำเข้าฟอ
 import Navbar from '../components/navbar'
 import Footer from '../components/footer'
 
+// 🔎 1. นำเข้าเครื่องมือติดตามสถิติของทั้ง 2 ระบบ
+import { Analytics } from '@vercel/analytics/react'
+import { GoogleAnalytics } from '@next/third-parties/google'
+
 // ✅ ตั้งค่าฟอนต์ Inter (Modern Sans)
 const inter = Inter({ 
   subsets: ['latin'],
@@ -50,6 +54,12 @@ export default function RootLayout({
           {/* ✅ ย้าย Footer มาไว้ตรงนี้ และเอา hidden md:block ออกเพื่อให้โชว์หน้า Contact บนมือถือสวยๆ ครับ */}
           <Footer />
         </div>
+
+        {/* 📊 2. ทำงานเบื้องหลัง: ตัวนับสถิติของ Vercel Analytics */}
+        <Analytics />
+
+        {/* 📊 3. ทำงานเบื้องหลัง: ตัวนับสถิติของ Google Analytics 4 (ใส่รหัสแท้ของพี่บุ๊คเรียบร้อย) */}
+        <GoogleAnalytics gaId="G-7CF5GRSLWQ" />
       </body>
     </html>
   )

@@ -76,7 +76,7 @@ export default function Footer() {
                 <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 group-hover:bg-[#CCFF00] group-hover:text-slate-900 transition-all flex-shrink-0">
                   <MessageSquare size={13} />
                 </div>
-                <span>Line & WhatsApp</span>
+                <span>Line ID : boontrakul </span>
               </a>
 
               <a 

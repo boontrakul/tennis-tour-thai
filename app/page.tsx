@@ -122,15 +122,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. EXPLORE MAP */}
-      <section className="py-16 container mx-auto px-4 max-w-6xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight whitespace-nowrap">Explore Map</h2>
-          
-          {/* 🎾 โซนสถิติ แถบเลื่อนจังหวัด */}
-          <div className="flex-grow overflow-x-auto hide-scrollbar">
-            <div className="flex items-center md:justify-center gap-2 min-w-max px-2">
+{/* 2. EXPLORE MAP */}
+<section className="py-16 container mx-auto px-4 max-w-6xl">
+        
+        {/* กล่องคลุมส่วนหัว */}
+        <div className="mb-6">
+          {/* แถวที่ 1: หัวข้อ และปุ่ม Full Map */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight shrink-0">
+              Explore Map
+            </h2>
+            <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+              Full Map <Navigation size={12} />
+            </Link>
+          </div>
+
+          {/* แถวที่ 2: ป้ายสถิติจังหวัด (ให้มีพื้นที่ยาวเต็มจอ) */}
+          <div className="w-full overflow-x-auto hide-scrollbar pb-2">
+            <div className="flex items-center gap-2 min-w-max">
               <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">
                 ทั้งหมด {totalCourts} สนาม
               </span>
@@ -142,6 +151,11 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* กรอบแผนที่ (อันนี้ของเดิมครับ) */}
+        <div className="border-4 border-slate-50 shadow-2xl rounded-[2.5rem] overflow-hidden bg-slate-100">
+          {isLoaded ? (
 
           <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
             Full Map <Navigation size={12} />

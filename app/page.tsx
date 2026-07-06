@@ -24,18 +24,15 @@ const timeAgo = (dateString: string) => {
   return diffInDays === 0 ? 'Today' : `${diffInDays} d ago`;
 }
 
-// อัปเดตจับคู่สีหมวดหมู่ภาษาไทยตามโครงสร้าง Forum จริง
 const getTagColor = (category: string) => {
   const cat = category?.trim();
   switch (cat) {
-    case 'หาเพื่อนตีเทนนิส': 
+    case 'หาเพื่อน/โค้ชตีเทนนิส': 
       return 'bg-blue-50 text-blue-600 border-blue-100';
-    case 'รีวิวอุปกรณ์เทนนิส': 
+    case 'รีวิวสนามและอุปกรณ์เทนนิส': 
       return 'bg-purple-50 text-purple-600 border-purple-100';
-    case 'รีวิวสนามเทนนิส': 
-      return 'bg-green-50 text-green-600 border-green-100';
-    case 'เทคนิคและการฝึกซ้อม': 
-      return 'bg-orange-50 text-orange-600 border-orange-100';
+    case 'ซื้อขายอุปกรณ์เทนนิส': 
+      return 'bg-emerald-50 text-emerald-600 border-emerald-100';
     case 'พูดคุยทั่วไป': 
       return 'bg-pink-50 text-pink-600 border-pink-100';
     default: 
@@ -62,7 +59,6 @@ export default function HomePage() {
       const { data: all } = await supabase.from('courts').select('*').eq('status', 'approved')
       if (all) setAllCourts(all)
       
-      // 1. ดึงข้อมูลสนามเทนนิสเด่น (Featured Courts) เรียงตามตัวเลขลำดับควบคุมเอง
       const { data: featured } = await supabase
         .from('courts')
         .select('*')
@@ -71,7 +67,6 @@ export default function HomePage() {
         .limit(6)
       if (featured) setFeaturedCourts(featured)
       
-      // 2. ดึงข้อมูลบทความหน้าแรก เรียงตามลำดับปักหมุดตัวเลข
       const { data: a } = await supabase
         .from('articles')
         .select('*')
@@ -80,7 +75,6 @@ export default function HomePage() {
         .limit(3)
       if (a) setArticles(a);
       
-      // 3. ดึงข้อมูลกระทู้คอมมูนิตี้หน้าแรก เรียงตามลำดับปักหมุดตัวเลข
       const { data: f } = await supabase
         .from('forum_posts')
         .select('*')
@@ -91,6 +85,20 @@ export default function HomePage() {
     }
     fetchData()
   }, [])
+
+  // 📍 ส่วนคำนวณจำนวนสนามและแยกจังหวัด (คำนวณจากตัวแปร allCourts)
+  const totalCourts = allCourts.length;
+  const provinceCounts = allCourts.reduce((acc: Record<string, number>, court) => {
+    if (!court.location) {
+      acc['ไม่ระบุ'] = (acc['ไม่ระบุ'] || 0) + 1;
+      return acc;
+    }
+    const locationParts = court.location.split(',');
+    const province = locationParts.pop()?.trim() || 'ไม่ระบุ'; 
+    acc[province] = (acc[province] || 0) + 1;
+    return acc;
+  }, {});
+  const sortedProvinces = Object.entries(provinceCounts).sort((a, b) => b[1] - a[1]);
 
   return (
     <main className="min-h-screen bg-white pb-20 font-sans">
@@ -116,14 +124,31 @@ export default function HomePage() {
 
       {/* 2. EXPLORE MAP */}
       <section className="py-16 container mx-auto px-4 max-w-6xl">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Explore Map</h2>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight whitespace-nowrap">Explore Map</h2>
+          
+          {/* 🎾 โซนสถิติ แถบเลื่อนจังหวัด */}
+          <div className="flex-grow overflow-x-auto hide-scrollbar">
+            <div className="flex items-center md:justify-center gap-2 min-w-max px-2">
+              <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">
+                ทั้งหมด {totalCourts} สนาม
+              </span>
+              
+              {sortedProvinces.map(([prov, count]) => (
+                <span key={prov} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
+                  {prov} <span className="text-slate-400 ml-1">({count})</span>
+                </span>
+              ))}
+            </div>
           </div>
-          <Link href="/map" className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+
+          <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
             Full Map <Navigation size={12} />
           </Link>
+
         </div>
+
         <div className="border-4 border-slate-50 shadow-2xl rounded-[2.5rem] overflow-hidden bg-slate-100">
           {isLoaded ? (
             <GoogleMap 
@@ -162,14 +187,10 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {featuredCourts.map((court) => (
             <Link href={`/courts/${court.id}`} key={court.id} className="group flex flex-col h-full bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 relative">
-              
-              {/* Image Container Area */}
               <div className="relative h-56 overflow-hidden bg-slate-100">
                 <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase flex items-center gap-1.5 shadow-md">
                   <Shield size={10} className="text-[#CCFF00]" /> {court.court_type || 'Public'}
                 </div>
-
-                {/* ✅ เพิ่มป้าย Recommended กำกับไว้ด้านขวาบนของรูปภาพสไตล์พรีเมียมเหมือนหน้าหลัก Courts แล้วครับพี่บุ๊ค! */}
                 {court.is_featured !== null && court.is_featured !== undefined && (
                   <div className="absolute top-4 right-4 z-20">
                     <span className="bg-[#CCFF00] text-slate-900 text-[9px] font-black px-3 py-1.5 rounded-full uppercase shadow-lg flex items-center gap-1.5 border border-white/10">
@@ -177,10 +198,8 @@ export default function HomePage() {
                     </span>
                   </div>
                 )}
-
                 {court.image_url && <img src={court.image_url} alt={court.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />}
               </div>
-
               <div className="p-8 flex flex-col flex-grow">
                 <span className="text-[9px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded uppercase flex inline-flex items-center gap-1 mb-3 self-start">
                   <Navigation size={10} className="text-[#84cc16]" /> {court.surface || 'Hard Court'}

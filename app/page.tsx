@@ -98,7 +98,14 @@ export default function HomePage() {
     acc[province] = (acc[province] || 0) + 1;
     return acc;
   }, {});
+  
   const sortedProvinces = Object.entries(provinceCounts).sort((a, b) => b[1] - a[1]);
+  
+  // ✅ ตัดมาเฉพาะ 5 อันดับแรก
+  const top5Provinces = sortedProvinces.slice(0, 5);
+  
+  // ✅ คำนวณจำนวนสนามที่เหลือไปรวมในหมวด "อื่นๆ"
+  const othersCount = sortedProvinces.slice(5).reduce((sum, [, count]) => sum + count, 0);
 
   return (
     <main className="min-h-screen bg-white pb-20 font-sans">
@@ -122,14 +129,15 @@ export default function HomePage() {
         </div>
       </section>
 
-{/* 2. EXPLORE MAP */}
-<section className="py-16 container mx-auto px-4 max-w-6xl">
+      {/* 2. EXPLORE MAP */}
+      <section className="py-16 container mx-auto px-4 max-w-6xl">
         
-        {/* กล่องคลุมส่วนหัว */}
-        <div className="mb-6">
-          {/* แถวที่ 1: หัวข้อ และปุ่ม Full Map */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight shrink-0">
+        {/* จัด Layout ใหม่: แยกบรรทัดหัวข้อ กับบรรทัดป้ายสถิติ */}
+        <div className="mb-6 flex flex-col gap-5">
+          
+          {/* บรรทัดบน: หัวข้อ และ ปุ่ม Full Map */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight whitespace-nowrap">
               Explore Map
             </h2>
             <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
@@ -137,29 +145,27 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* แถวที่ 2: ป้ายสถิติจังหวัด (ให้มีพื้นที่ยาวเต็มจอ) */}
-          <div className="w-full overflow-x-auto hide-scrollbar pb-2">
-            <div className="flex items-center gap-2 min-w-max">
-              <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide">
-                ทั้งหมด {totalCourts} สนาม
+          {/* บรรทัดล่าง: แถบป้ายสถิติ (Top 5 + อื่นๆ) */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* ป้ายรวมทั้งหมด */}
+            <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide shrink-0">
+              ทั้งหมด {totalCourts} สนาม
+            </span>
+            
+            {/* ป้าย 5 อันดับแรก */}
+            {top5Provinces.map(([prov, count]) => (
+              <span key={prov} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm shrink-0">
+                {prov} <span className="text-slate-400 ml-1">({count})</span>
               </span>
-              
-              {sortedProvinces.map(([prov, count]) => (
-                <span key={prov} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
-                  {prov} <span className="text-slate-400 ml-1">({count})</span>
-                </span>
-              ))}
-            </div>
+            ))}
+
+            {/* ป้ายอื่นๆ (โชว์ก็ต่อเมื่อมีจังหวัดที่ 6 ขึ้นไป) */}
+            {othersCount > 0 && (
+              <span className="bg-slate-50 border border-slate-200 text-slate-500 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm shrink-0">
+                อื่นๆ <span className="text-slate-400 ml-1">({othersCount})</span>
+              </span>
+            )}
           </div>
-        </div>
-
-        {/* กรอบแผนที่ (อันนี้ของเดิมครับ) */}
-        <div className="border-4 border-slate-50 shadow-2xl rounded-[2.5rem] overflow-hidden bg-slate-100">
-          {isLoaded ? (
-
-          <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
-            Full Map <Navigation size={12} />
-          </Link>
 
         </div>
 

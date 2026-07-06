@@ -7,12 +7,6 @@ export const metadata: Metadata = {
   title: 'เรื่องราวของเรา (Our Story) | Tennis Tour Thai',
   description: 'รู้จักกับจุดเริ่มต้นของ Tennis Tour Thai แพลตฟอร์มที่สร้างจากแพสชัน เพื่อรวบรวมและขับเคลื่อนคอมมูนิตี้คนรักกีฬาเทนนิสทั่วประเทศไทย',
 }
-
-export const metadata = {
-  title: 'Our Story | Tennis Tour Thai',
-  description: "Thailand's Ultimate Tennis Community Hub",
-}
-
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-slate-50 pt-32 pb-20 font-sans text-slate-900">

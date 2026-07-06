@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { GoogleMap, useLoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api'
 import { Search, MapPin, Star, ChevronRight, Navigation, Shield, ArrowRight, MessageCircle } from 'lucide-react'
 
+
 // --- Map Configuration ---
 const libraries: any = ['places']
 const mapOptions = {
@@ -86,88 +87,76 @@ export default function HomePage() {
     fetchData()
   }, [])
 
-  // 📍 ส่วนคำนวณจำนวนสนามและแยกจังหวัด (คำนวณจากตัวแปร allCourts)
-  const totalCourts = allCourts.length;
-  const provinceCounts = allCourts.reduce((acc: Record<string, number>, court) => {
-    if (!court.location) {
-      acc['ไม่ระบุ'] = (acc['ไม่ระบุ'] || 0) + 1;
-      return acc;
-    }
-    const locationParts = court.location.split(',');
-    const province = locationParts.pop()?.trim() || 'ไม่ระบุ'; 
-    acc[province] = (acc[province] || 0) + 1;
+// 📍 ส่วนคำนวณจำนวนสนามและแยกจังหวัด (คำนวณจากตัวแปร allCourts)
+const totalCourts = allCourts.length;
+const provinceCounts = allCourts.reduce((acc: Record<string, number>, court) => {
+  if (!court.location) {
+    acc['ไม่ระบุ'] = (acc['ไม่ระบุ'] || 0) + 1;
     return acc;
-  }, {});
-  
-  const sortedProvinces = Object.entries(provinceCounts).sort((a, b) => b[1] - a[1]);
-  
-  // ✅ ตัดมาเฉพาะ 5 อันดับแรก
-  const top5Provinces = sortedProvinces.slice(0, 5);
-  
-  // ✅ คำนวณจำนวนสนามที่เหลือไปรวมในหมวด "อื่นๆ"
-  const othersCount = sortedProvinces.slice(5).reduce((sum, [, count]) => sum + count, 0);
+  }
+  const locationParts = court.location.split(',');
+  const province = locationParts.pop()?.trim() || 'ไม่ระบุ'; 
+  acc[province] = (acc[province] || 0) + 1;
+  return acc;
+}, {});
 
-  return (
-    <main className="min-h-screen bg-white pb-20 font-sans">
+// เรียงลำดับจากจังหวัดที่มีสนามเยอะสุด -> น้อยสุด (แสดงทุกจังหวัด)
+const sortedProvinces = Object.entries(provinceCounts).sort((a, b) => b[1] - a[1]);
+
+return (
+  <main className="min-h-screen bg-white pb-20 font-sans">
+    
+    {/* 1. HERO SECTION (ปล่อยโค้ดเดิมไว้ครับ) */}
+    <section className="pt-40 pb-20 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="relative z-10 container mx-auto max-w-7xl">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
+          <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
+        </div>
+        <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-tight">
+          Find the Perfect <br />
+          <span className="text-[#CCFF00]">Tennis Court for You</span>
+        </h1>
+        <form onSubmit={(e) => { e.preventDefault(); if(searchQuery) router.push(`/courts?search=${searchQuery}`) }} className="max-w-md mx-auto bg-white p-2 rounded-2xl flex shadow-2xl">
+           <Search className="ml-3 text-slate-400 self-center" size={18} />
+           <input type="text" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search courts..." className="flex-grow px-3 outline-none text-sm font-bold bg-transparent text-slate-900" />
+           <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase transition-all active:scale-95">Search</button>
+        </form>
+      </div>
+    </section>
+
+    {/* 2. EXPLORE MAP */}
+    <section className="py-16 container mx-auto px-4 max-w-6xl">
       
-      {/* 1. HERO SECTION */}
-      <section className="pt-40 pb-20 bg-[#1a2b41] text-center px-4 relative overflow-hidden text-white">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#CCFF00]/5 blur-[120px] rounded-full pointer-events-none"></div>
-        <div className="relative z-10 container mx-auto max-w-7xl">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8">
-            <span className="text-[11px] font-bold text-[#CCFF00] uppercase tracking-[0.2em]">Thailand's Tennis Community</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-8 uppercase tracking-tighter leading-tight">
-            Find the Perfect <br />
-            <span className="text-[#CCFF00]">Tennis Court for You</span>
-          </h1>
-          <form onSubmit={(e) => { e.preventDefault(); if(searchQuery) router.push(`/courts?search=${searchQuery}`) }} className="max-w-md mx-auto bg-white p-2 rounded-2xl flex shadow-2xl">
-             <Search className="ml-3 text-slate-400 self-center" size={18} />
-             <input type="text" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search courts..." className="flex-grow px-3 outline-none text-sm font-bold bg-transparent text-slate-900" />
-             <button type="submit" className="bg-[#CCFF00] text-slate-900 px-6 py-2.5 rounded-xl font-black text-[10px] uppercase transition-all active:scale-95">Search</button>
-          </form>
-        </div>
-      </section>
-
-      {/* 2. EXPLORE MAP */}
-      <section className="py-16 container mx-auto px-4 max-w-6xl">
+      <div className="mb-6 flex flex-col gap-5">
         
-        {/* จัด Layout ใหม่: แยกบรรทัดหัวข้อ กับบรรทัดป้ายสถิติ */}
-        <div className="mb-6 flex flex-col gap-5">
-          
-          {/* บรรทัดบน: หัวข้อ และ ปุ่ม Full Map */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight whitespace-nowrap">
-              Explore Map
-            </h2>
-            <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
-              Full Map <Navigation size={12} />
-            </Link>
-          </div>
-
-          {/* บรรทัดล่าง: แถบป้ายสถิติ (Top 5 + อื่นๆ) */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* ป้ายรวมทั้งหมด */}
-            <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide shrink-0">
-              ทั้งหมด {totalCourts} สนาม
-            </span>
-            
-            {/* ป้าย 5 อันดับแรก */}
-            {top5Provinces.map(([prov, count]) => (
-              <span key={prov} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm shrink-0">
-                {prov} <span className="text-slate-400 ml-1">({count})</span>
-              </span>
-            ))}
-
-            {/* ป้ายอื่นๆ (โชว์ก็ต่อเมื่อมีจังหวัดที่ 6 ขึ้นไป) */}
-            {othersCount > 0 && (
-              <span className="bg-slate-50 border border-slate-200 text-slate-500 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm shrink-0">
-                อื่นๆ <span className="text-slate-400 ml-1">({othersCount})</span>
-              </span>
-            )}
-          </div>
-
+        {/* บรรทัดบน: หัวข้อ และ ปุ่ม Full Map */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight whitespace-nowrap">
+            Explore Map
+          </h2>
+          <Link href="/map" className="shrink-0 flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+            Full Map <Navigation size={12} />
+          </Link>
         </div>
+
+        {/* บรรทัดล่าง: แถบป้ายสถิติ (แสดงทุกจังหวัด และใช้ flex-wrap เพื่อปัดบรรทัดให้อัตโนมัติเมื่อพื้นที่เต็ม) */}
+        <div className="flex flex-wrap items-center gap-2">
+          
+          <span className="bg-slate-900 text-[#CCFF00] text-[11px] font-black px-3 py-1.5 rounded-full shadow-sm uppercase tracking-wide shrink-0">
+            ทั้งหมด {totalCourts} สนาม
+          </span>
+          
+          {/* นำ sortedProvinces มา map แสดงผลทั้งหมด */}
+          {sortedProvinces.map(([prov, count]) => (
+            <span key={prov} className="bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm shrink-0">
+              {prov} <span className="text-slate-400 ml-1">({count})</span>
+            </span>
+          ))}
+          
+        </div>
+
+      </div>
 
         <div className="border-4 border-slate-50 shadow-2xl rounded-[2.5rem] overflow-hidden bg-slate-100">
           {isLoaded ? (
